@@ -1,56 +1,116 @@
-from bs4 import BeautifulSoup
-import requests
-import hashlib
-import re
-import json
-from utils.funcs import *
-from utils.variables import *
+        if len(spans) >= 2 and "aluguel" in texto_do(spans[0]).lower():
+            valor = limpar_preco(texto_do(spans[1]))
+            if valor:
+                return valor
 
-json_data = pegar_json(GERAL_JSON)
-ids = json_data["ids"]
-dados = json_data["dados"]
+    # Alternativa: localizar textos que indiquem o valor do aluguel.
+    for elemento in card.find_all(["span", "div", "p"]):
+        conteudo = texto_do(elemento) or ""
+        if re.search(r"aluguel", conteudo, re.IGNORECASE):
+            match = re.search(
+                r"R\$\s*[\d.]+(?:,\d{2})?",
+                conteudo,
+                re.IGNORECASE,
+            )
+            if match:
+                valor = limpar_preco(match.group(0))
+                if valor:
+                    return valor
+    return None
 
-html = requests.get("https://www.palaceteimobiliaria.com.br/imoveis/para-alugar/apartamento+casa+sobrado/sao-paulo-pindamonhangaba-sp?precolocacao=1500--4000&mobilia=n%C3%A3o&muncep_id=7001&search_name=Pindamonhangaba&localidade=SP&toggle_map=true&propertySubtypes=55&propertySubtypes=64&propertySubtypes=50&propertySubtypes=120&propertySubtypes=350&propertySubtypes=346&propertySubtypes=19&propertySubtypes=320&propertySubtypes=321&propertySubtypes=325&propertySubtypes=169&order=mais_relevantes").content
-soup = BeautifulSoup(html, "html.parser")
-imoveis = []
 
-divs = soup.find_all("li", class_="Imoveis_cardDisplay__e0Dc8")
+def extrair_titulo(card):
+    # Mantém a preferência original pelo alt da imagem.
+    img = card.find("img", alt=True)
+    titulo = (img.get("alt") or "").strip() if img else ""
+    if titulo:
+        return titulo
 
-pg = 1
-for div in divs:
-    tag_link = div.find("a")
-    link = tag_link["href"] if tag_link else None
+    for seletor in (
+        "[class*='colorOfTitleCondominium']",
+        "[class*='Title']",
+        "h2",
+        "h3",
+    ):
+        elemento = card.select_one(seletor)
+        titulo = texto_do(elemento)
+        if titulo:
+            return titulo
+    return None
 
-    img = div.find("img")
-    titulo = img.get("alt") if img else None
 
-    preco = None
-    for div_preco in div.select("div.ImovelCardInfo_sizeOfPrices__SyQDF div"):
-        spans = div_preco.find_all("span")
-        
-        if len(spans) >= 2 and "Aluguel" in spans[0].get_text(strip=True):
-            preco = limpar_preco(spans[1].get_text(strip=True))
-            break
+def executar():
+    json_data = pegar_json(GERAL_JSON)
+    ids = set(json_data.get("ids", []))
+    dados = json_data.get("dados", [])
+    if not isinstance(dados, list):
+        raise ValueError("O campo 'dados' do JSON precisa ser uma lista.")
 
-    _id = titulo+preco+link
-    _id = hashlib.md5(_id.encode()).hexdigest()
+    try:
+        resposta = requests.get(URL, headers=HEADERS, timeout=30)
+        resposta.raise_for_status()
+    except requests.RequestException as erro:
+        raise RuntimeError(f"Falha ao acessar o site da Palacete: {erro}") from erro
 
-    if _id not in ids:
+    soup = BeautifulSoup(resposta.text, "html.parser")
+    cards = encontrar_cards(soup)
+
+    if not cards:
+        titulo_pagina = texto_do(soup.title) or "(sem título)"
+        trecho = soup.get_text(" ", strip=True)[:400]
+        raise RuntimeError(
+            "Nenhum card de imóvel foi encontrado no HTML recebido. "
+            f"Título da página: {titulo_pagina}. Conteúdo inicial: {trecho}"
+        )
+
+    imoveis = []
+    pg = 1
+
+    for card in cards:
+        tag_link = card.find("a", href=True)
+        link = urljoin(URL, tag_link["href"]) if tag_link else None
+        titulo = extrair_titulo(card)
+        preco = extrair_preco(card)
+
+        # Não concatena valores ausentes: isso causava TypeError.
+        if not titulo or not link or not preco:
+            continue
+
+        chave = f"{titulo}|{preco}|{link}"
+        _id = hashlib.md5(chave.encode("utf-8")).hexdigest()
+
+        if _id in ids:
+            continue
+
         imov = {
             "id": _id,
             "titulo": titulo,
             "preco": preco,
             "link": link,
-            "pagina": pg
+            "pagina": pg,
         }
         imoveis.append(imov)
         dados.append(imov)
+        ids.add(_id)
 
-with open(GERAL_JSON, "w", encoding="utf-8") as f:
-    json.dump(dados, f, ensure_ascii=False, indent=2)
+    # Se nenhum anúncio foi extraído, não altera o JSON nem gera planilha vazia.
+    if not imoveis:
+        print(
+            f"Palacete: {len(cards)} cards encontrados, mas nenhum anúncio novo "
+            "com título, preço de aluguel e link válidos."
+        )
+        return
 
-dados_sem_id = [
-    {k: v for k, v in item.items() if k != "id"}
-    for item in imoveis
-]
-gerar_excel(dados_sem_id, f"{PATH_GD}{EXCEL_FINAL}")
+    with open(GERAL_JSON, "w", encoding="utf-8") as arquivo:
+        json.dump(dados, arquivo, ensure_ascii=False, indent=2)
+
+    dados_sem_id = [
+        {chave: valor for chave, valor in item.items() if chave != "id"}
+        for item in imoveis
+    ]
+    gerar_excel(dados_sem_id, f"{PATH_GD}{EXCEL_FINAL}")
+    print(f"Palacete: {len(imoveis)} novo(s) imóvel(is) adicionado(s).")
+
+
+if __name__ == "__main__":
+    executar()

@@ -1,75 +1,96 @@
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse, parse_qs
 import requests
 import hashlib
-import re
 import json
+import math
+import re
+import sys
+
 from utils.funcs import *
 from utils.variables import *
 
-json_data = pegar_json(GERAL_JSON)
-ids = json_data["ids"]
-dados = json_data["dados"]
+BASE_URL = "https://derricoimoveis.com.br/imoveis/aluguel"
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+    ),
+    "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+}
+TIMEOUT = 25
 
-html = requests.get("https://derricoimoveis.com.br/imoveis/aluguel").content
-soup = BeautifulSoup(html, "html.parser")
-imoveis = []
 
-pagination = soup.find("div", class_="pagination")
-if pagination is None:
-    print("Elemento de paginação não encontrado!")
-    print(soup.title)
-    print(soup.get_text(" ", strip=True)[:500])
-    raise SystemExit(1)
-    
-pages = pagination.find_all("a", class_="PageNumber")
-numeros = []
+def get_soup(session, url):
+    """Baixa uma página e falha claramente em caso de erro HTTP/rede."""
+    response = session.get(url, timeout=TIMEOUT, headers=HEADERS)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
 
-for p in pages:
-    label = p.get("aria-label")
-    if label and label.isdigit():
-        numeros.append(int(label))
+    title = soup.title.get_text(" ", strip=True) if soup.title else "sem título"
+    if not soup.get_text(" ", strip=True):
+        raise RuntimeError(f"A página veio vazia: {url}")
+    return soup, response.url, title
 
-for pg in range(1, int(max(numeros)) + 1):
-    html = requests.get(f"https://derricoimoveis.com.br/imoveis/aluguel?pg={pg}").content
-    soup = BeautifulSoup(html, "html.parser")
 
-    divs = soup.find_all("div", class_="ImovelItem")
+def find_cards(soup):
+    """Aceita o seletor antigo e algumas variações comuns do HTML."""
+    selectors = [
+        "div.ImovelItem",
+        "[class~='ImovelItem']",
+        "div[class*='ImovelItem']",
+    ]
+    for selector in selectors:
+        cards = soup.select(selector)
+        if cards:
+            return cards
 
-    for div in divs:
-        tag_titulo = div.find("a", class_="Title")
-        titulo = tag_titulo.get_text(strip=True) if tag_titulo else None
+    # Fallback: encontra links de título e sobe até um contêiner de anúncio.
+    cards = []
+    seen = set()
+    for title_link in soup.select("a.Title, a[class*='Title']"):
+        parent = title_link
+        for _ in range(6):
+            if parent is None:
+                break
+            classes = " ".join(parent.get("class", []))
+            if any(token.lower() in classes.lower() for token in ("imovel", "property", "listing", "card")):
+                marker = id(parent)
+                if marker not in seen:
+                    cards.append(parent)
+                    seen.add(marker)
+                break
+            parent = parent.parent
+    return cards
 
-        if not titulo or not any(tipo in titulo.lower() for tipo in IMOVEIS_ACEITOS):
-            continue
 
-        tag_preco = div.select_one(".ImovelValor .value")
-        preco = tag_preco.get_text(strip=True) if tag_preco else None
+def get_title_link(card):
+    link = card.select_one("a.Title, a[class*='Title']")
+    if link is None:
+        # Fallback para links que contenham o texto do anúncio.
+        for candidate in card.select("a[href]"):
+            label = candidate.get_text(" ", strip=True)
+            if len(label) > 12 and "whatsapp" not in label.lower():
+                link = candidate
+                break
+    if link is None:
+        return None, None
 
-        preco_num = preco_para_float(preco)
-        if preco_num is None or not (2000 <= preco_num <= 4000):
-            continue
+    title = link.get_text(" ", strip=True)
+    href = link.get("href")
+    return title or None, urljoin(BASE_URL, href) if href else None
 
-        link = tag_titulo["href"] if tag_titulo else None
 
-        _id = titulo+preco+link
-        _id = hashlib.md5(_id.encode()).hexdigest()
-
-        if _id not in ids:
-            imov = {
-                "id": _id,
-                "titulo": titulo,
-                "preco": preco,
-                "link": link,
-                "pagina": pg
-            }
-            imoveis.append(imov)
-            dados.append(imov)
-
-with open(GERAL_JSON, "w", encoding="utf-8") as f:
-    json.dump(dados, f, ensure_ascii=False, indent=2)
-
-dados_sem_id = [
-    {k: v for k, v in item.items() if k != "id"}
-    for item in imoveis
-]
-gerar_excel(dados_sem_id, f"{PATH_GD}{EXCEL_FINAL}")
+def get_price(card):
+    selectors = [
+        ".ImovelValor .value",
+        ".ImovelValor",
+        ".value",
+        "[class*='Valor'] .value",
+        "[class*='valor'] .value",
+    ]
+    for selector in selectors:
+        tag = card.select_one(selector)
+        if tag:
+            text = tag.get_text(" ", strip=True)
+            match = re.search(r"R\$\s*[\d.]+(?:,\d{2})?", text)
