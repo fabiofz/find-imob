@@ -1,3 +1,67 @@
+from bs4 import BeautifulSoup
+import hashlib
+import json
+import re
+from urllib.parse import urljoin
+
+import requests
+
+from utils.funcs import *
+from utils.variables import *
+
+
+URL = (
+    "https://www.palaceteimobiliaria.com.br/imoveis/para-alugar/"
+    "apartamento+casa+sobrado/sao-paulo-pindamonhangaba-sp"
+    "?precolocacao=1500--4000&mobilia=n%C3%A3o&muncep_id=7001"
+    "&search_name=Pindamonhangaba&localidade=SP&toggle_map=true"
+    "&propertySubtypes=55&propertySubtypes=64&propertySubtypes=50"
+    "&propertySubtypes=120&propertySubtypes=350&propertySubtypes=346"
+    "&propertySubtypes=19&propertySubtypes=320&propertySubtypes=321"
+    "&propertySubtypes=325&propertySubtypes=169&order=mais_relevantes"
+)
+
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/125.0.0.0 Safari/537.36"
+    ),
+    "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+}
+
+
+def texto_do(elemento):
+    return elemento.get_text(" ", strip=True) if elemento else None
+
+
+def encontrar_cards(soup):
+    # A classe principal pode ser aplicada a div ou li conforme a versão do site.
+    seletores = (
+        "li.Imoveis_cardDisplay__e0Dc8",
+        "div.Imoveis_cardDisplay__e0Dc8",
+        "[class*='Imoveis_cardDisplay']",
+    )
+    cards = []
+    vistos = set()
+    for seletor in seletores:
+        for card in soup.select(seletor):
+            identidade = str(card)
+            if identidade not in vistos:
+                vistos.add(identidade)
+                cards.append(card)
+        if cards:
+            break
+    return cards
+
+
+def extrair_preco(card):
+    # Primeiro tenta o seletor usado no script original.
+    for bloco in card.select(
+        "div.ImovelCardInfo_sizeOfPrices__SyQDF div, "
+        "[class*='sizeOfPrices'] div"
+    ):
+        spans = bloco.find_all("span")
         if len(spans) >= 2 and "aluguel" in texto_do(spans[0]).lower():
             valor = limpar_preco(texto_do(spans[1]))
             if valor:
