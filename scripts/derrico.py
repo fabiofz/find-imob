@@ -94,3 +94,59 @@ def get_price(card):
         if tag:
             text = tag.get_text(" ", strip=True)
             match = re.search(r"R\$\s*[\d.]+(?:,\d{2})?", text)
+            if match:
+                return limpar_preco(match.group(0))
+
+    # O tema do site também pode exibir o preço sem o seletor conhecido.
+    match = re.search(r"R\$\s*[\d.]+(?:,\d{2})?", card.get_text(" ", strip=True))
+    return limpar_preco(match.group(0)) if match else None
+
+
+def executar():
+    estado = pegar_json(GERAL_JSON)
+    ids = estado["ids"]
+    dados = estado["dados"]
+    with requests.Session() as session:
+        soup, _, titulo_pagina = get_soup(session, BASE_URL)
+        cards = find_cards(soup)
+        if not cards:
+            raise RuntimeError(
+                f"D'Errico: nenhum anúncio encontrado; página recebida: {titulo_pagina}"
+            )
+
+        novos = []
+        for card in cards:
+            titulo, link = get_title_link(card)
+            preco = get_price(card)
+            if not titulo or not link or not preco:
+                continue
+
+            identificador = hashlib.md5(
+                f"{titulo}{preco}{link}".encode("utf-8")
+            ).hexdigest()
+            if identificador in ids:
+                continue
+
+            item = {
+                "id": identificador,
+                "titulo": titulo,
+                "preco": preco,
+                "link": link,
+                "pagina": 1,
+            }
+            ids.add(identificador)
+            dados.append(item)
+            novos.append(item)
+
+    if not novos:
+        print(f"D'Errico: {len(cards)} anúncios verificados, nenhum novo.")
+        return
+
+    salvar_json(dados, GERAL_JSON)
+    exportar = [{k: v for k, v in item.items() if k != "id"} for item in novos]
+    gerar_excel(exportar, f"{PATH_GD}{EXCEL_FINAL}")
+    print(f"D'Errico: {len(novos)} anúncio(s) novo(s).")
+
+
+if __name__ == "__main__":
+    executar()

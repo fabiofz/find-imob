@@ -1,13 +1,51 @@
-import os
-from openpyxl import Workbook, load_workbook
 import json
+import os
+import tempfile
+from pathlib import Path
+
+from openpyxl import Workbook, load_workbook
+
+
+class RegistrosUnicos(list):
+    """Lista que mantém o conjunto de IDs sincronizado quando um coletor insere."""
+
+    def __init__(self, registros=(), ids=None):
+        super().__init__(registros)
+        self.ids = ids if ids is not None else set()
+        self.record_ids = {
+            registro.get("id")
+            for registro in self
+            if isinstance(registro, dict) and registro.get("id")
+        }
+        self.record_links = {
+            registro.get("link")
+            for registro in self
+            if isinstance(registro, dict) and registro.get("link")
+        }
+
+    def append(self, registro):
+        identificador = registro.get("id") if isinstance(registro, dict) else None
+        link = registro.get("link") if isinstance(registro, dict) else None
+        if (identificador and identificador in self.record_ids) or (
+            link and link in self.record_links
+        ):
+            return
+        super().append(registro)
+        if identificador:
+            self.ids.add(identificador)
+            self.record_ids.add(identificador)
+        if link:
+            self.record_links.add(link)
 
 def gerar_excel(dados, caminho_saida):
     if not dados:
         print("Nada para exportar")
         return
 
-    if os.path.exists(caminho_saida):
+    caminho_saida = Path(caminho_saida)
+    caminho_saida.parent.mkdir(parents=True, exist_ok=True)
+
+    if caminho_saida.exists():
         wb = load_workbook(caminho_saida)
         ws = wb.active
         print("Arquivo existente encontrado, adicionando dados...")
@@ -24,11 +62,54 @@ def gerar_excel(dados, caminho_saida):
         headers = list(dados[0].keys())
         ws.append(headers)
 
+    # Cada scraper exporta os anúncios novos encontrados até aquele ponto.
+    # Como o runner executa vários scrapers no mesmo arquivo/hora, ignora
+    # novamente os links que já foram escritos na planilha.
+    link_coluna = headers.index("link") + 1 if "link" in headers else None
+    links_existentes = set()
+    if link_coluna:
+        links_existentes = {
+            ws.cell(row=linha, column=link_coluna).value
+            for linha in range(2, ws.max_row + 1)
+            if ws.cell(row=linha, column=link_coluna).value
+        }
+
+    adicionados = 0
     for item in dados:
+        link = item.get("link")
+        if link_coluna and link and link in links_existentes:
+            continue
         ws.append([item.get(h, "") for h in headers])
+        if link_coluna and link:
+            links_existentes.add(link)
+        adicionados += 1
+
+    if not adicionados:
+        print("Nenhum anúncio novo para adicionar ao Excel")
+        return
 
     wb.save(caminho_saida)
     print(f"Excel atualizado com sucesso: {caminho_saida}")
+
+
+def salvar_json(dados, caminho):
+    """Grava o estado da coleta atomicamente para evitar JSON truncado."""
+    caminho = Path(caminho)
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    arquivo_temporario = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", dir=caminho.parent,
+            delete=False, suffix=".tmp"
+        ) as arquivo:
+            arquivo_temporario = Path(arquivo.name)
+            json.dump(dados, arquivo, ensure_ascii=False, indent=2)
+            arquivo.flush()
+            os.fsync(arquivo.fileno())
+        os.replace(arquivo_temporario, caminho)
+    finally:
+        if arquivo_temporario and arquivo_temporario.exists():
+            arquivo_temporario.unlink()
 
 def preco_para_float(preco_str):
     if not preco_str:
@@ -46,8 +127,14 @@ def pegar_json(geral):
         with open(geral, "r", encoding="utf-8") as f:
             dados = json.load(f)
 
+    if not isinstance(dados, list):
+        raise ValueError(f"O arquivo {geral} precisa conter uma lista JSON.")
+    if any(not isinstance(item, dict) or not item.get("id") for item in dados):
+        raise ValueError(f"O arquivo {geral} contém anúncio inválido ou sem ID.")
+
     ids = {item["id"] for item in dados}
-    return {"ids": ids, "dados": dados}
+    registros = RegistrosUnicos(dados, ids)
+    return {"ids": ids, "dados": registros}
 
 def limpar_preco(texto):
     if not texto:

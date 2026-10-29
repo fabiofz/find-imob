@@ -165,8 +165,7 @@ def executar():
         )
         return
 
-    with open(GERAL_JSON, "w", encoding="utf-8") as arquivo:
-        json.dump(dados, arquivo, ensure_ascii=False, indent=2)
+    salvar_json(dados, GERAL_JSON)
 
     dados_sem_id = [
         {chave: valor for chave, valor in item.items() if chave != "id"}

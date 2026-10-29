@@ -58,8 +58,7 @@ for url in urls :
             imoveis.append(imov)
             dados.append(imov)
 
-with open(GERAL_JSON, "w", encoding="utf-8") as f:
-    json.dump(dados, f, ensure_ascii=False, indent=2)
+salvar_json(dados, GERAL_JSON)
 
 dados_sem_id = [
     {k: v for k, v in item.items() if k != "id"}

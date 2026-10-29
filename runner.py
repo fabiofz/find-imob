@@ -1,35 +1,50 @@
+"""Executa todos os coletores e resume eventuais falhas."""
+
 import subprocess
-import time
-import os
-from utils.variables import *
+import sys
+from pathlib import Path
 
-arquivo = f"{PATH_GD}{EXCEL_FINAL}"
 
-# if os.path.exists(arquivo):
-#     os.remove(arquivo)
-#     print(f"Arquivo removido: {arquivo}")
+ROOT = Path(__file__).resolve().parent
+SCRIPTS_DIR = ROOT / "scripts"
 
-pasta_scripts = "scripts"
 
-scripts = [
-    f.replace(".py", "")
-    for f in os.listdir(pasta_scripts)
-    if f.endswith(".py") and f != "__init__.py"
-]
-
-for script in scripts:
-    modulo = f"{pasta_scripts}.{script}"
-    print(f"Executando {modulo}...")
-
-    result = subprocess.run(
-        ["python3", "-m", modulo],
-        capture_output=True,
-        text=True
+def main():
+    scripts = sorted(
+        path.stem
+        for path in SCRIPTS_DIR.glob("*.py")
+        if path.name != "__init__.py"
     )
+    if not scripts:
+        print("Nenhum coletor encontrado em scripts/.")
+        return 1
 
-    print(result.stdout)
+    falhas = []
+    for script in scripts:
+        modulo = f"scripts.{script}"
+        print(f"\n=== Executando {modulo} ===", flush=True)
+        resultado = subprocess.run(
+            [sys.executable, "-m", modulo],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+        )
+        if resultado.stdout:
+            print(resultado.stdout.rstrip())
+        if resultado.stderr:
+            print(resultado.stderr.rstrip(), file=sys.stderr)
+        if resultado.returncode:
+            falhas.append((modulo, resultado.returncode))
+            print(f"Falha em {modulo} (código {resultado.returncode}).")
 
-    if result.returncode != 0:
-        print(f"Erro ao executar {modulo}")
-        print(result.stderr)
-        break
+    if falhas:
+        print("\nColetores com falha:")
+        for modulo, codigo in falhas:
+            print(f"- {modulo}: código {codigo}")
+        return 1
+    print(f"\nColeta concluída: {len(scripts)} coletores executados.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

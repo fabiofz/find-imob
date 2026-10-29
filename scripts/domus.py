@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import hashlib
+import os
 import json
 import re
 from urllib.parse import urljoin
@@ -94,3 +95,56 @@ def extrair_imovel(card, pagina=1):
         tipo = ""
 
     titulo = f"{tipo} - {nome}".strip(" -") if nome else None
+    preco = limpar_preco(texto(preco_tag))
+    if not titulo or not preco:
+        return None
+    return {
+        "titulo": titulo,
+        "preco": preco,
+        "link": link,
+        "pagina": pagina,
+    }
+
+
+def executar():
+    estado = pegar_json(GERAL_JSON)
+    ids = estado["ids"]
+    dados = estado["dados"]
+
+    resposta = requests.get(URL, headers=HEADERS, timeout=30)
+    resposta.raise_for_status()
+    soup = BeautifulSoup(resposta.text, "html.parser")
+    cards = encontrar_cards(soup)
+    if not cards:
+        titulo_pagina = texto(soup.title) or "(sem título)"
+        raise RuntimeError(
+            f"Domus: nenhum anúncio encontrado; página recebida: {titulo_pagina}"
+        )
+
+    novos = []
+    for card in cards:
+        item = extrair_imovel(card)
+        if not item:
+            continue
+        identificador = hashlib.md5(
+            f"{item['titulo']}{item['preco']}{item['link']}".encode("utf-8")
+        ).hexdigest()
+        if identificador in ids:
+            continue
+        item["id"] = identificador
+        ids.add(identificador)
+        novos.append(item)
+        dados.append(item)
+
+    if not novos:
+        print(f"Domus: {len(cards)} anúncios verificados, nenhum novo.")
+        return
+
+    salvar_json(dados, GERAL_JSON)
+    exportar = [{k: v for k, v in item.items() if k != "id"} for item in novos]
+    gerar_excel(exportar, os.path.join(PATH_GD, EXCEL_FINAL))
+    print(f"Domus: {len(novos)} anúncio(s) novo(s).")
+
+
+if __name__ == "__main__":
+    executar()
