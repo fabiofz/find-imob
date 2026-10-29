@@ -12,9 +12,9 @@ ids = json_data["ids"]
 dados = json_data["dados"]
 
 urls = [
-    "https://www.palazzorealeimoveis.com.br/imovel/locacao/casa/pindamonhangaba/?&vmi=1500&vma=4000",
-    "https://www.palazzorealeimoveis.com.br/imovel/locacao/apartamento/pindamonhangaba/?&vmi=1500&vma=4000",
-    "https://www.palazzorealeimoveis.com.br/imovel/locacao/sobrado/pindamonhangaba/?&vmi=1500&vma=4000",
+    "https://www.palazzorealeimoveis.com.br/imovel/locacao/casa/pindamonhangaba/?&vmi=1500&vma=4500",
+    "https://www.palazzorealeimoveis.com.br/imovel/locacao/apartamento/pindamonhangaba/?&vmi=1500&vma=4500",
+    "https://www.palazzorealeimoveis.com.br/imovel/locacao/sobrado/pindamonhangaba/?&vmi=1500&vma=4500",
 ]
 imoveis = []
 

@@ -13,7 +13,7 @@ from utils.variables import *
 URL = (
     "https://www.palaceteimobiliaria.com.br/imoveis/para-alugar/"
     "apartamento+casa+sobrado/sao-paulo-pindamonhangaba-sp"
-    "?precolocacao=1500--4000&mobilia=n%C3%A3o&muncep_id=7001"
+    "?precolocacao=1500--4500&mobilia=n%C3%A3o&muncep_id=7001"
     "&search_name=Pindamonhangaba&localidade=SP&toggle_map=true"
     "&propertySubtypes=55&propertySubtypes=64&propertySubtypes=50"
     "&propertySubtypes=120&propertySubtypes=350&propertySubtypes=346"

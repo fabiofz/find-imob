@@ -12,7 +12,7 @@ from utils.variables import *
 URL = (
     "https://www.domusimoveis.com/imoveis/para-alugar/"
     "apartamento+casa+sobrado/sao-paulo-pindamonhangaba-sp"
-    "?precolocacao=2000--4000&muncep_id=7001"
+    "?precolocacao=2000--4500&muncep_id=7001"
     "&search_name=Pindamonhangaba&localidade=SP&toggle_map=true"
     "&propertySubtypes=321&propertySubtypes=325&propertySubtypes=169"
     "&propertySubtypes=93&propertySubtypes=64&propertySubtypes=84"

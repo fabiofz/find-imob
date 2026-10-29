@@ -35,7 +35,7 @@ for url in urls :
         preco = limpar_preco(div.find("div", class_="listing-price").get_text(strip=True))
 
         preco_num = preco_para_float(preco)
-        if preco_num is None or not (2000 <= preco_num <= 4000):
+        if preco_num is None or not (2000 <= preco_num <= 4500):
             continue
 
         _id = f"{titulo}{preco}{link}"

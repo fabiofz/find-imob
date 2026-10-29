@@ -57,7 +57,7 @@ for pg in range(1, int(max(numeros)) + 1):
         preco = limpar_preco(preco)
         
         preco_num = preco_para_float(preco)
-        if preco_num is None or not (2000 <= preco_num <= 4000):
+        if preco_num is None or not (2000 <= preco_num <= 4500):
             continue
 
         _id = f"{titulo}{preco}{link}"

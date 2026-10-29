@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://www.imobiliariapindense.com.br/buscar?order=most_relevant&direction=desc&availability=rent&search_type=properties_map&property_type=Apartamento&property_type=Casa&property_type=Sobrado&value_max=4000&value_min=1500"
+url = "https://www.imobiliariapindense.com.br/buscar?order=most_relevant&direction=desc&availability=rent&search_type=properties_map&property_type=Apartamento&property_type=Casa&property_type=Sobrado&value_max=4500&value_min=1500"
 html = requests.get(url).content
 soup = BeautifulSoup(html, "html.parser")
 imoveis = []

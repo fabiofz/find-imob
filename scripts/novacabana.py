@@ -12,9 +12,9 @@ ids = json_data["ids"]
 dados = json_data["dados"]
 
 urls = [
-    "https://www.novacabana.com.br/imovel/locacao/casa/?&vmi=1500&vma=4000",
-    "https://www.novacabana.com.br/imovel/locacao/apartamento/?&vmi=1500&vma=4000",
-    "https://www.novacabana.com.br/imovel/locacao/casa-em-condominio/?&vmi=1500&vma=4000"
+    "https://www.novacabana.com.br/imovel/locacao/casa/?&vmi=1500&vma=4500",
+    "https://www.novacabana.com.br/imovel/locacao/apartamento/?&vmi=1500&vma=4500",
+    "https://www.novacabana.com.br/imovel/locacao/casa-em-condominio/?&vmi=1500&vma=4500"
 ]
 imoveis = []
 

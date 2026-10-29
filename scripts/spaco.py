@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://www.spacoimoveis.com/imoveis/para-alugar/sobrado+casa+apartamento/pindamonhangaba?preco-de-locacao=1500~4000"
+url = "https://www.spacoimoveis.com/imoveis/para-alugar/sobrado+casa+apartamento/pindamonhangaba?preco-de-locacao=1500~4500"
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Accept-Language": "pt-BR,pt;q=0.9",

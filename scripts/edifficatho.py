@@ -12,10 +12,10 @@ ids = json_data["ids"]
 dados = json_data["dados"]
 
 urls = [
-    "https://www.edifficatho.com.br/imovel/locacao/apartamento/pindamonhangaba/?&vmi=2000&vma=4000",
-    "https://www.edifficatho.com.br/imovel/locacao/casa/pindamonhangaba/?&vmi=2000&vma=4000",
-    "https://www.edifficatho.com.br/imovel/locacao/sobrado/pindamonhangaba/?&vmi=2000&vma=4000",
-    "https://www.edifficatho.com.br/imovel/locacao/casa-em-condominio/pindamonhangaba/?&vmi=2000&vma=4000"
+    "https://www.edifficatho.com.br/imovel/locacao/apartamento/pindamonhangaba/?&vmi=2000&vma=4500",
+    "https://www.edifficatho.com.br/imovel/locacao/casa/pindamonhangaba/?&vmi=2000&vma=4500",
+    "https://www.edifficatho.com.br/imovel/locacao/sobrado/pindamonhangaba/?&vmi=2000&vma=4500",
+    "https://www.edifficatho.com.br/imovel/locacao/casa-em-condominio/pindamonhangaba/?&vmi=2000&vma=4500"
 ]
 imoveis = []
 

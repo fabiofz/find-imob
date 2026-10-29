@@ -31,7 +31,7 @@ for div in divs:
     preco = limpar_preco(div.select_one(".entry-author .theme").get_text(strip=True))
 
     preco_num = preco_para_float(preco)
-    if preco_num is None or not (2000 <= preco_num <= 4000):
+    if preco_num is None or not (2000 <= preco_num <= 4500):
         continue
 
     link = f"https://www.imobiliariaconfianca.com.br/{div.select_one('a[href]')['href']}"

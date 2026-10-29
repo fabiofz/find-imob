@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://www.moraesepereiraimoveis.com.br/imoveis/para-alugar/apartamento+casa+sobrado/pindamonhangaba?preco-de-locacao=2000~4000"
+url = "https://www.moraesepereiraimoveis.com.br/imoveis/para-alugar/apartamento+casa+sobrado/pindamonhangaba?preco-de-locacao=2000~4500"
 html = requests.get(url).content
 soup = BeautifulSoup(html, "html.parser")
 imoveis = []

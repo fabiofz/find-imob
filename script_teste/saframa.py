@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://www.novafreitas.com.br/pesquisa-de-imoveis/?busca_free=&locacao_venda=L&valor_loc_min_input=1500&valor_loc_max_input=4000&valor_ven_min_input=0&valor_ven_max_input=0&id_cidade%5B%5D=86&id_tipo_imovel%5B%5D=1&id_tipo_imovel%5B%5D=3&id_tipo_imovel%5B%5D=157&id_tipo_imovel%5B%5D=183&id_tipo_imovel%5B%5D=125&id_tipo_imovel%5B%5D=10&id_tipo_imovel%5B%5D=38&id_tipo_imovel%5B%5D=12&id_tipo_imovel%5B%5D=80&id_tipo_imovel%5B%5D=13&dormitorio=&garagem=&finalidade=residencial&a_min=&a_max=&area_tipo=&vmi=&vma=&ordem=4"
+url = "https://www.novafreitas.com.br/pesquisa-de-imoveis/?busca_free=&locacao_venda=L&valor_loc_min_input=1500&valor_loc_max_input=4500&valor_ven_min_input=0&valor_ven_max_input=0&id_cidade%5B%5D=86&id_tipo_imovel%5B%5D=1&id_tipo_imovel%5B%5D=3&id_tipo_imovel%5B%5D=157&id_tipo_imovel%5B%5D=183&id_tipo_imovel%5B%5D=125&id_tipo_imovel%5B%5D=10&id_tipo_imovel%5B%5D=38&id_tipo_imovel%5B%5D=12&id_tipo_imovel%5B%5D=80&id_tipo_imovel%5B%5D=13&dormitorio=&garagem=&finalidade=residencial&a_min=&a_max=&area_tipo=&vmi=&vma=&ordem=4"
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Accept-Language": "pt-BR,pt;q=0.9",

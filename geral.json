@@ -1013,5 +1013,166 @@
     "preco": "R$ 2.500,00",
     "link": "https://www.hnegocios.com/imovel/casa-comercial-alto-do-cardoso-0vagas-0areautil/15440",
     "pagina": 2
+  },
+  {
+    "id": "ba9adab87c0df1f8612da88c10e51ab0",
+    "titulo": "CASA – ANDRADE",
+    "preco": "R$ 1.681,30",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-andrade-2/",
+    "pagina": 1
+  },
+  {
+    "id": "dfb65af2805ec2a58494777aeadcd7c6",
+    "titulo": "APARTAMENTO – CENTRO",
+    "preco": "R$ 2.860,02",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-centro-2/",
+    "pagina": 1
+  },
+  {
+    "id": "fb892cf9d364e6ed75fab1ad94b938a6",
+    "titulo": "APARTAMENTO- CENTRO",
+    "preco": "R$ 2.809,00",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-edificio-acacia/",
+    "pagina": 1
+  },
+  {
+    "id": "2eebfe62fb799f41873516ab84e19ed2",
+    "titulo": "APARTAMENTO – ANDRADE",
+    "preco": "R$ 1.862,99",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-andrada/",
+    "pagina": 1
+  },
+  {
+    "id": "61e3525d201b6c3d0bd8eba93dabd29a",
+    "titulo": "Casa Sobrado em Boa Vista",
+    "preco": "R$ 3.500,00",
+    "link": "https://www.hnegocios.com/imovel/casa-sobrado-boa-vista-4dorm/1051",
+    "pagina": 5
+  },
+  {
+    "id": "a6b443933f39d7c314a97aac0866842e",
+    "titulo": "Casa 2 quartos e 2 banheiros, para alugar, no bairro Jardim Cristina em Pindamonhangaba",
+    "preco": "R$ 2.500,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/casa/locacao/pindamonhangaba/sp/jardim-cristina/CA8441_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "787d826133ac5786ff0931b3c92c9ece",
+    "titulo": "Casa 2 quartos e 2 banheiros, à venda ou para alugar, no bairro Residencial Jardim Aurora em Pindamonhangaba",
+    "preco": "R$ 3.000,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/casa/venda-e-locacao/pindamonhangaba/sp/residencial-jardim-aurora/CA8450_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "a232cbcd1d68f6dec4171acf9569ee48",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro São Benedito, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
+    "preco": "R$3.000",
+    "link": "https://www.edifficatho.com.br/imovel/4108337/apartamento-locacao-pindamonhangaba-sp-sao-benedito",
+    "pagina": 1
+  },
+  {
+    "id": "4a188829efcb3784ba1f46262a9e38cf",
+    "titulo": "APARTAMENTO - Jardim Do Ypê - Pindamonhangaba/SP",
+    "preco": "R$ 1.500,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/jardim-do-ype/apartamento/12947021",
+    "pagina": 1
+  },
+  {
+    "id": "aebddd80ea9b0de6cbf8f40ce33acb5e",
+    "titulo": "APARTAMENTO - Jardim Do Ypê - Pindamonhangaba/SP",
+    "preco": "R$ 1.500,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/jardim-do-ype/apartamento/12946691",
+    "pagina": 1
+  },
+  {
+    "id": "f991f511c329b8c0933163163e49d3ae",
+    "titulo": "CASA - Jardim Boa Vista - Pindamonhangaba/SP",
+    "preco": "R$ 1.600,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/jardim-boa-vista/casa/12947117",
+    "pagina": 1
+  },
+  {
+    "id": "0228e2588c067a65dd05da1825cabba9",
+    "titulo": "APARTAMENTO - Loteamento Residencial Andrade - Pindamonhangaba/SP",
+    "preco": "R$ 1.600,00",
+    "link": "https://wilsonimoveisvale.com.br/comprar-ou-alugar/sp/pindamonhangaba/loteamento-residencial-andrade/apartamento/12946584",
+    "pagina": 1
+  },
+  {
+    "id": "1d3581f0305d1122461506d9880a96f7",
+    "titulo": "APARTAMENTO - Loteamento Residencial Andrade - Pindamonhangaba/SP",
+    "preco": "R$ 1.600,00",
+    "link": "https://wilsonimoveisvale.com.br/comprar-ou-alugar/sp/pindamonhangaba/loteamento-residencial-andrade/apartamento/12946550",
+    "pagina": 1
+  },
+  {
+    "id": "ad190d292b981f0240f9212414e44bbe",
+    "titulo": "CASA - Parque São Domingos - Pindamonhangaba/SP",
+    "preco": "R$ 1.700,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/parque-sao-domingos/casa/12947168",
+    "pagina": 1
+  },
+  {
+    "id": "a4a0513478ad1d7f41550de973c9d7d5",
+    "titulo": "APARTAMENTO - Crispim - Pindamonhangaba/SP",
+    "preco": "R$ 1.700,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/crispim/apartamento/12946738",
+    "pagina": 1
+  },
+  {
+    "id": "740fc8fc915cb1d534e6fca9e7d13358",
+    "titulo": "APARTAMENTO - Crispim - Pindamonhangaba/SP",
+    "preco": "R$ 1.700,00",
+    "link": "https://wilsonimoveisvale.com.br/comprar-ou-alugar/sp/pindamonhangaba/crispim/apartamento/12946475",
+    "pagina": 1
+  },
+  {
+    "id": "3859fcda4278d08bb6bab08298eb7afc",
+    "titulo": "APARTAMENTO - Loteamento Alfredo Abilio Flores - Pindamonhangaba/SP",
+    "preco": "R$ 1.750,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/loteamento-alfredo-abilio-flores/apartamento/12946532",
+    "pagina": 1
+  },
+  {
+    "id": "7f55436198fb75cc764b795bb28f561a",
+    "titulo": "CASA - Jardim Rosely - Pindamonhangaba/SP",
+    "preco": "R$ 1.800,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/jardim-rosely/casa/12947058",
+    "pagina": 1
+  },
+  {
+    "id": "d422942cb98dfb6013a3ca4c74b4f3f9",
+    "titulo": "CASA - Loteamento Residencial Andrade - Pindamonhangaba/SP",
+    "preco": "R$ 1.800,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/loteamento-residencial-andrade/casa/12947018",
+    "pagina": 1
+  },
+  {
+    "id": "0639491ea014930e3088d4c3190113ca",
+    "titulo": "CASA - Centro - Pindamonhangaba/SP",
+    "preco": "R$ 1.800,00",
+    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/centro/casa/12946901",
+    "pagina": 1
+  },
+  {
+    "id": "a48c0e0a182df5ed3712f12093f7f61f",
+    "titulo": "CASA – CENTRO",
+    "preco": "R$ 4.284,33",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-centro-2/",
+    "pagina": 2
+  },
+  {
+    "id": "1093f83d52bfd12f6c77c76f3ebdc5b2",
+    "titulo": "Apartamento Duplex em Centro",
+    "preco": "R$ 4.500,00",
+    "link": "https://www.hnegocios.com/imovel/apartamento-duplex-centro-4dorm/15452",
+    "pagina": 1
+  },
+  {
+    "id": "00d3e41b80611dd4eacbe890e452f17f",
+    "titulo": "Casa Comercial em Centro",
+    "preco": "R$ 4.500,00",
+    "link": "https://www.hnegocios.com/imovel/casa-comercial-centro-0vagas-282areautil/2858",
+    "pagina": 4
   }
 ]
