@@ -35,9 +35,13 @@ O JSON guarda os IDs e os dados dos anúncios para evitar coletá-los novamente 
 ## Organização
 
 - `runner.py`: orquestra os coletores e resume falhas.
-- `scripts/`: um coletor por imobiliária.
+- `scripts/`: adaptadores específicos para sites com HTML próprio e `catalog_collectors.py`, que trata em conjunto os oito portais com estruturas de cartões compartilhadas.
 - `utils/funcs.py`: deduplicação, persistência e exportação para Excel.
 - `utils/variables.py`: filtros e configuração dos caminhos.
 - `script_teste/` e `teste.py`: experimento separado, não incluído na execução normal.
+
+### Adicionar uma imobiliária
+
+Se o site usar os cartões `.imovelcard` ou o layout de cartões Tailwind, adicione uma configuração em `PORTAIS_CARD` ou `PORTAIS_TAILWIND` dentro de `scripts/catalog_collectors.py`. Para um HTML diferente, crie um adaptador próprio em `scripts/`; o runner o encontra automaticamente.
 
 Os seletores HTML e os formatos das URLs dependem dos sites de terceiros e podem precisar de atualização quando eles mudarem.
