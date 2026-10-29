@@ -122,7 +122,7 @@ def coletar_card_portal(session, config, ids):
     return novos, paginas_verificadas
 
 
-def coletar_tailwind(session, nome, config, ids):
+def coletar_tailwind(session, config, ids):
     soup = buscar(session, config["url"])
     novos = []
     cards = soup.select("a.flex.flex-col.bg-white.rounded-xl.h-full.relative")
@@ -147,13 +147,16 @@ def coletar_tailwind(session, nome, config, ids):
     return novos, 1
 
 
-def main():
+def main(portais=None):
     estado = pegar_json(GERAL_JSON)
     ids, dados = estado["ids"], estado["dados"]
     novos_total = []
     falhas = []
+    selecionados = set(portais or [*PORTAIS_CARD, *PORTAIS_TAILWIND])
     with requests.Session() as session:
         for nome, config in PORTAIS_CARD.items():
+            if nome not in selecionados:
+                continue
             try:
                 novos, paginas = coletar_card_portal(session, config, ids)
                 for item in novos:
@@ -165,8 +168,10 @@ def main():
                 print(f"{nome}: falha na consulta: {erro}")
 
         for nome, config in PORTAIS_TAILWIND.items():
+            if nome not in selecionados:
+                continue
             try:
-                novos, paginas = coletar_tailwind(session, nome, config, ids)
+                novos, paginas = coletar_tailwind(session, config, ids)
                 for item in novos:
                     dados.append(item)
                 novos_total.extend(novos)
@@ -187,4 +192,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    portais_disponiveis = [*PORTAIS_CARD, *PORTAIS_TAILWIND]
+    parser = argparse.ArgumentParser(description="Coleta anúncios de portais configurados.")
+    parser.add_argument(
+        "--portal", action="append", choices=portais_disponiveis,
+        help="Executa somente o portal informado; pode ser repetido.",
+    )
+    main(parser.parse_args().portal)

@@ -22,6 +22,14 @@ Na raiz do projeto:
 python3 runner.py
 ```
 
+Para abrir o painel web local:
+
+```bash
+streamlit run app.py
+```
+
+O painel permite executar todos os coletores ou uma imobiliária, acompanha a saída do processo em um terminal visual e organiza o histórico por mês.
+
 O runner executa cada módulo de `scripts/` em ordem alfabética, continua mesmo que um coletor falhe e retorna código de erro ao final se houver falhas. Cada coletor persiste novos anúncios em `geral.json` e acrescenta as novas linhas ao arquivo Excel da hora atual.
 
 O caminho padrão do Excel é `/mnt/g/Meu Drive/Aluguel/`. Para usar outra pasta, configure `IMOVEIS_OUTPUT_DIR`, por exemplo:
