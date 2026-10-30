@@ -13,7 +13,7 @@ from utils.variables import *
 URL = (
     "https://www.palaceteimobiliaria.com.br/imoveis/para-alugar/"
     "apartamento+casa+sobrado/sao-paulo-pindamonhangaba-sp"
-    "?precolocacao=1500--4500&mobilia=n%C3%A3o&muncep_id=7001"
+    f"?precolocacao={int(PRECO_MIN)}--{int(PRECO_MAX)}&mobilia=n%C3%A3o&muncep_id=7001"
     "&search_name=Pindamonhangaba&localidade=SP&toggle_map=true"
     "&propertySubtypes=55&propertySubtypes=64&propertySubtypes=50"
     "&propertySubtypes=120&propertySubtypes=350&propertySubtypes=346"
@@ -129,6 +129,9 @@ def executar():
 
     imoveis = []
     pg = 1
+    incompletos = 0
+    fora_dos_filtros = 0
+    duplicados = 0
 
     for card in cards:
         tag_link = card.find("a", href=True)
@@ -138,12 +141,17 @@ def executar():
 
         # Não concatena valores ausentes: isso causava TypeError.
         if not titulo or not link or not preco:
+            incompletos += 1
+            continue
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+            fora_dos_filtros += 1
             continue
 
         chave = f"{titulo}|{preco}|{link}"
         _id = hashlib.md5(chave.encode("utf-8")).hexdigest()
 
         if _id in ids:
+            duplicados += 1
             continue
 
         imov = {
@@ -160,8 +168,9 @@ def executar():
     # Se nenhum anúncio foi extraído, não altera o JSON nem gera planilha vazia.
     if not imoveis:
         print(
-            f"Palacete: {len(cards)} cards encontrados, mas nenhum anúncio novo "
-            "com título, preço de aluguel e link válidos."
+            f"Palacete: {len(cards)} cards verificados; sem anúncios novos "
+            f"({incompletos} incompletos, {fora_dos_filtros} fora dos filtros, "
+            f"{duplicados} duplicados)."
         )
         return
 

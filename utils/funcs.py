@@ -42,18 +42,43 @@ def gerar_excel(dados, caminho_saida):
         print("Nada para exportar")
         return
 
-    caminho_saida = Path(caminho_saida)
-    caminho_saida.parent.mkdir(parents=True, exist_ok=True)
+    caminho_configurado = Path(caminho_saida)
+    caminho_saida = caminho_configurado
+    caminho_local = Path(__file__).resolve().parents[1] / "exports" / caminho_configurado.name
+    try:
+        caminho_saida.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as erro_destino:
+        caminho_saida = caminho_local
+        caminho_saida.parent.mkdir(parents=True, exist_ok=True)
+        print(
+            f"Aviso: destino indisponível ({erro_destino}); "
+            f"usando exportação local: {caminho_saida}"
+        )
 
     if caminho_saida.exists():
-        wb = load_workbook(caminho_saida)
-        ws = wb.active
-        print("Arquivo existente encontrado, adicionando dados...")
-        
-        headers = [cell.value for cell in ws[1]]
+        try:
+            wb = load_workbook(caminho_saida)
+        except OSError as erro_destino:
+            caminho_saida = caminho_local
+            caminho_saida.parent.mkdir(parents=True, exist_ok=True)
+            print(
+                f"Aviso: não foi possível abrir o Excel no destino configurado "
+                f"({erro_destino}); usando: {caminho_saida}"
+            )
+            wb = load_workbook(caminho_saida) if caminho_saida.exists() else Workbook()
+            if not caminho_saida.exists():
+                ws = wb.active
+                ws.title = "Imoveis"
+                headers = list(dados[0].keys())
+                ws.append(headers)
+            else:
+                ws = wb.active
+                headers = [cell.value for cell in ws[1]]
+        else:
+            ws = wb.active
+            print("Arquivo existente encontrado, adicionando dados...")
+            headers = [cell.value for cell in ws[1]]
     else:
-        # os.makedirs(os.path.dirname(caminho_saida), exist_ok=True)
-
         wb = Workbook()
         ws = wb.active
         ws.title = "Imoveis"
@@ -88,7 +113,18 @@ def gerar_excel(dados, caminho_saida):
         print("Nenhum anúncio novo para adicionar ao Excel")
         return
 
-    wb.save(caminho_saida)
+    try:
+        wb.save(caminho_saida)
+    except OSError as erro_destino:
+        if caminho_saida == caminho_local:
+            raise
+        caminho_local.parent.mkdir(parents=True, exist_ok=True)
+        wb.save(caminho_local)
+        caminho_saida = caminho_local
+        print(
+            f"Aviso: falha ao salvar no destino configurado ({erro_destino}); "
+            f"arquivo salvo localmente: {caminho_saida}"
+        )
     print(f"Excel atualizado com sucesso: {caminho_saida}")
 
 

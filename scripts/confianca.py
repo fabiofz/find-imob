@@ -25,16 +25,10 @@ divs = soup.find_all("div", class_="trend-item")
 pg = 1
 for div in divs:
     titulo = div.select_one("h4 a").get_text(strip=True)
-    if not titulo or not any(tipo in titulo.lower() for tipo in IMOVEIS_ACEITOS):
-        continue
-
     preco = limpar_preco(div.select_one(".entry-author .theme").get_text(strip=True))
-
-    preco_num = preco_para_float(preco)
-    if preco_num is None or not (2000 <= preco_num <= 4500):
-        continue
-
     link = f"https://www.imobiliariaconfianca.com.br/{div.select_one('a[href]')['href']}"
+    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+        continue
 
     _id = f"{titulo}{preco}{link}"
     _id = hashlib.md5(_id.encode()).hexdigest()

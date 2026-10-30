@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://www.visaoconsultoriadeimoveis.com.br/imoveis/para-alugar/casa+sobrado/pindamonhangaba?preco-de-locacao=1000~4500"
+url = f"https://www.visaoconsultoriadeimoveis.com.br/imoveis/para-alugar/casa+sobrado/pindamonhangaba?preco-de-locacao={int(PRECO_MIN)}~{int(PRECO_MAX)}"
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Accept-Language": "pt-BR,pt;q=0.9",
@@ -38,7 +38,9 @@ for div in divs:
         if "Aluguel" in titulo_preco:
             preco = limpar_preco(bloco.select_one(".card-with-buttons__value").get_text(strip=True))
 
-    _id = titulo+preco+link
+    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+        continue
+    _id = titulo + preco + link
     _id = hashlib.md5(_id.encode()).hexdigest()
 
     if _id not in ids:

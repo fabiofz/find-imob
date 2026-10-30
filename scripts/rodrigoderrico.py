@@ -53,8 +53,7 @@ for url in urls :
         if link :
             link = base_url + link
 
-        preco_num = preco_para_float(preco)
-        if preco_num is None or not (2000 <= preco_num <= 4500):
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
             continue
 
         _id = f"{titulo}{preco}{link}"

@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/apartamento_casa/valor-1500_4000/ordem-valor/resultado-crescente/quantidade-12/"
+url = f"https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/apartamento_casa/valor-{int(PRECO_MIN)}_{int(PRECO_MAX)}/ordem-valor/resultado-crescente/quantidade-12/"
 html = requests.get(url).content
 soup = BeautifulSoup(html, "html.parser")
 imoveis = []
@@ -40,6 +40,9 @@ for div in divs:
     base_url = f"https://{urlparse(url).netloc}"
     if link :
         link = base_url + link
+
+    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+        continue
 
     _id = titulo+preco+link
     _id = hashlib.md5(_id.encode()).hexdigest()

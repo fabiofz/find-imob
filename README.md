@@ -22,15 +22,25 @@ Na raiz do projeto:
 python3 runner.py
 ```
 
-Para abrir o painel web local:
+Para abrir o painel web local, use o iniciador, que chama o Streamlit da `.venv`:
 
 ```bash
-streamlit run app.py
+bash start_app.sh
 ```
 
-O painel permite executar todos os coletores ou uma imobiliária, acompanha a saída do processo em um terminal visual e organiza o histórico por mês.
+Se a `.venv` já estiver ativada, o comando equivalente é `python -m streamlit run app.py`. Sem ativá-la, use `./.venv/bin/python -m streamlit run app.py`.
 
-O runner executa cada módulo de `scripts/` em ordem alfabética, continua mesmo que um coletor falhe e retorna código de erro ao final se houver falhas. Cada coletor persiste novos anúncios em `geral.json` e acrescenta as novas linhas ao arquivo Excel da hora atual.
+### Acessar pela rede doméstica
+
+O painel escuta na porta `8501`. Em uma instalação WSL com rede NAT, abra um PowerShell **como administrador**, execute `.permitir_acesso_rede.ps1` na pasta do projeto e confirme a solicitação do Windows. O script encaminha a porta para o IP atual do WSL e libera acesso TCP `8501` somente pela rede local privada. Ele mostra o endereço a usar no outro computador, por exemplo `http://192.168.5.101:8501`.
+
+O IP do WSL pode mudar ao reiniciar a distribuição. Se isso acontecer, execute o script novamente como administrador.
+
+Em modo de rede espelhada do WSL, o encaminhamento pode não ser necessário, mas a regra do Firewall do Windows continua necessária.
+
+O painel permite executar todos os coletores ou uma imobiliária, consultar os resultados agrupados por imobiliária, acompanha a saída em um terminal no formato tail, organiza o histórico por mês e expõe os erros registrados em `logs_erros.txt`.
+
+O runner executa cada módulo de `scripts/` em ordem alfabética, continua mesmo que um coletor falhe, registra a saída da falha em `logs_erros.txt` e retorna código de erro ao final se houver falhas. Cada coletor persiste novos anúncios em `geral.json` e acrescenta as novas linhas ao arquivo Excel da hora atual.
 
 O caminho padrão do Excel é `/mnt/g/Meu Drive/Aluguel/`. Para usar outra pasta, configure `IMOVEIS_OUTPUT_DIR`, por exemplo:
 
@@ -38,11 +48,16 @@ O caminho padrão do Excel é `/mnt/g/Meu Drive/Aluguel/`. Para usar outra pasta
 IMOVEIS_OUTPUT_DIR="$PWD/saida" python3 runner.py
 ```
 
+Se a pasta configurada estiver indisponível, as planilhas são salvas em `exports/` na raiz do projeto.
+
 O JSON guarda os IDs e os dados dos anúncios para evitar coletá-los novamente em execuções futuras. Faça cópia desse arquivo antes de removê-lo ou editá-lo manualmente.
 
 ## Organização
 
 - `runner.py`: orquestra os coletores e resume falhas.
+- `app.py`: painel web para executar e acompanhar as coletas.
+- `assets/findimob.svg`: marca do painel, usada como logo e favicon.
+- `.streamlit/config.toml`: oculta os controles de desenvolvedor, incluindo “Deploy”.
 - `scripts/`: adaptadores específicos para sites com HTML próprio e `catalog_collectors.py`, que trata em conjunto os oito portais com estruturas de cartões compartilhadas.
 - `utils/funcs.py`: deduplicação, persistência e exportação para Excel.
 - `utils/variables.py`: filtros e configuração dos caminhos.

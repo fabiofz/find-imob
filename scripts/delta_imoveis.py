@@ -34,8 +34,7 @@ for url in urls :
         titulo = div.find("h3", class_="listing-title").get_text(strip=True)
         preco = limpar_preco(div.find("div", class_="listing-price").get_text(strip=True))
 
-        preco_num = preco_para_float(preco)
-        if preco_num is None or not (2000 <= preco_num <= 4500):
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
             continue
 
         _id = f"{titulo}{preco}{link}"

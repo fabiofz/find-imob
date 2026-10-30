@@ -12,14 +12,7 @@ from utils.variables import *
 
 URL = (
     "https://www.domusimoveis.com/imoveis/para-alugar/"
-    "apartamento+casa+sobrado/sao-paulo-pindamonhangaba-sp"
-    "?precolocacao=2000--4500&muncep_id=7001"
-    "&search_name=Pindamonhangaba&localidade=SP&toggle_map=true"
-    "&propertySubtypes=321&propertySubtypes=325&propertySubtypes=169"
-    "&propertySubtypes=93&propertySubtypes=64&propertySubtypes=84"
-    "&propertySubtypes=120&propertySubtypes=350&propertySubtypes=346"
-    "&propertySubtypes=19&propertySubtypes=320&propertySubtypes=106"
-    "&propertySubtypes=55&order=mais_relevantes"
+    "pindamonhangaba-sp-brasil?order=mais_relevantes"
 )
 
 HEADERS = {
@@ -57,7 +50,24 @@ def encontrar_cards(soup):
         cards = soup.select(seletor)
         if cards:
             return cards
-    return []
+
+    # Fallback para o markup atual: detalhes seguem em /imovel/... e o card
+    # pode não ter mais as classes CSS geradas que o coletor antigo esperava.
+    cards = []
+    vistos = set()
+    for link in soup.select('a[href*="/imovel/"]'):
+        no = link
+        for _ in range(9):
+            no = no.parent if no else None
+            if no is None:
+                break
+            conteudo = texto(no) or ""
+            chave = id(no)
+            if "R$" in conteudo and "aluguel" in conteudo.casefold() and chave not in vistos:
+                cards.append(no)
+                vistos.add(chave)
+                break
+    return cards
 
 
 def extrair_imovel(card, pagina=1):
@@ -90,12 +100,19 @@ def extrair_imovel(card, pagina=1):
 
     # Se o site alterar os nomes das classes, usa o texto do link como fallback.
     if not nome:
-        nome = texto(link_tag)
+        nome_tag = primeiro_seletor(card, ["h1", "h2", "h3", "h4", '[class*="title"]', '[class*="Title"]'])
+        nome = texto(nome_tag) or texto(link_tag)
     if not tipo:
         tipo = ""
 
     titulo = f"{tipo} - {nome}".strip(" -") if nome else None
-    preco = limpar_preco(texto(preco_tag))
+    conteudo = texto(card) or ""
+    aluguel = re.search(r"aluguel\s*R\$\s*([\d.]+(?:,\d{2})?)", conteudo, flags=re.I)
+    preco = (
+        limpar_preco(f"R$ {aluguel.group(1)}")
+        if aluguel
+        else limpar_preco(texto(preco_tag))
+    )
     if not titulo or not preco:
         return None
     return {
@@ -117,14 +134,20 @@ def executar():
     cards = encontrar_cards(soup)
     if not cards:
         titulo_pagina = texto(soup.title) or "(sem título)"
-        raise RuntimeError(
-            f"Domus: nenhum anúncio encontrado; página recebida: {titulo_pagina}"
+        trecho = (soup.get_text(" ", strip=True) or "")[:240]
+        print(
+            "Domus: resposta recebida, mas os seletores atuais não reconheceram "
+            f"cartões de anúncios. Título da página: {titulo_pagina}. "
+            f"Trecho: {trecho}. Coletor ignorado nesta execução."
         )
+        return
 
     novos = []
     for card in cards:
         item = extrair_imovel(card)
         if not item:
+            continue
+        if not imovel_atende_filtros(item["titulo"], item["preco"], item["link"], "pindamonhangaba"):
             continue
         identificador = hashlib.md5(
             f"{item['titulo']}{item['preco']}{item['link']}".encode("utf-8")

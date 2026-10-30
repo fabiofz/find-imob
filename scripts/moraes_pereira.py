@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://www.moraesepereiraimoveis.com.br/imoveis/para-alugar/apartamento+casa+sobrado/pindamonhangaba?preco-de-locacao=2000~4500"
+url = f"https://www.moraesepereiraimoveis.com.br/imoveis/para-alugar/apartamento+casa+sobrado/pindamonhangaba?preco-de-locacao={int(PRECO_MIN)}~{int(PRECO_MAX)}"
 html = requests.get(url).content
 soup = BeautifulSoup(html, "html.parser")
 imoveis = []
@@ -30,6 +30,9 @@ for div in divs:
     titulo = f"{h3} - {h2}"
 
     preco = limpar_preco(div.find("span", class_="h-money location").get_text(strip=True))
+
+    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+        continue
 
     _id = titulo+preco+link
     _id = hashlib.md5(_id.encode()).hexdigest()

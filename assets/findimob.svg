@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Find Imob">
+  <rect width="128" height="128" rx="30" fill="#101a25"/>
+  <path d="M24 58 64 27l40 31" fill="none" stroke="#32cb79" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+  <path d="M35 54v48h58V54" fill="#32cb79" stroke="#32cb79" stroke-linejoin="round" stroke-width="5"/>
+  <path d="M55 102V74h19v28" fill="#101a25"/>
+  <circle cx="91" cy="89" r="18" fill="#101a25" stroke="#f3a04b" stroke-width="7"/>
+  <path d="m104 102 12 12" stroke="#f3a04b" stroke-linecap="round" stroke-width="8"/>
+</svg>

@@ -1,114 +1,23 @@
 [
   {
-    "id": "95897ed5b8fd8d4b7b1e3a5e16f617a8",
-    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Residencial Jardim Aurora, 2 dormitórios, 2 banheiros, 1 suíte, 1 vaga",
-    "preco": "R$1.800",
-    "link": "https://eridavieira.com.br/imovel/4252861/apartamento-locacao-pindamonhangaba-sp-residencial-jardim-aurora",
+    "id": "dfb65af2805ec2a58494777aeadcd7c6",
+    "titulo": "APARTAMENTO – CENTRO",
+    "preco": "R$ 2.860,02",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-centro-2/",
     "pagina": 1
-  },
-  {
-    "id": "1ac3a86d1091daeeb51d19d6996b1a7f",
-    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Parque das Nações, 2 dormitórios, 1 banheiro, 1 vaga",
-    "preco": "R$2.500",
-    "link": "https://eridavieira.com.br/imovel/4244742/apartamento-locacao-pindamonhangaba-sp-parque-das-nacoes",
-    "pagina": 1
-  },
-  {
-    "id": "94545cae05a64173ae0b8eb057dea7dc",
-    "titulo": "CASA – SANTA LUZIA",
-    "preco": "R$ 1.602,76",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-santa-luzia/",
-    "pagina": 1
-  },
-  {
-    "id": "b74f334441e59e5eec80b01d21454467",
-    "titulo": "CASA – CARANGOLA",
-    "preco": "R$ 2.106,02",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-carangola/",
-    "pagina": 1
-  },
-  {
-    "id": "2b6bbe292d8aed80d6b073716518a7f3",
-    "titulo": "CASA – CRISPIM",
-    "preco": "R$ 1.500,58",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-crispim/",
-    "pagina": 1
-  },
-  {
-    "id": "e60b86992a173098e74336c5a10c52c7",
-    "titulo": "CASA – VILA RICA",
-    "preco": "R$ 1.517,01",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-vila-rica/",
-    "pagina": 1
-  },
-  {
-    "id": "aeecd2f031d03ac74dcceed1c4c79441",
-    "titulo": "CASA – MORADA DOS PÁSSAROS",
-    "preco": "R$ 2.581,00",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-morada-dos-passaros/",
-    "pagina": 2
-  },
-  {
-    "id": "0bc49ca8faa5e6bf477a9997254a7283",
-    "titulo": "CASA – CENTRO",
-    "preco": "R$ 2.676,00",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-centro-6/",
-    "pagina": 2
-  },
-  {
-    "id": "8f0dcacf841122fe458e6b85e5da3e95",
-    "titulo": "CASA – CENTRO",
-    "preco": "R$ 2.742,54",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-centro-4/",
-    "pagina": 2
-  },
-  {
-    "id": "36df0ae0d7a8af2cccc9c256a1ba23e7",
-    "titulo": "CASA – PARQUE SÃO DOMINGOS",
-    "preco": "R$ 2.099,35",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-parque-sao-domingos/",
-    "pagina": 3
-  },
-  {
-    "id": "f8672c96bcdaccc625d35c1ee3d59466",
-    "titulo": "CASA – ALTO DO CARDOSO",
-    "preco": "R$ 1.528,14",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-alto-do-cardoso-2/",
-    "pagina": 3
-  },
-  {
-    "id": "70f21c1b62a484f15e3bee8ba073a814",
-    "titulo": "SOBRADO – CENTRO",
-    "preco": "R$ 3.675,82",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/sobrado-centro/",
-    "pagina": 1
-  },
-  {
-    "id": "985d1b29bb4888edea0206168519d422",
-    "titulo": "SOBRADO – BOSQUE DA PRINCESA",
-    "preco": "R$ 3.085,80",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/sobrado-bosque-da-princesa/",
-    "pagina": 1
-  },
-  {
-    "id": "97d3415f491df5c810e99f10892a97bf",
-    "titulo": "SOBRADO – CENTRO",
-    "preco": "R$ 2.500,00",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/sobrado-centro-2/",
-    "pagina": 1
-  },
-  {
-    "id": "44e34918d81ec8e099dd73424377cf44",
-    "titulo": "PONTO COMERCIAL – CENTRO",
-    "preco": "R$ 2.710,00",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-centro/",
-    "pagina": 2
   },
   {
     "id": "37b98f9258a9f296dd1b16c189ccfbcd",
     "titulo": "APARTAMENTO – BOA VISTA",
     "preco": "R$ 2.763,00",
     "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-via-nouvelle/",
+    "pagina": 1
+  },
+  {
+    "id": "fb892cf9d364e6ed75fab1ad94b938a6",
+    "titulo": "APARTAMENTO- CENTRO",
+    "preco": "R$ 2.809,00",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-edificio-acacia/",
     "pagina": 1
   },
   {
@@ -126,9 +35,9 @@
     "pagina": 1
   },
   {
-    "id": "1535a29d421167349aa04dbcf154bba8",
+    "id": "2eebfe62fb799f41873516ab84e19ed2",
     "titulo": "APARTAMENTO – ANDRADE",
-    "preco": "R$ 1.762,99",
+    "preco": "R$ 1.862,99",
     "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-andrada/",
     "pagina": 1
   },
@@ -137,7 +46,14 @@
     "titulo": "CASA SUPERIOR – MOMBAÇA",
     "preco": "R$ 1.679,53",
     "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-mombaca/",
-    "pagina": 1
+    "pagina": 2
+  },
+  {
+    "id": "0f0f4fabd3d06a427b4489a9a1d58d3b",
+    "titulo": "APARTAMENTO – CENTRO",
+    "preco": "R$ 1.509,94",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-centro/",
+    "pagina": 2
   },
   {
     "id": "061fce1ab71a6319a94eb0545e969f53",
@@ -154,66 +70,73 @@
     "pagina": 2
   },
   {
-    "id": "4679f6cbc5518c61643c4a765977966f",
-    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Parque das Nações, 3 dormitórios, 1 banheiro, 1 suíte, 2 vagas",
-    "preco": "R$1.500",
-    "link": "https://www.palazzorealeimoveis.com.br/imovel/4447072/apartamento-locacao-pindamonhangaba-sp-parque-das-nacoes",
+    "id": "ba9adab87c0df1f8612da88c10e51ab0",
+    "titulo": "CASA – ANDRADE",
+    "preco": "R$ 1.681,30",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-andrade-2/",
     "pagina": 1
   },
   {
-    "id": "0b76802b8fc65a58341701855822b073",
-    "titulo": "Apartamento em Santa Cecília - Pindamonhangaba, SP",
-    "preco": 0,
-    "link": "https://www.imobiliariapindense.com.br/imovel/apartamento-2-quartos-santa-cecilia-pindamonhangaba-1-vaga-57m2-code-4280",
+    "id": "94545cae05a64173ae0b8eb057dea7dc",
+    "titulo": "CASA – SANTA LUZIA",
+    "preco": "R$ 1.602,76",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-santa-luzia/",
     "pagina": 1
   },
   {
-    "id": "4927c300f0809c3d0283318a74ded4b1",
-    "titulo": "Apartamento em Jardim Rosely  -  Pindamonhangaba",
-    "preco": 0,
-    "link": "https://www.imobiliariapindense.com.br/imovel/apartamento-2-quartos-jardim-rosely-pindamonhangaba-1-vaga-code-3026",
+    "id": "2b6bbe292d8aed80d6b073716518a7f3",
+    "titulo": "CASA – CRISPIM",
+    "preco": "R$ 1.500,58",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-crispim/",
     "pagina": 1
   },
   {
-    "id": "cbc5743ec741d51cce235fb58acd4de4",
-    "titulo": "Apartamento em Centro - Moreira César - Pindamonhangaba, SP",
-    "preco": 0,
-    "link": "https://www.imobiliariapindense.com.br/imovel/apartamento-2-quartos-centro-moreira-cesar-pindamonhangaba-0m2-code-3525",
+    "id": "aeecd2f031d03ac74dcceed1c4c79441",
+    "titulo": "CASA – MORADA DOS PÁSSAROS",
+    "preco": "R$ 2.581,00",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-morada-dos-passaros/",
+    "pagina": 2
+  },
+  {
+    "id": "a48c0e0a182df5ed3712f12093f7f61f",
+    "titulo": "CASA – CENTRO",
+    "preco": "R$ 4.284,33",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-centro-2/",
+    "pagina": 2
+  },
+  {
+    "id": "36df0ae0d7a8af2cccc9c256a1ba23e7",
+    "titulo": "CASA – PARQUE SÃO DOMINGOS",
+    "preco": "R$ 2.099,35",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-parque-sao-domingos/",
+    "pagina": 2
+  },
+  {
+    "id": "aef1cf78df16267f40d421b632882430",
+    "titulo": "SOBRADO – RESIDENCIAL JARDINS",
+    "preco": "R$ 3.097,60",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/sobrado-residencial-jardins/",
     "pagina": 1
   },
   {
-    "id": "449b018fa4dbc7de48f59ead060597c8",
-    "titulo": "Apartamento em Crispim - Pindamonhangaba, SP",
-    "preco": 0,
-    "link": "https://www.imobiliariapindense.com.br/imovel/apartamento-2-quartos-crispim-pindamonhangaba-1-vaga-57m2-code-4968",
+    "id": "70f21c1b62a484f15e3bee8ba073a814",
+    "titulo": "SOBRADO – CENTRO",
+    "preco": "R$ 3.675,82",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/sobrado-centro/",
     "pagina": 1
   },
   {
-    "id": "3680ce9b7edd928bc470a506feee445a",
-    "titulo": "Apartamento em Chácara da Galega  -  Pindamonhangaba",
-    "preco": 0,
-    "link": "https://www.imobiliariapindense.com.br/imovel/apartamento-2-quartos-chacara-da-galega-pindamonhangaba-2-vagas-code-578",
+    "id": "97d3415f491df5c810e99f10892a97bf",
+    "titulo": "SOBRADO – CENTRO",
+    "preco": "R$ 2.500,00",
+    "link": "https://www.casabellaimoveispinda.com.br/imovel/sobrado-centro-2/",
     "pagina": 1
   },
   {
-    "id": "d56ac6701ba154f82cd5bc1b01fb7dc8",
-    "titulo": "CENTRO",
-    "preco": "R$3.000,00",
-    "link": "https://www.rodrigoderrico.com.br/locacao_casas/LCP011/index.htm",
-    "pagina": 1
-  },
-  {
-    "id": "cadcf37aec06496846532d9c66e3977d",
-    "titulo": "VILA VERDE",
-    "preco": "R$3.000,00",
-    "link": "https://www.rodrigoderrico.com.br/locacao_casas/LCP009/index.htm",
-    "pagina": 1
-  },
-  {
-    "id": "bdd7809a90a0747b5c5df3eb6ddce0cd",
-    "titulo": "SANTANA",
-    "preco": "R$2.300,00",
-    "link": "https://www.rodrigoderrico.com.br/locacao_apartamentos/LAP010/index.htm",
+    "id": "e7aff0bfd50128097ad4b0d39ec36849",
+    "titulo": "CASA NO SOCORRO (JD PRINCESA)",
+    "preco": "R$ 1.800,00",
+    "link": "https://www.castorimoveis.com.br/imovel-casa-no-socorro-(jd-princesa)-1650",
     "pagina": 1
   },
   {
@@ -221,6 +144,27 @@
     "titulo": "CASA NO ALTO DO TABAU",
     "preco": "R$ 2.000,00",
     "link": "https://www.castorimoveis.com.br/imovel-casa-no-alto-do-tabau-1639",
+    "pagina": 1
+  },
+  {
+    "id": "ab56926bb74101dbb55108c059dec563",
+    "titulo": "CASA EM MOREIRA CESAR",
+    "preco": "R$ 1.500,00",
+    "link": "https://www.castorimoveis.com.br/imovel-casa-em-moreira-cesar-1616",
+    "pagina": 1
+  },
+  {
+    "id": "e08592271f216e67270ceea7270a0388",
+    "titulo": "Casa (Campo Alegre)",
+    "preco": "R$ 1.700,00",
+    "link": "https://www.castorimoveis.com.br/imovel-casa-(campo-alegre)-1597",
+    "pagina": 1
+  },
+  {
+    "id": "402d1829ba189a6715f8634f64b80ea4",
+    "titulo": "Casa ( Andrade )",
+    "preco": "R$ 1.500,00",
+    "link": "https://www.castorimoveis.com.br/imovel-casa-(-andrade-)-1509",
     "pagina": 1
   },
   {
@@ -238,13 +182,6 @@
     "pagina": 1
   },
   {
-    "id": "2da8fcf3b83a7e010bb7095570f243a1",
-    "titulo": "Casa no Centro",
-    "preco": "R$ 2.800,00",
-    "link": "https://www.castorimoveis.com.br/imovel-casa-no-centro-720",
-    "pagina": 1
-  },
-  {
     "id": "50ae48d6e66cbc893e68d890f3539c4f",
     "titulo": "Sobrado (Mombaça)",
     "preco": "R$ 2.000,00",
@@ -259,745 +196,647 @@
     "pagina": 1
   },
   {
-    "id": "6585804b773df1c8bb0a5930e16eaf81",
+    "id": "6c7cc93153f071ed3be9a8484ab10827",
+    "titulo": "Casa na Quadra Coberta",
+    "preco": "R$ 1.900,00",
+    "link": "https://www.castorimoveis.com.br/imovel-casa-na-quadra-coberta-72",
+    "pagina": 1
+  },
+  {
+    "id": "7ad69ba8557c220cfd8e44bc4dad6bd3",
+    "titulo": "Casa (Campo Alegre)",
+    "preco": "R$ 1.800,00",
+    "link": "https://www.castorimoveis.com.br/imovel-casa-(campo-alegre)-64",
+    "pagina": 1
+  },
+  {
+    "id": "9e3f7b0e999ce69813bbe9f760a2ea34",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Residencial Jardim Aurora, 2 dormitórios, 2 banheiros, 1 suíte, 1 vaga",
+    "preco": "R$ 1.800",
+    "link": "https://eridavieira.com.br/imovel/4252861/apartamento-locacao-pindamonhangaba-sp-residencial-jardim-aurora",
+    "pagina": 1
+  },
+  {
+    "id": "bc6a8f64968bed62a9b00aee1f27ef6b",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Parque das Nações, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 2.500",
+    "link": "https://eridavieira.com.br/imovel/4244742/apartamento-locacao-pindamonhangaba-sp-parque-das-nacoes",
+    "pagina": 1
+  },
+  {
+    "id": "90be2ed4e313f815502967b84c89d6b5",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Parque das Nações, 3 dormitórios, 1 banheiro, 1 suíte, 2 vagas",
+    "preco": "R$ 1.500",
+    "link": "https://www.palazzorealeimoveis.com.br/imovel/4447072/apartamento-locacao-pindamonhangaba-sp-parque-das-nacoes",
+    "pagina": 1
+  },
+  {
+    "id": "ce591835f1057ec530cec8ad45bdf94e",
     "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Crispim, 1 dormitório, 1 banheiro",
-    "preco": "R$1.900",
+    "preco": "R$ 1.900",
     "link": "https://www.imoveisdna.com.br/imovel/3735705/apartamento-locacao-pindamonhangaba-sp-crispim",
     "pagina": 1
   },
   {
-    "id": "2e953298085511d7a3c7fbbb137b25e1",
+    "id": "53aa457ed26c6615718993005385e307",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Centro",
-    "preco": "R$3.500",
+    "preco": "R$ 3.500",
     "link": "https://www.imoveisdna.com.br/imovel/3368234/casa-locacao-pindamonhangaba-sp-centro",
     "pagina": 1
   },
   {
-    "id": "2e953298085511d7a3c7fbbb137b25e1",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Centro",
-    "preco": "R$3.500",
-    "link": "https://www.imoveisdna.com.br/imovel/3368234/casa-locacao-pindamonhangaba-sp-centro",
-    "pagina": 1
-  },
-  {
-    "id": "7c8a1b718e7368f80f3c81c7d30b0c4a",
+    "id": "02a96260670e204ccaa65b02e82ea96a",
     "titulo": "Casa para Locação, em Taubaté, bairro Vila das Jabuticabeiras, 3 dormitórios, 1 banheiro, 1 vaga",
-    "preco": "R$2.420",
+    "preco": "R$ 2.420",
     "link": "https://www.imoveisdna.com.br/imovel/3364022/casa-locacao-taubate-sp-vila-das-jabuticabeiras",
     "pagina": 1
   },
   {
-    "id": "74e097f202a3f5fcb5c299e51906e79f",
-    "titulo": "Apartamento em Pindamonhangaba - Residencial e Comercial Cidade Morumbi",
-    "preco": "R$ 1.500",
-    "link": "https://www.spacoimoveis.com/imovel/apartamento-pindamonhangaba-2-quartos-43-m/AP0295-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "026c75c2e2d4b4b98cb724da098e2e77",
-    "titulo": "Apartamento em Pindamonhangaba - Santana",
-    "preco": "R$ 1.500",
-    "link": "https://www.spacoimoveis.com/imovel/apartamento-pindamonhangaba-2-quartos-39-m/AP0307-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "d2c562cac89ba79cfa39901b75e48d0c",
-    "titulo": "Casa em Pindamonhangaba - Vila Rica",
-    "preco": "R$ 1.500",
-    "link": "https://www.spacoimoveis.com/imovel/casa-pindamonhangaba-2-quartos-87-m/CA0579-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "6e5d67b73379a12b455f17732cbb7c8c",
-    "titulo": "Apartamento em Pindamonhangaba - Crispim",
-    "preco": "R$ 1.800",
-    "link": "https://www.spacoimoveis.com/imovel/apartamento-pindamonhangaba-2-quartos-70-m/AP0221-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "e7114d6510826f37f5266c0c3423f684",
-    "titulo": "Apartamento em Pindamonhangaba - Vila Bourghese",
-    "preco": "R$ 1.800",
-    "link": "https://www.spacoimoveis.com/imovel/apartamento-pindamonhangaba-3-quartos-77-m/AP0162-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "aef4e3c425d4dc863f310e49f9c4010b",
-    "titulo": "Casa em Pindamonhangaba - Vila Rica",
-    "preco": "R$ 1.900",
-    "link": "https://www.spacoimoveis.com/imovel/casa-pindamonhangaba-2-quartos-103-m/CA0665-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "60e69c0e9e00bf17bdecc6abc25f3054",
-    "titulo": "Apartamento em Pindamonhangaba - Chácara Galega",
-    "preco": "R$ 2.200",
-    "link": "https://www.spacoimoveis.com/imovel/apartamento-pindamonhangaba-2-quartos-85-m/AP0322-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "73031960b2222b1e7d45bebaa8966732",
-    "titulo": "Apartamento em Pindamonhangaba - Parque das Nações",
-    "preco": "R$ 2.500",
-    "link": "https://www.spacoimoveis.com/imovel/apartamento-pindamonhangaba-2-quartos-116-m/AP0333-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "b31e340b9931c42d90eee939f801ebf4",
-    "titulo": "Sobrado em Pindamonhangaba - Flamboyant",
-    "preco": "R$ 3.000",
-    "link": "https://www.spacoimoveis.com/imovel/sobrado-pindamonhangaba-4-quartos-153-m/SO0144-SPAN",
-    "pagina": 1
-  },
-  {
-    "id": "a2f4daa7fca7666ba1e5eb238c750ecd",
-    "titulo": "Apartamento Padrão em Alto do Tabaú",
-    "preco": "R$ 2.200,00",
-    "link": "https://www.hnegocios.com/imovel/apartamento-padrao-alto-do-tabau-2dorm/16518",
-    "pagina": 1
-  },
-  {
-    "id": "97a5608457df1d8898dddfefca66aa22",
-    "titulo": "Casa Comercial em Centro",
-    "preco": "R$ 2.800,00",
-    "link": "https://www.hnegocios.com/imovel/casa-comercial-centro-0vagas-95areautil/16507",
-    "pagina": 1
-  },
-  {
-    "id": "2f0bb257611a069cb8c5fbf8e6780334",
-    "titulo": "Casa Térrea em Bela Vista",
-    "preco": "R$ 3.500,00",
-    "link": "https://www.hnegocios.com/imovel/casa-terrea-bela-vista-4dorm/15459",
-    "pagina": 1
-  },
-  {
-    "id": "fc2ffe0fa0ca86f5c909d0f61f6165b9",
-    "titulo": "Casa Sobrado em Campo Alegre",
-    "preco": "R$ 3.500,00",
-    "link": "https://www.hnegocios.com/imovel/casa-sobrado-campo-alegre-3dorm/15458",
-    "pagina": 1
-  },
-  {
-    "id": "e06af57c13945f3c90e58de3c09ee977",
-    "titulo": "Casa Térrea em Bosque da Princesa",
-    "preco": "R$ 2.000,00",
-    "link": "https://www.hnegocios.com/imovel/casa-terrea-bosque-da-princesa-2dorm/8090",
-    "pagina": 4
-  },
-  {
-    "id": "0a0ce5105ddac083516524a9f0acca8d",
-    "titulo": "Apartamento Padrão em Vila Bourguese",
-    "preco": "R$ 2.143,00",
-    "link": "https://www.hnegocios.com/imovel/apartamento-padrao-vila-bourguese-3dorm/3993",
-    "pagina": 4
-  },
-  {
-    "id": "a2f4daa7fca7666ba1e5eb238c750ecd",
-    "titulo": "Apartamento Padrão em Alto do Tabaú",
-    "preco": "R$ 2.200,00",
-    "link": "https://www.hnegocios.com/imovel/apartamento-padrao-alto-do-tabau-2dorm/16518",
-    "pagina": 5
-  },
-  {
-    "id": "97a5608457df1d8898dddfefca66aa22",
-    "titulo": "Casa Comercial em Centro",
-    "preco": "R$ 2.800,00",
-    "link": "https://www.hnegocios.com/imovel/casa-comercial-centro-0vagas-95areautil/16507",
-    "pagina": 5
-  },
-  {
-    "id": "2f0bb257611a069cb8c5fbf8e6780334",
-    "titulo": "Casa Térrea em Bela Vista",
-    "preco": "R$ 3.500,00",
-    "link": "https://www.hnegocios.com/imovel/casa-terrea-bela-vista-4dorm/15459",
-    "pagina": 5
-  },
-  {
-    "id": "fc2ffe0fa0ca86f5c909d0f61f6165b9",
-    "titulo": "Casa Sobrado em Campo Alegre",
-    "preco": "R$ 3.500,00",
-    "link": "https://www.hnegocios.com/imovel/casa-sobrado-campo-alegre-3dorm/15458",
-    "pagina": 5
-  },
-  {
-    "id": "e06af57c13945f3c90e58de3c09ee977",
-    "titulo": "Casa Térrea em Bosque da Princesa",
-    "preco": "R$ 2.000,00",
-    "link": "https://www.hnegocios.com/imovel/casa-terrea-bosque-da-princesa-2dorm/8090",
-    "pagina": 5
-  },
-  {
-    "id": "0a0ce5105ddac083516524a9f0acca8d",
-    "titulo": "Apartamento Padrão em Vila Bourguese",
-    "preco": "R$ 2.143,00",
-    "link": "https://www.hnegocios.com/imovel/apartamento-padrao-vila-bourguese-3dorm/3993",
-    "pagina": 5
-  },
-  {
-    "id": "5e9cd47a493ab687cc86255d50461b65",
-    "titulo": "Casa Térrea em São Benedito",
-    "preco": "R$ 3.000,00",
-    "link": "https://www.hnegocios.com/imovel/casa-terrea-sao-benedito-3dorm/1479",
-    "pagina": 5
-  },
-  {
-    "id": "b8aae5bd38c7d159ff78df355f4e2264",
-    "titulo": "Apartamento Padrão em São Benedito",
-    "preco": "R$ 2.100,00",
-    "link": "https://www.hnegocios.com/imovel/apartamento-padrao-sao-benedito-2dorm/816",
-    "pagina": 5
-  },
-  {
-    "id": "3ec72b626f4fab7f266ae0b424bff1ad",
-    "titulo": "Casa Comercial em Vila Bourguese",
-    "preco": "R$ 3.500,00",
-    "link": "https://www.hnegocios.com/imovel/casa-comercial-vila-bourguese-2vagas-110areautil/729",
-    "pagina": 5
-  },
-  {
-    "id": "19bbf6bea7da2ce9b974b61046c5e549",
-    "titulo": "Casa 2 quartos e 1 banheiro, para alugar, no bairro Comercial e Residencial Jardim Mariana em Pindamonhangaba",
-    "preco": "R$ 1.500,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/casa/locacao/pindamonhangaba/sp/comercial-e-residencial-jardim-mariana/CA8445_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "b83d000189bc50b6f74214a9e6647c4e",
-    "titulo": "Apartamento com 95m² 3 quartos e 2 banheiros, para alugar, no bairro Residencial Mombaça I em Pindamonhangaba",
-    "preco": "R$ 1.600,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/residencial-mombaca-i/AP5388_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "da1201c107e53aa2e45f0c03819b9deb",
-    "titulo": "Apartamento 2 quartos e 1 banheiro, à venda ou para alugar, no bairro Condomínio Reserva Anaua em Pindamonhangaba",
-    "preco": "R$ 1.600,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/venda-e-locacao/pindamonhangaba/sp/condominio-reserva-anaua/AP2554_PALACT",
-    "pagina": 1
-  },
-  {
-    "id": "8cfd6bc0a2a364d83e049230693953f2",
-    "titulo": "Apartamento 2 quartos e 1 banheiro, para alugar, no bairro Condomínio Reserva Anaua em Pindamonhangaba",
-    "preco": "R$ 1.800,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/condominio-reserva-anaua/AP1296_PALACT",
-    "pagina": 1
-  },
-  {
-    "id": "a7a5a0f09fcdbb152a3ec1e727826122",
-    "titulo": "Apartamento 3 quartos e 1 banheiro, à venda ou para alugar, no bairro Tabaú em Pindamonhangaba",
-    "preco": "R$ 1.900,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/venda-e-locacao/pindamonhangaba/sp/tabau/AP5274_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "7e59ab718975ee3fb1604379a21c1bd9",
-    "titulo": "Apartamento 2 quartos e 2 banheiros, à venda ou para alugar, no bairro Centro em Pindamonhangaba",
-    "preco": "R$ 2.200,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/venda-e-locacao/pindamonhangaba/sp/centro/AP5334_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "22106efeefe42ec67ea9a720b2ea8bf4",
-    "titulo": "Apartamento 2 quartos e 2 banheiros, para alugar, no bairro Chácara Galega em Pindamonhangaba",
-    "preco": "R$ 2.450,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/chacara-galega/AP1472_PALACT",
-    "pagina": 1
-  },
-  {
-    "id": "906c2276dc8fb542518a76f03c27a8e6",
-    "titulo": "Apartamento 3 quartos e 2 banheiros, para alugar, no bairro Parque das Nações em Pindamonhangaba",
-    "preco": "R$ 2.650,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/parque-das-nacoes/AP5450_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "9920ace349dc27b3290f6c5e40feb05b",
-    "titulo": "Apartamento 3 quartos e 2 banheiros, para alugar, no bairro Parque das Nações em Pindamonhangaba",
-    "preco": "R$ 2.650,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/parque-das-nacoes/AP5451_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "12f32039a0b9e5f5107c71719e1af7e1",
-    "titulo": "Apartamento 3 quartos e 2 banheiros, para alugar, no bairro Tabaú em Pindamonhangaba",
-    "preco": "R$ 2.700,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/tabau/AP5397_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "c00f1755580e6257070d6052a1d3c1fd",
-    "titulo": "Casa em Pindamonhangaba - Centro",
-    "preco": "R$ 3.500",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-6-quartos-273-m/CA0211-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "f940ba583b066fd26d5d2f99982c7967",
-    "titulo": "Apartamento em Pindamonhangaba - Parque das Nações",
-    "preco": "R$ 2.650",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/apartamento-pindamonhangaba-3-quartos-82-m/AP0339-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "a568741d4fb57387b9649ee57d01e0a1",
-    "titulo": "Apartamento em Pindamonhangaba - Parque das Nações",
-    "preco": "R$ 2.650",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/apartamento-pindamonhangaba-3-quartos-82-m/AP0338-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "6e9a492b39c446f00593515c60567ea7",
-    "titulo": "Sobrado em Pindamonhangaba - Centro",
-    "preco": "R$ 3.000",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/sobrado-pindamonhangaba-4-quartos-142-m/SO0058-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "e27a23a376cfb0c3fc6db944b3ea6ddc",
-    "titulo": "Casa em Pindamonhangaba - Residencial Vila Romana",
-    "preco": "R$ 2.200",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-3-quartos-106-m/CA0288-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "fe94dfad2b6bdbdc4b5cf5d2267e2e4e",
-    "titulo": "Casa em Pindamonhangaba - Vila Suiça",
-    "preco": "R$ 2.750",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-3-quartos-160-m/CA0392-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "b6539dfc84a3770ab71416c84be7b8f3",
-    "titulo": "Sobrado em Pindamonhangaba - Centro",
-    "preco": "R$ 3.500",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/sobrado-pindamonhangaba-4-quartos-280-m/SO0073-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "f91256df9d9fab299f3a7d52980e73f0",
-    "titulo": "Casa em Pindamonhangaba - Parque Sao Benedito",
-    "preco": "R$ 2.700",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-3-quartos-240-m/CA0160-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "772742a7104a60b558846cf86c7eaabe",
-    "titulo": "Apartamento em Pindamonhangaba - Jardim Rosely",
-    "preco": "R$ 2.200",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/apartamento-pindamonhangaba-3-quartos-92-m/AP0248-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "12df5ff2fc3d34362a5f8e39c5d61e3e",
-    "titulo": "Casa em Pindamonhangaba - Centro",
-    "preco": "R$ 2.600",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-3-quartos-179-m/CA0343-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "1742153da3164a36154f4497f2612656",
-    "titulo": "Casa em Pindamonhangaba - Vila Rica",
-    "preco": "R$ 3.000",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-3-quartos-120-m/CA0369-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "054f59f706e64d03a259fe78d0bf8d7c",
-    "titulo": "Sobrado em Pindamonhangaba - Loteamento Residencial Andrade",
-    "preco": "R$ 2.850",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/sobrado-pindamonhangaba-2-quartos-160-m/SO0099-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "6259d56f1a4cc10d760a60092503306a",
+    "id": "5f7983fadfcd431116414069346936ac",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Crispim, 2 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$1.500",
+    "preco": "R$ 1.500",
     "link": "https://www.novacabana.com.br/imovel/2009084/casa-locacao-pindamonhangaba-sp-crispim",
     "pagina": 1
   },
   {
-    "id": "b33d9fd65711eb0dee16de8913ed82a4",
+    "id": "1738986537f80ee6991051451f29c40c",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Centro, 2 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$1.800",
+    "preco": "R$ 1.800",
     "link": "https://www.novacabana.com.br/imovel/4287391/casa-locacao-pindamonhangaba-sp-centro",
     "pagina": 1
   },
   {
-    "id": "5b836b65abed58143093d29a87e0e176",
+    "id": "dbf78a42c8709e943b849ee8daf98fa8",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Mombaça, 2 dormitórios, 2 banheiros, 1 suíte, 1 vaga",
-    "preco": "R$2.000",
+    "preco": "R$ 2.000",
     "link": "https://www.novacabana.com.br/imovel/3066734/casa-locacao-pindamonhangaba-sp-mombaca",
     "pagina": 1
   },
   {
-    "id": "12c8298050ee1432f6f2463b91a82957",
+    "id": "1e5deef2d00775312a3933ba6952446d",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Bela Vista, 3 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$2.000",
+    "preco": "R$ 2.000",
     "link": "https://www.novacabana.com.br/imovel/4269562/casa-locacao-pindamonhangaba-sp-bela-vista",
     "pagina": 1
   },
   {
-    "id": "da152cc91b974a2ac9acddac4b76c449",
+    "id": "eac7ca772aa52ca823b4ac4e126bdcaa",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim Cristina, 3 dormitórios, 2 banheiros, 2 suítes, 1 vaga",
-    "preco": "R$2.200",
+    "preco": "R$ 2.200",
     "link": "https://www.novacabana.com.br/imovel/3544799/casa-locacao-pindamonhangaba-sp-jardim-cristina",
     "pagina": 1
   },
   {
-    "id": "783405a9466a42cfec6a9352b028aeb5",
+    "id": "c3b29f6fe9b255e9ce9d02cf448f4e2f",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Loteamento Industrial Água Preta, 3 dormitórios, 3 banheiros, 1 suíte, 4 vagas",
-    "preco": "R$2.400",
+    "preco": "R$ 2.400",
     "link": "https://www.novacabana.com.br/imovel/2737595/casa-locacao-pindamonhangaba-sp-loteamento-industrial-agua-preta",
     "pagina": 1
   },
   {
-    "id": "ffd52110c12863c512a6b931bef1a4b5",
+    "id": "69761f9b93c35aed7c73bedeca47ff3a",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Bosque da Princesa, 3 dormitórios, 2 banheiros, 1 suíte, 2 vagas",
-    "preco": "R$2.500",
+    "preco": "R$ 2.500",
     "link": "https://www.novacabana.com.br/imovel/4235042/casa-locacao-pindamonhangaba-sp-bosque-da-princesa",
     "pagina": 1
   },
   {
-    "id": "9fa656dc68ce7e0daddf71d43ba7a020",
+    "id": "a4390a37000ffc3def9065173bd1972e",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim do Chafariz, 3 dormitórios, 2 banheiros, 3 vagas",
+    "preco": "R$ 2.500",
+    "link": "https://www.novacabana.com.br/imovel/4381193/casa-locacao-pindamonhangaba-sp-jardim-do-chafariz",
+    "pagina": 1
+  },
+  {
+    "id": "afccc5ec9a49bc87e2287a0ad747eb39",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Tabaú, 3 dormitórios, 2 banheiros, 1 suíte, 1 vaga",
-    "preco": "R$3.000",
+    "preco": "R$ 3.000",
     "link": "https://www.novacabana.com.br/imovel/1520818/casa-locacao-pindamonhangaba-sp-tabau",
     "pagina": 1
   },
   {
-    "id": "369b5870ea91b4338a49043775f1cf4f",
+    "id": "bda8de0a15bab3862b937c550c276aaa",
     "titulo": "Casa para Locação, em , bairro Bosque da Imperatriz, 3 dormitórios, 1 banheiro, 1 suíte, 2 vagas",
-    "preco": "R$3.600",
+    "preco": "R$ 3.600",
     "link": "https://www.novacabana.com.br/imovel/3827362/casa-locacao-bosque-da-imperatriz",
     "pagina": 1
   },
   {
-    "id": "f63be81a56069ecd18992e5e204a1f9c",
+    "id": "6f9997dd772e0e7f75d6f0a2398c3e5a",
     "titulo": "Apartamento para Locação, em , bairro Nossa Senhora do Perpétuo Socorro, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
-    "preco": "R$1.500",
+    "preco": "R$ 1.500",
     "link": "https://www.novacabana.com.br/imovel/4089122/apartamento-locacao-nossa-senhora-do-perpetuo-socorro-edificio-ana-clara",
     "pagina": 1
   },
   {
-    "id": "e0e0557497b919486fb391244708bb0e",
+    "id": "b2ae83f256da38001ed2dd0f63ee2386",
     "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Jardim Aurora, 2 dormitórios, 2 banheiros, 1 suíte, 1 vaga",
-    "preco": "R$1.600",
+    "preco": "R$ 1.600",
     "link": "https://www.novacabana.com.br/imovel/4287381/apartamento-locacao-pindamonhangaba-sp-jardim-aurora",
     "pagina": 1
   },
   {
-    "id": "05fef31a58b23549087400a0fd77877a",
+    "id": "9bfd68c45789be71d0a9f7f075466313",
     "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Residencial Mantiqueira, 2 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$1.600",
+    "preco": "R$ 1.600",
     "link": "https://www.novacabana.com.br/imovel/4369798/apartamento-locacao-pindamonhangaba-sp-residencial-mantiqueira",
     "pagina": 1
   },
   {
-    "id": "9c68837744f2661724f3650f04f33710",
+    "id": "90ddf1ac9eb3fa10917f8ec2f8fd0227",
     "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Loteamento Industrial Água Preta, 2 dormitórios, 1 banheiro, 1 vaga",
-    "preco": "R$1.900",
+    "preco": "R$ 1.900",
     "link": "https://www.novacabana.com.br/imovel/3949556/apartamento-locacao-pindamonhangaba-sp-loteamento-industrial-agua-preta",
     "pagina": 1
   },
   {
-    "id": "24e710f7114950570fb49dfa97d6d114",
+    "id": "6ec210c0fe033636bab5799f9782404e",
     "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Parque das Nações, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
-    "preco": "R$2.600",
+    "preco": "R$ 2.600",
     "link": "https://www.novacabana.com.br/imovel/4157294/apartamento-locacao-pindamonhangaba-sp-parque-das-nacoes",
     "pagina": 1
   },
   {
-    "id": "c74dd95dd7f1adce728ab9bb1d373364",
+    "id": "d1fd9537d2c58f4eb194b7a71ff784ed",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro São Benedito, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
+    "preco": "R$ 3.000",
+    "link": "https://www.edifficatho.com.br/imovel/4108337/apartamento-locacao-pindamonhangaba-sp-sao-benedito",
+    "pagina": 1
+  },
+  {
+    "id": "0b758cb2ff6b4a6b292d5348da61f1f9",
     "titulo": "Sobrado para Locação, em Pindamonhangaba, bairro Alto do Cardoso, 3 dormitórios, 1 banheiro, 1 suíte, 2 vagas",
-    "preco": "R$2.700",
+    "preco": "R$ 2.700",
     "link": "https://www.edifficatho.com.br/imovel/3400764/sobrado-locacao-pindamonhangaba-sp-alto-do-cardoso",
     "pagina": 1
   },
   {
-    "id": "2162654d0162ef5f2f420136d9ba611c",
-    "titulo": "CASA - Bosque Da Princesa - Pindamonhangaba/SP",
-    "preco": "R$ 1.500,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/bosque-da-princesa/casa/79023279",
+    "id": "0ec73cc3ef3ab650146ec8de9976b58e",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro São Benedito, 2 dormitórios, 1 banheiro, 1 suíte, 2 vagas",
+    "preco": "R$ 1.500",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3811909/apartamento-locacao-pindamonhangaba-sp-sao-benedito-edificio-acacias",
     "pagina": 1
   },
   {
-    "id": "84fc542261ebe77ee4ef8c5fc23c00a2",
-    "titulo": "APARTAMENTO - Loteamento Industrial Água Preta - Pindamonhangaba/SP",
-    "preco": "R$ 1.500,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/loteamento-industrial-agua-preta/apartamento/79059948",
+    "id": "7327b419ac0aeeff6fdc09920ea385f7",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Santana, 3 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
+    "preco": "R$ 1.500",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812060/apartamento-locacao-pindamonhangaba-sp-santana-grand-valle-imperial",
     "pagina": 1
   },
   {
-    "id": "d6b09119abec23f68441ee47063afd31",
-    "titulo": "CASA - Jardim Boa Vista - Pindamonhangaba/SP",
-    "preco": "R$ 1.600,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/jardim-boa-vista/casa/78404224",
+    "id": "9bb796483c48977b194c311dba52f49d",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Mombaça, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 1.500",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812208/apartamento-locacao-pindamonhangaba-sp-mombaca-apartamento-mombaca",
     "pagina": 1
   },
   {
-    "id": "b9213c0a87d57780b8f84bbd6a2c7801",
-    "titulo": "APARTAMENTO - Loteamento Residencial Andrade - Pindamonhangaba/SP",
-    "preco": "R$ 1.600,00",
-    "link": "https://wilsonimoveisvale.com.br/comprar-ou-alugar/sp/pindamonhangaba/loteamento-residencial-andrade/apartamento/78488259",
+    "id": "1abd5eac8da4e8870d42c6563450c93b",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Crispim, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 1.500",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3916726/apartamento-locacao-pindamonhangaba-sp-crispim-condominio-princesa-isabel",
     "pagina": 1
   },
   {
-    "id": "00f263392c2b68aef34a2c7d255df12a",
-    "titulo": "CASA - Alto Do Cardoso - Pindamonhangaba/SP",
-    "preco": "R$ 1.600,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/alto-do-cardoso/casa/79023331",
+    "id": "ffadcf4511a57c4dae6dbef0aec4f78b",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Crispim, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 1.500",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/4357579/apartamento-locacao-pindamonhangaba-sp-crispim-condominio-princesa-isabel",
     "pagina": 1
   },
   {
-    "id": "79d3007db52671cb2640da918a84ef09",
-    "titulo": "CASA - Parque São Domingos - Pindamonhangaba/SP",
-    "preco": "R$ 1.600,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/parque-sao-domingos/casa/78970518",
-    "pagina": 1
-  },
-  {
-    "id": "713cf27a72ac31d532ac81c50bbd4437",
-    "titulo": "APARTAMENTO - Loteamento Residencial Andrade - Pindamonhangaba/SP",
-    "preco": "R$ 1.600,00",
-    "link": "https://wilsonimoveisvale.com.br/comprar-ou-alugar/sp/pindamonhangaba/loteamento-residencial-andrade/apartamento/78488192",
-    "pagina": 1
-  },
-  {
-    "id": "59f96e9e0cb0486391cecff8e441658a",
-    "titulo": "CASA - Parque São Domingos - Pindamonhangaba/SP",
-    "preco": "R$ 1.700,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/parque-sao-domingos/casa/78015201",
-    "pagina": 1
-  },
-  {
-    "id": "28afea4ef63284d0df3b373a46b1e002",
-    "titulo": "APARTAMENTO - Crispim - Pindamonhangaba/SP",
-    "preco": "R$ 1.700,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/crispim/apartamento/78945029",
-    "pagina": 1
-  },
-  {
-    "id": "c4a1d1dc4442bf24743eee902f2da82a",
-    "titulo": "APARTAMENTO - Jardim Do Ypê - Pindamonhangaba/SP",
-    "preco": "R$ 1.700,00",
-    "link": "https://wilsonimoveisvale.com.br/comprar-ou-alugar/sp/pindamonhangaba/jardim-do-ype/apartamento/78587368",
-    "pagina": 1
-  },
-  {
-    "id": "e4d4341b876da3d0a861486deef0d91c",
-    "titulo": "APARTAMENTO - Alto Do Cardoso - Pindamonhangaba/SP",
-    "preco": "R$ 1.750,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/alto-do-cardoso/apartamento/79011407",
-    "pagina": 1
-  },
-  {
-    "id": "692bdf9a4d13c5eedc63022db8f9464e",
-    "titulo": "CASA - Loteamento Residencial Andrade - Pindamonhangaba/SP",
-    "preco": "R$ 1.800,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/loteamento-residencial-andrade/casa/79079817",
-    "pagina": 1
-  },
-  {
-    "id": "52c2a8da082f9db86bfc521f2af885ef",
+    "id": "c45dfc1735a792448bd503a92f0aebfc",
     "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Alto do Cardoso, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
-    "preco": "R$2.000",
+    "preco": "R$ 1.600",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812052/apartamento-locacao-pindamonhangaba-sp-alto-do-cardoso-apto-alto-do-cardoso",
+    "pagina": 1
+  },
+  {
+    "id": "61297a0bcef3a4687eecce4b1d194679",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Jardim Boa Vista, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 1.600",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812206/apartamento-locacao-pindamonhangaba-sp-jardim-boa-vista-edificio-safira",
+    "pagina": 1
+  },
+  {
+    "id": "5f54cdbd688a87221bc57dff0b76fe16",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Crispim, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 1.765",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812121/apartamento-locacao-pindamonhangaba-sp-crispim-condominio-princesa-isabel",
+    "pagina": 1
+  },
+  {
+    "id": "70b717e422e05e7ce29254dbf3b9c7b5",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Loteamento Alfredo Abilio Flores, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
+    "preco": "R$ 1.800",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812136/apartamento-locacao-pindamonhangaba-sp-loteamento-alfredo-abilio-flores-apartamento-alto-do-cardoso",
+    "pagina": 1
+  },
+  {
+    "id": "6dfddc27072819ba8b470f6e55c3b730",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Loteamento Alfredo Abilio Flores, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
+    "preco": "R$ 1.800",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/4020161/apartamento-locacao-pindamonhangaba-sp-loteamento-alfredo-abilio-flores",
+    "pagina": 1
+  },
+  {
+    "id": "d937a262679aa88a78021de4eacb1ab1",
+    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro Alto do Cardoso, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
+    "preco": "R$ 2.000",
     "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3811969/apartamento-locacao-pindamonhangaba-sp-alto-do-cardoso-apto-alto-do-cardoso",
     "pagina": 1
   },
   {
-    "id": "8516aa879c6d7470763a653667e90d09",
+    "id": "2f6a1cd67019ce227140e4a700c2f70c",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Vila Suiça, 4 dormitórios, 3 banheiros, 1 suíte, 2 vagas",
+    "preco": "R$ 1.550",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812458/casa-locacao-pindamonhangaba-sp-vila-suica",
+    "pagina": 1
+  },
+  {
+    "id": "2a89979efdd9bd57dc69f9e2f11f8d21",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Residencial Mombaça, 3 dormitórios, 2 banheiros, 1 suíte, 2 vagas",
+    "preco": "R$ 1.600",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812261/casa-locacao-pindamonhangaba-sp-residencial-mombaca",
+    "pagina": 1
+  },
+  {
+    "id": "98b0201da571c46a9a1d3c1aa358f70d",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Crispim, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 1.600",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/4086891/casa-locacao-pindamonhangaba-sp-crispim",
+    "pagina": 1
+  },
+  {
+    "id": "910e5246b44705e86b2a3694716e8cf6",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Crispim, 2 dormitórios, 1 banheiro, 1 vaga",
+    "preco": "R$ 1.600",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/4086892/casa-locacao-pindamonhangaba-sp-crispim",
+    "pagina": 1
+  },
+  {
+    "id": "0b7cb46b86c899aca90a940d9231bd43",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Vila Suiça, 4 dormitórios, 3 banheiros, 1 suíte, 2 vagas",
+    "preco": "R$ 1.620",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812338/casa-locacao-pindamonhangaba-sp-vila-suica",
+    "pagina": 1
+  },
+  {
+    "id": "c90d31982141bb83af660cc3c36ddafc",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Chácara Galega, 3 dormitórios, 1 banheiro, 1 suíte, 2 vagas",
+    "preco": "R$ 1.870",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812256/casa-locacao-pindamonhangaba-sp-chacara-galega",
+    "pagina": 1
+  },
+  {
+    "id": "fcd2964387e7545215e6db85ace941a6",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim Residencial Doutor Lessa, 3 dormitórios, 1 banheiro, 2 vagas",
+    "preco": "R$ 1.900",
+    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812258/casa-locacao-pindamonhangaba-sp-jardim-residencial-doutor-lessa",
+    "pagina": 1
+  },
+  {
+    "id": "67950a04a8f9654055c93442d0c917d4",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim Residencial Doutor Lessa, 5 dormitórios, 3 banheiros, 2 suítes, 2 vagas",
-    "preco": "R$2.000",
+    "preco": "R$ 2.000",
     "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812322/casa-locacao-pindamonhangaba-sp-jardim-residencial-doutor-lessa",
     "pagina": 1
   },
   {
-    "id": "983d8b4f654220679caa52b870f75643",
+    "id": "87a54d5a32d7b47cd11bc6fee31bf21e",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim Rezende, 3 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$2.000",
+    "preco": "R$ 2.000",
     "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812384/casa-locacao-pindamonhangaba-sp-jardim-rezende",
     "pagina": 1
   },
   {
-    "id": "f811c6283cbfb794484340701cc22dba",
+    "id": "544409b983d6a2ad76aa25acf64ab4be",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Loteamento Eduardo da Silva Neto, 3 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$2.000",
+    "preco": "R$ 2.000",
     "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812388/casa-locacao-pindamonhangaba-sp-loteamento-eduardo-da-silva-neto",
     "pagina": 1
   },
   {
-    "id": "c48ca9e85eefe2161a38d9bdefc5d206",
+    "id": "851311fce53ddac50cf471b6a9aea645",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Loteamento Eduardo da Silva Neto, 3 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$2.000",
+    "preco": "R$ 2.000",
     "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812513/casa-locacao-pindamonhangaba-sp-loteamento-eduardo-da-silva-neto",
     "pagina": 1
   },
   {
-    "id": "ebe8df3bdcc69c72af18b77ecbb0be69",
+    "id": "8c8cf7d205a4b6dc609a60af34aba56d",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim Rezende, 3 dormitórios, 2 banheiros, 2 vagas",
-    "preco": "R$2.000",
+    "preco": "R$ 2.000",
     "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812561/casa-locacao-pindamonhangaba-sp-jardim-rezende",
     "pagina": 1
   },
   {
-    "id": "c6bc6fd6c86fd0684b3edce5dbed64b4",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Comercial e Residencial Jardim Mariana, 3 dormitórios, 2 banheiros, 1 vaga",
-    "preco": "R$2.150",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/4332668/casa-locacao-pindamonhangaba-sp-comercial-e-residencial-jardim-mariana",
-    "pagina": 1
-  },
-  {
-    "id": "9993e503ac78acd6b25a492c31e0a1f9",
+    "id": "35e1dd057be8ca9a46139f044e4cb8cf",
     "titulo": "Casa para Locação, em Pindamonhangaba, bairro Vila Rica, 4 dormitórios, 3 banheiros, 1 suíte, 4 vagas",
-    "preco": "R$2.200",
+    "preco": "R$ 2.200",
     "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812337/casa-locacao-pindamonhangaba-sp-vila-rica",
     "pagina": 1
   },
   {
-    "id": "57bb1b04112d1579d3b7b9be19a761a6",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Residencial Campo Belo, 3 dormitórios, 2 banheiros, 1 suíte, 2 vagas",
-    "preco": "R$2.200",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812391/casa-locacao-pindamonhangaba-sp-residencial-campo-belo",
+    "id": "1beef07db11159f960917642439f4d81",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 2.500",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0694-TAUG",
     "pagina": 1
   },
   {
-    "id": "de97452182dfb6f4faebc8b3f8feef79",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Loteamento Residencial e Comercial Flamboyant, 3 dormitórios, 2 banheiros, 1 suíte, 2 vagas",
-    "preco": "R$2.200",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812487/casa-locacao-pindamonhangaba-sp-loteamento-residencial-e-comercial-flamboyant",
+    "id": "b8c311102d7893736c2987faaa479181",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 2.000",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-1-quarto-42-m/AP0690-TAUG",
     "pagina": 1
   },
   {
-    "id": "f9c5ea734baa92d25edad5834f49337b",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Loteamento Residencial e Comercial Flamboyant, 2 dormitórios, 2 banheiros, 1 suíte, 2 vagas",
-    "preco": "R$2.200",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/4301876/casa-locacao-pindamonhangaba-sp-loteamento-residencial-e-comercial-flamboyant",
+    "id": "71f14c657410a95ffd3c1334ea66542b",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 2.500",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0692-TAUG",
     "pagina": 1
   },
   {
-    "id": "5afc74a4ddc3484a12699c6fce103cc0",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Residencial Mombaça, 2 dormitórios, 1 banheiro, 1 suíte, 2 vagas",
-    "preco": "R$2.350",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812485/casa-locacao-pindamonhangaba-sp-residencial-mombaca",
+    "id": "62f87ad9e486a395939920519ab19202",
+    "titulo": "Edifício Áquila Residence - Taubaté - SP",
+    "preco": "R$ 3.000",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-3-quartos-105-m/AP0319-TAUG",
     "pagina": 1
   },
   {
-    "id": "190cf265696b35b54af3f0a496d48918",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Residencial Campo Belo, 3 dormitórios, 2 banheiros, 1 suíte, 2 vagas",
-    "preco": "R$2.400",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812370/casa-locacao-pindamonhangaba-sp-residencial-campo-belo",
+    "id": "bbcda3178bb023fcbdd1785ffeaaa570",
+    "titulo": "Edifício Capivari - Taubaté - SP",
+    "preco": "R$ 1.900",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0669-TAUG",
     "pagina": 1
   },
   {
-    "id": "be6f447c9193db552da3c67d0ad08ce4",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Loteamento Industrial Água Preta, 3 dormitórios, 3 banheiros, 1 suíte, 4 vagas",
-    "preco": "R$2.400",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812519/casa-locacao-pindamonhangaba-sp-loteamento-industrial-agua-preta",
+    "id": "f6fa1f8804d94136621e09503fefec0f",
+    "titulo": "Vila São José - Taubaté - SP",
+    "preco": "R$ 1.500",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0043-TAUG",
     "pagina": 1
   },
   {
-    "id": "1bd0f9bdb64f8cb5de2e387780b05cf8",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Residencial Campo Belo, 3 dormitórios, 2 banheiros, 1 suíte, 2 vagas",
-    "preco": "R$2.400",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/4297603/casa-locacao-pindamonhangaba-sp-residencial-campo-belo",
+    "id": "5c02b1a07a97f3ab39341ada0557ab05",
+    "titulo": "Centro - Taubaté - SP",
+    "preco": "R$ 2.800",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-3-quartos-99-m/AP0683-TAUG",
     "pagina": 1
   },
   {
-    "id": "b4e2236bfcb8049f01cc1dc109eb7ae4",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim Boa Vista, 4 dormitórios, 3 banheiros, 1 suíte, 1 vaga",
-    "preco": "R$2.700",
-    "link": "https://www.simobsolucoesimobiliarias.com.br/imovel/3812304/casa-locacao-pindamonhangaba-sp-jardim-boa-vista",
+    "id": "67e3c92591ee145fa16122ed98705825",
+    "titulo": "Jardim Oásis - Taubaté - SP",
+    "preco": "R$ 1.500",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-70-m/AP0682-TAUG",
     "pagina": 1
   },
   {
-    "id": "aef1cf78df16267f40d421b632882430",
-    "titulo": "SOBRADO – RESIDENCIAL JARDINS",
-    "preco": "R$ 3.097,60",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/sobrado-residencial-jardins/",
+    "id": "d22d23ecf93f366ccc8d14c47367c64c",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 2.700",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0681-TAUG",
     "pagina": 1
   },
   {
-    "id": "93d943fdfdf090a6b19688052b9e4d31",
-    "titulo": "Apartamento em Pindamonhangaba - Mombaça",
+    "id": "529aa4d17d6f0ccca349e68ec67c813f",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 2.700",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0614-TAUG",
+    "pagina": 1
+  },
+  {
+    "id": "0a758875130e81a4ce94ded220325607",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 4.000",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-3-quartos-132-m/AP0391-TAUG",
+    "pagina": 1
+  },
+  {
+    "id": "682d54bb172bd008a8f06628ab2f1b4d",
+    "titulo": "Jardim Maria Augusta - Taubaté - SP",
+    "preco": "R$ 1.500",
+    "link": "https://www.taubateimoveis.com.br/imovel/sobrado-taubate-3-quartos-125-m/SO0023-TAUG",
+    "pagina": 2
+  },
+  {
+    "id": "f6c346e47bff79e7cb345f5543e3d28e",
+    "titulo": "Jardim Russi - Taubaté - SP",
     "preco": "R$ 1.700",
-    "link": "https://www.spacoimoveis.com/imovel/apartamento-pindamonhangaba-2-quartos-89-m/AP0337-SPAN",
+    "link": "https://www.taubateimoveis.com.br/imovel/casa-taubate-2-quartos-100-m/CA0099-TAUG",
+    "pagina": 2
+  },
+  {
+    "id": "f2f3288ece94a7b391b3306f1d1f34c4",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 2.000",
+    "link": "https://www.taubateimoveis.com.br/imovel/casa-taubate-2-quartos-80-m/CA0117-TAUG",
+    "pagina": 2
+  },
+  {
+    "id": "cec7673e4c07297e2c1aa27694a9739b",
+    "titulo": "Chácara do Visconde - Taubaté - SP",
+    "preco": "R$ 1.800",
+    "link": "https://www.taubateimoveis.com.br/imovel/casa-taubate-2-quartos-200-m/CA0436-TAUG",
+    "pagina": 2
+  },
+  {
+    "id": "5f7e8325ae153e664bea6d33e0774218",
+    "titulo": "Centro - Taubaté - SP",
+    "preco": "R$ 1.700",
+    "link": "https://www.taubateimoveis.com.br/imovel/casa-taubate-150-m/CA0481-TAUG",
+    "pagina": 2
+  },
+  {
+    "id": "d21de2bedbc2217aab4e34d34f4d1a1e",
+    "titulo": "Centro - Taubaté - SP",
+    "preco": "R$ 3.000",
+    "link": "https://www.taubateimoveis.com.br/imovel/casa-taubate-3-quartos-125-m/CA0346-TAUG",
+    "pagina": 2
+  },
+  {
+    "id": "501c10c1bdc5ec6fa2560eef9ddc8c10",
+    "titulo": "Guedes - Tremembé - SP",
+    "preco": "R$ 3.800",
+    "link": "https://www.taubateimoveis.com.br/imovel/chacara-tremembe-4-quartos-1-270-m/CH0002-TAUG",
+    "pagina": 3
+  },
+  {
+    "id": "646d1d3d1fff4480b077d01d1a7892a8",
+    "titulo": "Jardim Santa Clara - Taubaté - SP",
+    "preco": "R$ 1.600",
+    "link": "https://www.taubateimoveis.com.br/imovel/terreno-taubate-300-m/TE0125-TAUG",
+    "pagina": 4
+  },
+  {
+    "id": "0145593da41872c3d220c4716fcc4e66",
+    "titulo": "Apartamento",
+    "preco": "R$ 1.600",
+    "link": "https://www.unicaimoveistaubate.com.br/imovel/apartamento-taubate-2-quartos-53-m/AP0370-UNID",
     "pagina": 1
   },
   {
-    "id": "89cd19cfcc8b71e6dc4d85c61c3094f5",
-    "titulo": "Casa em Pindamonhangaba - Vila Rica",
-    "preco": "R$ 1.714",
-    "link": "https://www.spacoimoveis.com/imovel/casa-pindamonhangaba-2-quartos-87-m/CA0579-SPAN",
+    "id": "ac85212adb2c03891e7a8ae441fca290",
+    "titulo": "Casa",
+    "preco": "R$ 3.900",
+    "link": "https://www.unicaimoveistaubate.com.br/imovel/casa-taubate-3-quartos-163-m/CA0072-UNID",
     "pagina": 1
+  },
+  {
+    "id": "0733080450e28331644e47327b1b3bec",
+    "titulo": "Apartamento",
+    "preco": "R$ 2.600",
+    "link": "https://www.unicaimoveistaubate.com.br/imovel/apartamento-taubate-2-quartos-76-m/AP0368-UNID",
+    "pagina": 1
+  },
+  {
+    "id": "b143e57e7245d1255b2408bfbecff33a",
+    "titulo": "Apartamento",
+    "preco": "R$ 3.600",
+    "link": "https://www.unicaimoveistaubate.com.br/imovel/apartamento-taubate-3-quartos-90-m/AP0131-UNID",
+    "pagina": 1
+  },
+  {
+    "id": "ffd7f7cbe41ec79dd40375e8c2c64d65",
+    "titulo": "Casa",
+    "preco": "R$ 2.000",
+    "link": "https://www.unicaimoveistaubate.com.br/imovel/casa-taubate-2-quartos-100-m/CA0363-UNID",
+    "pagina": 1
+  },
+  {
+    "id": "17ba8b50cd62ee0cb123f2c6fa92d54a",
+    "titulo": "Casa",
+    "preco": "R$ 1.500",
+    "link": "https://www.unidasimoveistaubate.com.br/imovel/casa-taubate-2-quartos-90-m/CA0422-UNJB",
+    "pagina": 1
+  },
+  {
+    "id": "f2109465f3e6181e917d216428066597",
+    "titulo": "Apartamento",
+    "preco": "R$ 2.000",
+    "link": "https://www.unidasimoveistaubate.com.br/imovel/apartamento-taubate-3-quartos-129-m/AP0337-UNJB",
+    "pagina": 1
+  },
+  {
+    "id": "b6300c969bb0623307355d6241a5e3dc",
+    "titulo": "Terreno",
+    "preco": "R$ 2.500",
+    "link": "https://www.unidasimoveistaubate.com.br/imovel/terreno-taubate-235-m/TE0044-UNJB",
+    "pagina": 1
+  },
+  {
+    "id": "01c3f3f2683071099104d1225e6245e6",
+    "titulo": "Chácara com 2 quartos para Locação, Bom Sucesso - Pindamonhangaba",
+    "preco": "R$ 3.200,00",
+    "link": "https://derricoimoveis.com.br/chacara-com-2-quartos-para-locacao-bom-sucesso-pindamonhangaba-l3p",
+    "pagina": 1
+  },
+  {
+    "id": "2bea6c9cc1a890ce904670873a8ce4da",
+    "titulo": "Chácara com 2 quartos para Locação, Bom Sucesso - Pindamonhangaba",
+    "preco": "R$ 4.100,00",
+    "link": "https://derricoimoveis.com.br/chacara-com-2-quartos-para-locacao-bom-sucesso-pindamonhangaba-lm4",
+    "pagina": 1
+  },
+  {
+    "id": "350e9bd527f33eba099f21e6e78c1d24",
+    "titulo": "Casa com 2 quartos para Locação, Residencial Pasin - Pindamonhangaba",
+    "preco": "R$ 1.700,00",
+    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-residencial-pasin-pindamonhangaba",
+    "pagina": 1
+  },
+  {
+    "id": "13f1babfcecc17b59f57deb3f2bc25c1",
+    "titulo": "Chácara com 1 quarto para Locação, Bom Sucesso - Pindamonhangaba",
+    "preco": "R$ 3.000,00",
+    "link": "https://derricoimoveis.com.br/chacara-com-1-quarto-para-locacao-bom-sucesso-pindamonhangaba-dcn",
+    "pagina": 1
+  },
+  {
+    "id": "98640c8e827138a2f40322451182c5bd",
+    "titulo": "Chácara com 1 quarto para Locação, Bom Sucesso - Pindamonhangaba",
+    "preco": "R$ 2.250,00",
+    "link": "https://derricoimoveis.com.br/chacara-com-1-quarto-para-locacao-bom-sucesso-pindamonhangaba",
+    "pagina": 1
+  },
+  {
+    "id": "560d1156bc44422c7cb2a855a5928501",
+    "titulo": "Casa em Condomínio com 3 quartos para Locação, Loteamento Industrial Água Preta - Pindamonhangaba",
+    "preco": "R$ 2.200,00",
+    "link": "https://derricoimoveis.com.br/casa-em-condominio-com-3-quartos-para-locacao-loteamento-industrial-agua-preta-pindamonhangaba",
+    "pagina": 1
+  },
+  {
+    "id": "4f2e5eed19cd8977e9c8a8d357b3205d",
+    "titulo": "Apartamento com 3 quartos para Locação, Tabaú - Pindamonhangaba",
+    "preco": "R$ 2.100,00",
+    "link": "https://derricoimoveis.com.br/apartamento-com-3-quartos-para-locacao-tabau-pindamonhangaba",
+    "pagina": 1
+  },
+  {
+    "id": "7d4f9fc2499d1bbada16c9c08dfdf074",
+    "titulo": "Casa com 2 quartos para Locação, Loteamento Residencial Carangola - Pindamonhangaba",
+    "preco": "R$ 1.700,00",
+    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-loteamento-residencial-carangola-pindamonhangaba",
+    "pagina": 1
+  },
+  {
+    "id": "4d0f8b630156944d2ba758eb2916c31a",
+    "titulo": "Casa com 3 quartos para Locação, Jardim do Ypê - Pindamonhangaba",
+    "preco": "R$ 3.200,00",
+    "link": "https://derricoimoveis.com.br/casa-com-3-quartos-para-locacao-jardim-do-ype-pindamonhangaba-lmz",
+    "pagina": 1
+  },
+  {
+    "id": "dfe97c9c61f5c4aa8902bf8d5e09bf96",
+    "titulo": "Casa com 3 quartos para Locação, Jardim do Ypê - Pindamonhangaba",
+    "preco": "R$ 2.700,00",
+    "link": "https://derricoimoveis.com.br/casa-com-3-quartos-para-locacao-jardim-do-ype-pindamonhangaba",
+    "pagina": 1
+  },
+  {
+    "id": "943c354638b68204bdc9939db5ae7fe8",
+    "titulo": "Casa com 2 quartos para Locação, Centro - Pindamonhangaba",
+    "preco": "R$ 1.600,00",
+    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-centro-pindamonhangaba",
+    "pagina": 1
+  },
+  {
+    "id": "823927a8a58cbdfe3bac54b1bf6d69e3",
+    "titulo": "Casa com 2 quartos para Locação, Centro - Pindamonhangaba",
+    "preco": "R$ 1.800,00",
+    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-centro-pindamonhangaba-49b",
+    "pagina": 1
+  },
+  {
+    "id": "a38612b19cb2af704566d63c15416ad9",
+    "titulo": "Casa com 2 quartos para Locação, São Benedito - Pindamonhangaba",
+    "preco": "R$ 1.500,00",
+    "link": "https://derricoimoveis.com.br/casa-com-2-dormitorios-para-alugar-90-m2-por-r-126218mes-vila-bourghese-pindamonhangabasp",
+    "pagina": 1
+  },
+  {
+    "id": "7856b436134b3c1b55e8312a1d7a56e3",
+    "titulo": "Casa com 2 quartos, Conjunto Habitacional Terra dos Ipês I (Sul) - Pindamonhangaba",
+    "preco": "R$ 1.670,00",
+    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-conjunto-habitacional-terra-dos-ipes-i-sul-pindamonhangaba-9lu",
+    "pagina": 1
+  },
+  {
+    "titulo": "Apartamento - Apartamento à Venda ou para Alugar em Conjunto Habitacional Terra dos Ipês II (Fase I)",
+    "preco": "R$ 1.600,00 Aluguel",
+    "link": "https://www.domusimoveis.com/imovel/apartamento/venda-e-locacao/pindamonhangaba/sp/conjunto-habitacional-terra-dos-ipes-ii-fase-i/AP1305_DOMUS",
+    "pagina": 1,
+    "id": "79b0ad45f59b157e226f4a29291a78b8"
   },
   {
     "id": "c597db14a403a871d31dac5003296609",
     "titulo": "Apartamento Padrão em Centro",
     "preco": "R$ 2.500,00",
     "link": "https://www.hnegocios.com/imovel/apartamento-padrao-centro-2dorm/17522",
-    "pagina": 1
-  },
-  {
-    "id": "91d094b74ee8eaa94567111b68bde784",
-    "titulo": "Casa com 125m² 2 quartos e 2 banheiros, para alugar, no bairro Residencial e Comercial Portal dos Eucaliptos em Pindamonhangaba",
-    "preco": "R$ 1.800,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/casa/locacao/pindamonhangaba/sp/residencial-e-comercial-portal-dos-eucaliptos/CA8459_PAIM",
-    "pagina": 1
-  },
-  {
-    "id": "0c1c8e26c2cf13db28d48744ca764c04",
-    "titulo": "Casa em Pindamonhangaba - Vila Rica",
-    "preco": "R$ 3.000",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-3-quartos-150-m/CA0072-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "9998ce3d8352b2ddffcde3996c71e798",
-    "titulo": "Casa em Pindamonhangaba - Residencial Vila Romana",
-    "preco": "R$ 2.200",
-    "link": "https://www.moraesepereiraimoveis.com.br/imovel/casa-pindamonhangaba-2-quartos-106-m/CA0288-SHEX",
-    "pagina": 1
-  },
-  {
-    "id": "9255f8d0c36e81932c9a9381e019fe1e",
-    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Jardim do Chafariz, 3 dormitórios, 2 banheiros, 3 vagas",
-    "preco": "R$2.500",
-    "link": "https://www.novacabana.com.br/imovel/4381193/casa-locacao-pindamonhangaba-sp-jardim-do-chafariz",
-    "pagina": 1
-  },
-  {
-    "id": "62ccedc2f4c44cf1fa436afe7e67d24b",
-    "titulo": "APARTAMENTO - Crispim - Pindamonhangaba/SP",
-    "preco": "R$ 1.700,00",
-    "link": "https://wilsonimoveisvale.com.br/comprar-ou-alugar/sp/pindamonhangaba/crispim/apartamento/78861132",
-    "pagina": 1
-  },
-  {
-    "id": "5d2e35cecd6be2376b26d3e073408c0f",
-    "titulo": "CASA - Jardim Rosely - Pindamonhangaba/SP",
-    "preco": "R$ 1.800,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/jardim-rosely/casa/78996756",
-    "pagina": 1
-  },
-  {
-    "id": "90be8f229ee1773c3590b8a7f48f5436",
-    "titulo": "CASA - Centro - Pindamonhangaba/SP",
-    "preco": "R$ 1.800,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/centro/casa/79088160",
-    "pagina": 1
-  },
-  {
-    "id": "9cabcb718c6fd1adca55db7dc30570c7",
-    "titulo": "APARTAMENTO - Residencial Mombaça I - Pindamonhangaba/SP",
-    "preco": "R$ 1.900,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/residencial-mombaca-i/apartamento/79079812",
-    "pagina": 1
-  },
-  {
-    "id": "22844dee74189cdcb316f08a446cda3f",
-    "titulo": "APARTAMENTO - Residencial Mombaça I - Pindamonhangaba/SP",
-    "preco": "R$ 1.900,00",
-    "link": "https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/residencial-mombaca-i/apartamento/79079784",
     "pagina": 1
   },
   {
@@ -1008,39 +847,67 @@
     "pagina": 1
   },
   {
-    "id": "10054b60e1739de05f9410750087fdce",
-    "titulo": "Casa Comercial em Alto do Cardoso",
-    "preco": "R$ 2.500,00",
-    "link": "https://www.hnegocios.com/imovel/casa-comercial-alto-do-cardoso-0vagas-0areautil/15440",
-    "pagina": 2
-  },
-  {
-    "id": "ba9adab87c0df1f8612da88c10e51ab0",
-    "titulo": "CASA – ANDRADE",
-    "preco": "R$ 1.681,30",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-andrade-2/",
+    "id": "3817964711da3da422b36f3d656311fe",
+    "titulo": "Apartamento Padrão em Mombaça",
+    "preco": "R$ 1.900,00",
+    "link": "https://www.hnegocios.com/imovel/apartamento-padrao-mombaca-2dorm/16523",
     "pagina": 1
   },
   {
-    "id": "dfb65af2805ec2a58494777aeadcd7c6",
-    "titulo": "APARTAMENTO – CENTRO",
-    "preco": "R$ 2.860,02",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-centro-2/",
+    "id": "fa32a72c462ef998cd7360ea6741fdc3",
+    "titulo": "Casa Térrea em Centro",
+    "preco": "R$ 1.600,00",
+    "link": "https://www.hnegocios.com/imovel/casa-terrea-centro-2dorm/16506",
     "pagina": 1
   },
   {
-    "id": "fb892cf9d364e6ed75fab1ad94b938a6",
-    "titulo": "APARTAMENTO- CENTRO",
-    "preco": "R$ 2.809,00",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-edificio-acacia/",
+    "id": "60d2fdedfeb6d7291049e515eeec93b1",
+    "titulo": "Chácara em Mandú",
+    "preco": "R$ 1.600,00",
+    "link": "https://www.hnegocios.com/imovel/chacara-mandu-0areautil/16498",
     "pagina": 1
   },
   {
-    "id": "2eebfe62fb799f41873516ab84e19ed2",
-    "titulo": "APARTAMENTO – ANDRADE",
-    "preco": "R$ 1.862,99",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/apartamento-andrada/",
+    "id": "2f0bb257611a069cb8c5fbf8e6780334",
+    "titulo": "Casa Térrea em Bela Vista",
+    "preco": "R$ 3.500,00",
+    "link": "https://www.hnegocios.com/imovel/casa-terrea-bela-vista-4dorm/15459",
     "pagina": 1
+  },
+  {
+    "id": "fc2ffe0fa0ca86f5c909d0f61f6165b9",
+    "titulo": "Casa Sobrado em Campo Alegre",
+    "preco": "R$ 3.500,00",
+    "link": "https://www.hnegocios.com/imovel/casa-sobrado-campo-alegre-3dorm/15458",
+    "pagina": 1
+  },
+  {
+    "id": "1093f83d52bfd12f6c77c76f3ebdc5b2",
+    "titulo": "Apartamento Duplex em Centro",
+    "preco": "R$ 4.500,00",
+    "link": "https://www.hnegocios.com/imovel/apartamento-duplex-centro-4dorm/15452",
+    "pagina": 1
+  },
+  {
+    "id": "e06af57c13945f3c90e58de3c09ee977",
+    "titulo": "Casa Térrea em Bosque da Princesa",
+    "preco": "R$ 2.000,00",
+    "link": "https://www.hnegocios.com/imovel/casa-terrea-bosque-da-princesa-2dorm/8090",
+    "pagina": 4
+  },
+  {
+    "id": "0a0ce5105ddac083516524a9f0acca8d",
+    "titulo": "Apartamento Padrão em Vila Bourguese",
+    "preco": "R$ 2.143,00",
+    "link": "https://www.hnegocios.com/imovel/apartamento-padrao-vila-bourguese-3dorm/3993",
+    "pagina": 4
+  },
+  {
+    "id": "5e9cd47a493ab687cc86255d50461b65",
+    "titulo": "Casa Térrea em São Benedito",
+    "preco": "R$ 3.000,00",
+    "link": "https://www.hnegocios.com/imovel/casa-terrea-sao-benedito-3dorm/1479",
+    "pagina": 5
   },
   {
     "id": "61e3525d201b6c3d0bd8eba93dabd29a",
@@ -1050,24 +917,101 @@
     "pagina": 5
   },
   {
-    "id": "a6b443933f39d7c314a97aac0866842e",
-    "titulo": "Casa 2 quartos e 2 banheiros, para alugar, no bairro Jardim Cristina em Pindamonhangaba",
-    "preco": "R$ 2.500,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/casa/locacao/pindamonhangaba/sp/jardim-cristina/CA8441_PAIM",
+    "id": "e74b48dbbd41f8a202b396bd82564789",
+    "titulo": "Terreno em Alto do Tabaú",
+    "preco": "R$ 4.500,00",
+    "link": "https://www.hnegocios.com/imovel/terreno-alto-do-tabau-25areautil/336",
+    "pagina": 5
+  },
+  {
+    "id": "b83d000189bc50b6f74214a9e6647c4e",
+    "titulo": "Apartamento com 95m² 3 quartos e 2 banheiros, para alugar, no bairro Residencial Mombaça I em Pindamonhangaba",
+    "preco": "R$ 1.600,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/residencial-mombaca-i/AP5388_PAIM",
     "pagina": 1
   },
   {
-    "id": "787d826133ac5786ff0931b3c92c9ece",
-    "titulo": "Casa 2 quartos e 2 banheiros, à venda ou para alugar, no bairro Residencial Jardim Aurora em Pindamonhangaba",
-    "preco": "R$ 3.000,00",
-    "link": "https://www.palaceteimobiliaria.com.br/imovel/casa/venda-e-locacao/pindamonhangaba/sp/residencial-jardim-aurora/CA8450_PAIM",
+    "id": "8cfd6bc0a2a364d83e049230693953f2",
+    "titulo": "Apartamento 2 quartos e 1 banheiro, para alugar, no bairro Condomínio Reserva Anaua em Pindamonhangaba",
+    "preco": "R$ 1.800,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/condominio-reserva-anaua/AP1296_PALACT",
     "pagina": 1
   },
   {
-    "id": "a232cbcd1d68f6dec4171acf9569ee48",
-    "titulo": "Apartamento para Locação, em Pindamonhangaba, bairro São Benedito, 2 dormitórios, 1 banheiro, 1 suíte, 1 vaga",
-    "preco": "R$3.000",
-    "link": "https://www.edifficatho.com.br/imovel/4108337/apartamento-locacao-pindamonhangaba-sp-sao-benedito",
+    "id": "5f0920a20ccc32d5b9516ed58d4684dc",
+    "titulo": "Apartamento 2 quartos e 1 banheiro, para alugar, no bairro Tabaú em Pindamonhangaba",
+    "preco": "R$ 2.000,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/tabau/AP5460_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "7e59ab718975ee3fb1604379a21c1bd9",
+    "titulo": "Apartamento 2 quartos e 2 banheiros, à venda ou para alugar, no bairro Centro em Pindamonhangaba",
+    "preco": "R$ 2.200,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/venda-e-locacao/pindamonhangaba/sp/centro/AP5334_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "31f2d547e2324134859a9e0d4ca81557",
+    "titulo": "Apartamento 3 quartos e 1 banheiro, para alugar, no bairro Centro em Pindamonhangaba",
+    "preco": "R$ 2.300,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/centro/AP5461_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "22106efeefe42ec67ea9a720b2ea8bf4",
+    "titulo": "Apartamento 2 quartos e 2 banheiros, para alugar, no bairro Chácara Galega em Pindamonhangaba",
+    "preco": "R$ 2.450,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/chacara-galega/AP1472_PALACT",
+    "pagina": 1
+  },
+  {
+    "id": "9920ace349dc27b3290f6c5e40feb05b",
+    "titulo": "Apartamento 3 quartos e 2 banheiros, para alugar, no bairro Parque das Nações em Pindamonhangaba",
+    "preco": "R$ 2.650,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/parque-das-nacoes/AP5451_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "906c2276dc8fb542518a76f03c27a8e6",
+    "titulo": "Apartamento 3 quartos e 2 banheiros, para alugar, no bairro Parque das Nações em Pindamonhangaba",
+    "preco": "R$ 2.650,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/parque-das-nacoes/AP5450_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "12f32039a0b9e5f5107c71719e1af7e1",
+    "titulo": "Apartamento 3 quartos e 2 banheiros, para alugar, no bairro Tabaú em Pindamonhangaba",
+    "preco": "R$ 2.700,00",
+    "link": "https://www.palaceteimobiliaria.com.br/imovel/apartamento/locacao/pindamonhangaba/sp/tabau/AP5397_PAIM",
+    "pagina": 1
+  },
+  {
+    "id": "d56ac6701ba154f82cd5bc1b01fb7dc8",
+    "titulo": "CENTRO",
+    "preco": "R$3.000,00",
+    "link": "https://www.rodrigoderrico.com.br/locacao_casas/LCP011/index.htm",
+    "pagina": 1
+  },
+  {
+    "id": "cadcf37aec06496846532d9c66e3977d",
+    "titulo": "VILA VERDE",
+    "preco": "R$3.000,00",
+    "link": "https://www.rodrigoderrico.com.br/locacao_casas/LCP009/index.htm",
+    "pagina": 1
+  },
+  {
+    "id": "4df8f05ba310edbcae353077bade11b7",
+    "titulo": "Pq. das NaÃ§Ãµes",
+    "preco": "R$2.650,00 +",
+    "link": "https://www.rodrigoderrico.com.br/locacao_apartamentos/LAP012/index.htm",
+    "pagina": 1
+  },
+  {
+    "id": "bdd7809a90a0747b5c5df3eb6ddce0cd",
+    "titulo": "SANTANA",
+    "preco": "R$2.300,00",
+    "link": "https://www.rodrigoderrico.com.br/locacao_apartamentos/LAP010/index.htm",
     "pagina": 1
   },
   {
@@ -1155,164 +1099,346 @@
     "pagina": 1
   },
   {
-    "id": "a48c0e0a182df5ed3712f12093f7f61f",
-    "titulo": "CASA – CENTRO",
-    "preco": "R$ 4.284,33",
-    "link": "https://www.casabellaimoveispinda.com.br/imovel/casa-centro-2/",
+    "id": "eb124d0c86c7aa21a740c6cc8b5f2830",
+    "titulo": "Casa para locação no Condomínio Morada dos Pássaros em Pindamonhangaba/SP.",
+    "preco": "R$ 2.300,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24508/aluguel-casa-de-condominio-2-quartos-jardim-cristina-pindamonhangaba-86m2",
+    "pagina": 1
+  },
+  {
+    "id": "f2019edee98a2bfe339ca088bf4df707",
+    "titulo": "Casa para locação no centro em Pindamonhangaba/SP.",
+    "preco": "R$ 3.200,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24499/aluguel-casa-4-quartos-centro-pindamonhangaba-237m2",
+    "pagina": 1
+  },
+  {
+    "id": "20449a433ed18536d2694e829aec5101",
+    "titulo": "Apartamento para locação no Edifício Residencial Grand Valle Royal em Pindamonhangaba/SP.",
+    "preco": "R$ 1.980,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24504/aluguel-apartamento-3-quartos-tabau-pindamonhangaba-136m2",
+    "pagina": 1
+  },
+  {
+    "id": "1bce7df8ccf1d138255419fb64d096a9",
+    "titulo": "Apartamento para locação e venda no Grand Valle em Pindamonhangaba/SP.",
+    "preco": "R$ 2.500,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24491/venda-apartamento-3-quartos-tabau-pindamonhangaba-88m2",
+    "pagina": 1
+  },
+  {
+    "id": "b2a60cc768c914f6223286943570a7ce",
+    "titulo": "Apartamento para locação e venda no Edifício Vienna em Pindamonhangaba/SP.",
+    "preco": "R$ 2.990,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-23609/venda-apartamento-3-quartos-edificio-vienna-pindamonhangaba-359m2",
+    "pagina": 1
+  },
+  {
+    "id": "c4705da35cc3b9a1883aed7d17de1f71",
+    "titulo": "Apartamento para locação e venda no Residencial Heitor Villa-Lobos em Pindamonhangaba/SP.",
+    "preco": "R$ 2.480,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24481/venda-apartamento-2-quartos-parque-das-nacoes-pindamonhangaba-70m2",
+    "pagina": 1
+  },
+  {
+    "id": "e1536d5dc498de9ebdd9a20d05de0ecf",
+    "titulo": "Apartamentos para venda e locação com 2 ou 3 dormitórios, 82 m² no Edifício Santiago em Pindamonhangaba/SP.",
+    "preco": "R$ 2.650,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24003/venda-apartamento-3-quartos-alto-do-cardoso-pindamonhangaba-82m2",
+    "pagina": 1
+  },
+  {
+    "id": "38779e997482663b13481cf60c1d3792",
+    "titulo": "Apartamento para locação no Condomínio Grand View Residence em Pindamonhangaba/SP.",
+    "preco": "R$ 2.000,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24423/aluguel-apartamento-2-quartos-jardim-boa-vista-pindamonhangaba-65m2",
     "pagina": 2
   },
   {
-    "id": "1093f83d52bfd12f6c77c76f3ebdc5b2",
-    "titulo": "Apartamento Duplex em Centro",
-    "preco": "R$ 4.500,00",
-    "link": "https://www.hnegocios.com/imovel/apartamento-duplex-centro-4dorm/15452",
-    "pagina": 1
-  },
-  {
-    "id": "00d3e41b80611dd4eacbe890e452f17f",
-    "titulo": "Casa Comercial em Centro",
-    "preco": "R$ 4.500,00",
-    "link": "https://www.hnegocios.com/imovel/casa-comercial-centro-0vagas-282areautil/2858",
-    "pagina": 4
-  },
-  {
-    "id": "a7c5a469ae1aeef284b4e9954cc2a141",
-    "titulo": "Apartamento com 2 quartos para Locação, Crispim - Pindamonhangaba",
-    "preco": "R$ 1.000,00",
-    "link": "https://derricoimoveis.com.br/apartamento-com-2-quartos-para-locacao-crispim-pindamonhangaba-fwo",
-    "pagina": 1
-  },
-  {
-    "id": "d027f368782ca863f8ed9c59cbfdb21d",
-    "titulo": "Chácara com 1 quarto para Locação, Bom Sucesso - Pindamonhangaba",
-    "preco": "R$ 4.100,00",
-    "link": "https://derricoimoveis.com.br/chacara-com-1-quarto-para-locacao-bom-sucesso-pindamonhangaba-d42",
-    "pagina": 1
-  },
-  {
-    "id": "83b59c02266b16a5ad1e5f6b1e81bf15",
-    "titulo": "Ponto, Residencial e Comercial Cidade Jardim - Pindamonhangaba",
-    "preco": "R$ 3.500,00",
-    "link": "https://derricoimoveis.com.br/ponto-residencial-e-comercial-cidade-jardim-pindamonhangaba",
-    "pagina": 1
-  },
-  {
-    "id": "56be4691d3f964ad4a4fa0613b7f4231",
-    "titulo": "Chácara com 1 quarto para Locação, Bom Sucesso - Pindamonhangaba",
-    "preco": "R$ 3.200,00",
-    "link": "https://derricoimoveis.com.br/chacara-com-1-quarto-para-locacao-bom-sucesso-pindamonhangaba-6gq",
-    "pagina": 1
-  },
-  {
-    "id": "13f1babfcecc17b59f57deb3f2bc25c1",
-    "titulo": "Chácara com 1 quarto para Locação, Bom Sucesso - Pindamonhangaba",
+    "id": "1193bd4fbb0e643a23d684d0487f403b",
+    "titulo": "Terreno à venda com 4.800 m² - Crispim - Pindamonhangaba/SP",
     "preco": "R$ 3.000,00",
-    "link": "https://derricoimoveis.com.br/chacara-com-1-quarto-para-locacao-bom-sucesso-pindamonhangaba-dcn",
-    "pagina": 1
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-7454/venda-terreno-crispim-pindamonhangaba-4800m2",
+    "pagina": 3
   },
   {
-    "id": "98640c8e827138a2f40322451182c5bd",
-    "titulo": "Chácara com 1 quarto para Locação, Bom Sucesso - Pindamonhangaba",
-    "preco": "R$ 2.250,00",
-    "link": "https://derricoimoveis.com.br/chacara-com-1-quarto-para-locacao-bom-sucesso-pindamonhangaba",
-    "pagina": 1
+    "id": "a38d01d38667e6f450ace49b12720487",
+    "titulo": "Apartamento para locação no Residencial Palazzo Jaboticabeiras em Taubaté/SP",
+    "preco": "R$ 3.500,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-22963/aluguel-apartamento-3-quartos-vila-das-jabuticabeiras-taubate-105m2",
+    "pagina": 7
   },
   {
-    "id": "560d1156bc44422c7cb2a855a5928501",
-    "titulo": "Casa em Condomínio com 3 quartos para Locação, Loteamento Industrial Água Preta - Pindamonhangaba",
-    "preco": "R$ 2.200,00",
-    "link": "https://derricoimoveis.com.br/casa-em-condominio-com-3-quartos-para-locacao-loteamento-industrial-agua-preta-pindamonhangaba",
-    "pagina": 1
+    "id": "d827455c32a0d01070d95f1b23fae354",
+    "titulo": "Apartamento para locação no Edifício Gênova em Taubaté/SP",
+    "preco": "R$ 2.270,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24501/aluguel-apartamento-2-quartos-jardim-eulalia-taubate-72m2",
+    "pagina": 7
   },
   {
-    "id": "4f2e5eed19cd8977e9c8a8d357b3205d",
-    "titulo": "Apartamento com 3 quartos para Locação, Tabaú - Pindamonhangaba",
-    "preco": "R$ 2.100,00",
-    "link": "https://derricoimoveis.com.br/apartamento-com-3-quartos-para-locacao-tabau-pindamonhangaba",
-    "pagina": 1
-  },
-  {
-    "id": "7d4f9fc2499d1bbada16c9c08dfdf074",
-    "titulo": "Casa com 2 quartos para Locação, Loteamento Residencial Carangola - Pindamonhangaba",
-    "preco": "R$ 1.700,00",
-    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-loteamento-residencial-carangola-pindamonhangaba",
-    "pagina": 1
-  },
-  {
-    "id": "4d0f8b630156944d2ba758eb2916c31a",
-    "titulo": "Casa com 3 quartos para Locação, Jardim do Ypê - Pindamonhangaba",
-    "preco": "R$ 3.200,00",
-    "link": "https://derricoimoveis.com.br/casa-com-3-quartos-para-locacao-jardim-do-ype-pindamonhangaba-lmz",
-    "pagina": 1
-  },
-  {
-    "id": "dfe97c9c61f5c4aa8902bf8d5e09bf96",
-    "titulo": "Casa com 3 quartos para Locação, Jardim do Ypê - Pindamonhangaba",
+    "id": "4c907ee5c09d7564b83be7e0635920ac",
+    "titulo": "Apartamento para venda no Condomínio Áquila em Taubaté/SP.",
     "preco": "R$ 2.700,00",
-    "link": "https://derricoimoveis.com.br/casa-com-3-quartos-para-locacao-jardim-do-ype-pindamonhangaba",
-    "pagina": 1
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24180/venda-apartamento-2-quartos-vila-das-jabuticabeiras-taubate-76m2",
+    "pagina": 7
   },
   {
-    "id": "48c294f9d6314a98574399451dcb09ef",
-    "titulo": "Sobrado para Locação, Boa Vista - Pindamonhangaba",
-    "preco": "R$ 7.000,00",
-    "link": "https://derricoimoveis.com.br/sobrado-para-locacao-boa-vista-pindamonhangaba",
-    "pagina": 1
+    "id": "9f8c1af0ba5b6ee6162c2eaf8a4eaafa",
+    "titulo": "Apartamento para venda e locação no Condomínio Camburi em Taubaté/SP",
+    "preco": "R$ 3.600,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24437/venda-apartamento-3-quartos-jardim-das-nacoes-taubate-90m2",
+    "pagina": 7
   },
   {
-    "id": "d1a4982b580f4309bb7d08d5ae9d56c8",
-    "titulo": "Casa com 1 quarto para Locação, Jardim Cristina - Pindamonhangaba",
-    "preco": "R$ 1.200,00",
-    "link": "https://derricoimoveis.com.br/casa-com-1-quarto-para-locacao-jardim-cristina-pindamonhangaba",
-    "pagina": 1
-  },
-  {
-    "id": "943c354638b68204bdc9939db5ae7fe8",
-    "titulo": "Casa com 2 quartos para Locação, Centro - Pindamonhangaba",
-    "preco": "R$ 1.600,00",
-    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-centro-pindamonhangaba",
-    "pagina": 1
-  },
-  {
-    "id": "8edea45656eb454fda2ecb55ab54ff21",
-    "titulo": "Comercial para Locação, Centro - Pindamonhangaba",
+    "id": "d3db35ec056cc31bf390a1ca1bbe01e5",
+    "titulo": "Apartamento para locação e venda no Edifício Residencial Prof. Romeu Haik em Taubaté/SP.",
     "preco": "R$ 2.800,00",
-    "link": "https://derricoimoveis.com.br/comercial-para-locacao-centro-pindamonhangaba-gf8",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24375/venda-apartamento-2-quartos-jardim-das-nacoes-taubate-88m2",
+    "pagina": 7
+  },
+  {
+    "id": "bbf318c0437f58085016a281b896fc41",
+    "titulo": "Apartamento para locação no Edifício Guaecá em Taubaté/SP.",
+    "preco": "R$ 2.600,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24457/aluguel-apartamento-2-quartos-loteamento-chacaras-pastorelli-taubate-76m2",
+    "pagina": 7
+  },
+  {
+    "id": "191a960512edb985c47499c96532f40a",
+    "titulo": "Cobertura Duplex semimobiliada para locação no Edifício Village Towers em Taubaté/SP.",
+    "preco": "R$ 3.466,34",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24429/aluguel-apartamento-2-quartos-parque-senhor-do-bonfim-taubate-176m2",
+    "pagina": 7
+  },
+  {
+    "id": "0f9efab885550c447d6cc0457ed77a74",
+    "titulo": "Apartamento residencial para locação e venda no Edifício MOB em Taubaté/SP.",
+    "preco": "R$ 2.900,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-13439/venda-apartamento-3-quartos-jardim-das-nacoes-taubate-132m2",
+    "pagina": 8
+  },
+  {
+    "id": "6ea37cb3ba7075f76df7cba1b9677093",
+    "titulo": "Apartamento para locação e venda no Edifício Vert Residence em Taubaté/SP.",
+    "preco": "R$ 4.600,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-21572/venda-apartamento-3-quartos-vert-residence-taubate-110m2",
+    "pagina": 8
+  },
+  {
+    "id": "8653b59b9616227a1fc6a00f0658dd9b",
+    "titulo": "Cobertura duplex para locação no Edifício Placere em Taubaté/SP.",
+    "preco": "R$ 4.500,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-10748/aluguel-apartamento-4-quartos-edificio-placere-taubate-292m2",
+    "pagina": 8
+  },
+  {
+    "id": "8a3f5d037026586919a08495d0e20288",
+    "titulo": "Casa para locação e venda no Centro em Taubaté/SP.",
+    "preco": "R$ 3.800,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24345/venda-casa-3-quartos-jardim-eulalia-taubate-191m2",
+    "pagina": 8
+  },
+  {
+    "id": "8b7b457071d8834fa48c98f1ab63aa5c",
+    "titulo": "Apartamento Duplex para venda e locação no Condomínio Lumiere em Taubaté/SP.",
+    "preco": "R$ 4.500,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24332/venda-apartamento-3-quartos-centro-taubate-259m2",
+    "pagina": 8
+  },
+  {
+    "id": "9de016c3baf8a3152b9b5f9d963677e2",
+    "titulo": "Casa para locação no bairro Jardim Garcez em Taubaté/SP.",
+    "preco": "R$ 3.500,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-20843/aluguel-casa-3-quartos-jardim-garcez-taubate-150m2",
+    "pagina": 8
+  },
+  {
+    "id": "2d6619ceff7cf84b53e58200124f2421",
+    "titulo": "Flat para locação, 55 m² no Condomínio Residencial Lofts Arts Design em Taubaté/SP.",
+    "preco": "R$ 2.800,00",
+    "link": "https://jeremiasrodrigues.com.br/imovel/IMOV-24007/aluguel-apartamento-centro-taubate-55m2",
+    "pagina": 9
+  },
+  {
+    "id": "91892b05a2a9ead92b5720d62b834363",
+    "titulo": "Casa para Locação, em Pindamonhangaba, bairro Vila Rica, 3 dormitórios, 1 banheiro, 1 suíte, 3 vagas",
+    "preco": "R$ 2.500",
+    "link": "https://www.novacabana.com.br/imovel/4388829/casa-locacao-pindamonhangaba-sp-vila-rica",
     "pagina": 1
   },
   {
-    "id": "823927a8a58cbdfe3bac54b1bf6d69e3",
-    "titulo": "Casa com 2 quartos para Locação, Centro - Pindamonhangaba",
-    "preco": "R$ 1.800,00",
-    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-centro-pindamonhangaba-49b",
+    "id": "79a12e4dbd13e588c7df0f91e61cb0e4",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 2.600",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0620-TAUG",
     "pagina": 1
   },
   {
-    "id": "a38612b19cb2af704566d63c15416ad9",
-    "titulo": "Casa com 2 quartos para Locação, São Benedito - Pindamonhangaba",
+    "id": "22dc95a0720696bad82b07131682fb01",
+    "titulo": "Locação",
+    "preco": "R$ 1.700",
+    "link": "https://www.imobiliariainovare.com.br/imovel/4483039/apartamento-locacao-pindamonhangaba-sp-parque-das-nacoes",
+    "pagina": 1
+  },
+  {
+    "id": "4d33ccea883f85586adfcb5bbc4a10fb",
+    "titulo": "Locação",
+    "preco": "R$ 2.100",
+    "link": "https://www.imobiliariainovare.com.br/imovel/3430216/apartamento-locacao-pindamonhangaba-sp-loteamento-alfredo-abilio-flores",
+    "pagina": 1
+  },
+  {
+    "id": "c3f6b8628df3ed7151f94891c8c1b58a",
+    "titulo": "Locação",
+    "preco": "R$ 2.450",
+    "link": "https://www.imobiliariainovare.com.br/imovel/4253607/casa-locacao-pindamonhangaba-sp-campo-belo",
+    "pagina": 2
+  },
+  {
+    "id": "307cd488bcb1e20ac69d3d9e392963ca",
+    "titulo": "Locação",
+    "preco": "R$ 2.500",
+    "link": "https://www.imobiliariainovare.com.br/imovel/3440634/chacara-locacao-taubate-sp-sitio-sao-jose-ii",
+    "pagina": 2
+  },
+  {
+    "id": "a7fe96478640a0b771d4379e7185584c",
+    "titulo": "Locação",
+    "preco": "R$ 3.000",
+    "link": "https://www.imobiliariainovare.com.br/imovel/3277159/casa-locacao-pindamonhangaba-sp-chacara-da-galega",
+    "pagina": 2
+  },
+  {
+    "id": "e229817356e468bae47338a0c0967eaf",
+    "titulo": "Locação",
+    "preco": "R$ 4.000",
+    "link": "https://www.imobiliariainovare.com.br/imovel/4300667/sitio-locacao-cacapava-sp-chacara-da-germana",
+    "pagina": 2
+  },
+  {
+    "id": "eb5020b54b407b580fef475850c90888",
+    "titulo": "Casa",
+    "preco": "R$ 2.500",
+    "link": "https://www.dcasaimoveis.com.br/imovel/casa-tremembe-2-quartos-180-m/CA0966-DCAV",
+    "pagina": 1
+  },
+  {
+    "id": "a9bd4d1ed34fe2c2260f8dd3c79bf6f5",
+    "titulo": "Apartamento 2 Quartos",
     "preco": "R$ 1.500,00",
-    "link": "https://derricoimoveis.com.br/casa-com-2-dormitorios-para-alugar-90-m2-por-r-126218mes-vila-bourghese-pindamonhangabasp",
+    "link": "https://vistabelaimoveis.com.br/imovel/3282/apartamento-2-quartos-condominio-edificio-bonfim-jardim-marieta-taubate/",
     "pagina": 1
   },
   {
-    "id": "7e57ebe7961fe5a495729f34f8e73597",
-    "titulo": "Casa com 2 quartos para Locação, Mombaça - Pindamonhangaba",
-    "preco": "R$ 1.200,00",
-    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-para-locacao-mombaca-pindamonhangaba-m4n",
+    "id": "a556eb46691d242cc3f39cdaead1fa2e",
+    "titulo": "Casa 4 Quartos",
+    "preco": "R$ 4.500,00",
+    "link": "https://vistabelaimoveis.com.br/imovel/4081/casa-4-quartos-centro-taubate/",
     "pagina": 1
   },
   {
-    "id": "7856b436134b3c1b55e8312a1d7a56e3",
-    "titulo": "Casa com 2 quartos, Conjunto Habitacional Terra dos Ipês I (Sul) - Pindamonhangaba",
-    "preco": "R$ 1.670,00",
-    "link": "https://derricoimoveis.com.br/casa-com-2-quartos-conjunto-habitacional-terra-dos-ipes-i-sul-pindamonhangaba-9lu",
+    "id": "16b054e1a28eb82cd7862884a20b8d80",
+    "titulo": "Apartamento 2 Quartos",
+    "preco": "R$ 1.500,00",
+    "link": "https://vistabelaimoveis.com.br/imovel/8/apartamento-2-quartos-edificio-jatiuca-centro-taubate/",
     "pagina": 1
   },
   {
-    "id": "60e1bb73490c8a141ff80a2a78bdb0a7",
-    "titulo": "Casa com 3 quartos para Locação, Santa Clara - Pindamonhangaba",
-    "preco": "R$ 2.750,00",
-    "link": "https://derricoimoveis.com.br/casa-com-3-quartos-para-locacao-santa-clara-pindamonhangaba",
+    "id": "e3cb491eeabe9033934eae4b8d553ac0",
+    "titulo": "Vila São José - Taubaté - SP",
+    "preco": "R$ 2.200",
+    "link": "https://www.aloisioimoveis.com.br/imovel/apartamento-taubate-2-quartos-74-m/AP0632-ALU3",
+    "pagina": 1
+  },
+  {
+    "id": "d037b55659f85ab5d14075b7add5c60d",
+    "titulo": "Edifício Villa Lobos - Taubaté - SP",
+    "preco": "R$ 2.200",
+    "link": "https://www.aloisioimoveis.com.br/imovel/apartamento-taubate-3-quartos-72-m/AP1504-ALU3",
+    "pagina": 1
+  },
+  {
+    "id": "98ad85e2d4b7284c6e4de25dd9a34234",
+    "titulo": "Centro - Taubaté - SP",
+    "preco": "R$ 1.560",
+    "link": "https://www.aloisioimoveis.com.br/imovel/sala-taubate-47-m/SA0214-ALU3",
+    "pagina": 1
+  },
+  {
+    "id": "669112830ea1c3b5592e29ff58e94f32",
+    "titulo": "Jardim Maria Augusta - Taubaté - SP",
+    "preco": "R$ 1.600",
+    "link": "https://www.aloisioimoveis.com.br/imovel/casa-taubate-3-quartos/CA0999-ALU3",
+    "pagina": 1
+  },
+  {
+    "id": "dc02da15e359714c363f846bcf224607",
+    "titulo": "Residencial Paraíso - Taubaté - SP",
+    "preco": "R$ 2.300",
+    "link": "https://www.aloisioimoveis.com.br/imovel/casa-taubate-2-quartos/CA1683-ALU3",
+    "pagina": 1
+  },
+  {
+    "id": "2c71627014bbc9a2ada3879f498e4025",
+    "titulo": "Apartamento",
+    "preco": "R$ 1.750",
+    "link": "https://www.feliximoveisespeciais.com/imovel/apartamento-taubate-2-quartos-56-m/AP9783-D9Q",
+    "pagina": 1
+  },
+  {
+    "id": "71a05d8382d9ebadf4ad378c5f7adaf8",
+    "titulo": "Apartamento",
+    "preco": "R$ 1.500",
+    "link": "https://www.feliximoveisespeciais.com/imovel/apartamento-taubate-3-quartos-70-m/AP9616-D9Q",
+    "pagina": 1
+  },
+  {
+    "id": "d673ef12e1b0fbf8fb35802844db0fe3",
+    "titulo": "Apartamento",
+    "preco": "R$ 2.600",
+    "link": "https://www.feliximoveisespeciais.com/imovel/apartamento-taubate-2-quartos-77-m/AP9435-D9Q",
+    "pagina": 1
+  },
+  {
+    "id": "dea37b06cc292636b621ba12e861c93e",
+    "titulo": "Sobrado",
+    "preco": "R$ 3.500",
+    "link": "https://www.feliximoveisespeciais.com/imovel/sobrado-taubate-3-quartos-123-m/SO0244-D9Q",
+    "pagina": 1
+  },
+  {
+    "id": "a594b479569c7206314dfde95465f928",
+    "titulo": "Apartamento",
+    "preco": "R$ 1.800",
+    "link": "https://www.feliximoveisespeciais.com/imovel/apartamento-taubate-3-quartos-78-m/AP1805-D9Q",
+    "pagina": 1
+  },
+  {
+    "id": "7ea604ad11b1c2783d742b2bea515cb1",
+    "titulo": "SOBRADO NA VILA NAIR",
+    "preco": "R$ 1.800,00",
+    "link": "https://www.castorimoveis.com.br/imovel-sobrado-na-vila-nair-1657",
+    "pagina": 1
+  },
+  {
+    "id": "2b6692647a8a9df5659e29130a422f28",
+    "titulo": "Jardim das Nações - Taubaté - SP",
+    "preco": "R$ 3.500",
+    "link": "https://www.taubateimoveis.com.br/imovel/apartamento-taubate-2-quartos-75-m/AP0661-TAUG",
+    "pagina": 1
+  },
+  {
+    "id": "41c741f8375f90c15757ec3fee55dadc",
+    "titulo": "Residencial Dalla Rosa - Taubaté - SP",
+    "preco": "R$ 1.550",
+    "link": "https://www.aloisioimoveis.com.br/imovel/casa-taubate-3-quartos/CA1199-ALU3",
+    "pagina": 1
+  },
+  {
+    "id": "ec9c50671dc0e01c78cde1dddd2d8473",
+    "titulo": "Casa com 7 quartos para Locação, Santana - Pindamonhangaba",
+    "preco": "R$ 3.300,00",
+    "link": "https://derricoimoveis.com.br/casa-com-7-quartos-para-locacao-santana-pindamonhangaba",
     "pagina": 1
   }
 ]

@@ -120,6 +120,8 @@ def executar():
             preco = get_price(card)
             if not titulo or not link or not preco:
                 continue
+            if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+                continue
 
             identificador = hashlib.md5(
                 f"{titulo}{preco}{link}".encode("utf-8")

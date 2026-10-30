@@ -45,7 +45,7 @@ for im in IMOVEIS_ACEITOS :
             valores = re.findall(r'\d{1,3}(?:\.\d{3})*,\d{2}', texto_preco)
 
             preco = sum(br_to_float(v) for v in valores)
-            if preco is None or not (1500 <= preco <= 4500):
+            if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
                 continue
 
             _id = f"{titulo}{preco}{link}"

@@ -27,9 +27,6 @@ pg = 1
 for div in divs:
     titulo = div.find("h5").get_text(strip=True)
     
-    if not titulo or not any(tipo in titulo.lower() for tipo in IMOVEIS_ACEITOS):
-        continue
-
     link = div.find("a", href=True)["href"]
 
     base_url = f"https://{urlparse(url).netloc}/"
@@ -38,7 +35,7 @@ for div in divs:
 
     preco = limpar_preco(div.find("div", class_="pt-price").get_text(strip=True))
     preco_num = preco_para_float(preco)
-    if preco_num is None or not (2000 <= preco_num <= 4500):
+    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
         continue
 
     _id = f"{titulo}{preco}{link}"

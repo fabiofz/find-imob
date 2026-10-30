@@ -2,5 +2,12 @@
 *.py[cod]
 
 .execucoes.json
+logs_erros.txt
+.link_previews.json
+.resultados_notificacao.json
+.anuncios_estado.json
+.anuncios_estado.tmp
+.parametros_busca.json
+.tema.json
 
 **/.venv/

@@ -11,7 +11,7 @@ json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
-url = "https://www.imobiliariapindense.com.br/buscar?order=most_relevant&direction=desc&availability=rent&search_type=properties_map&property_type=Apartamento&property_type=Casa&property_type=Sobrado&value_max=4500&value_min=1500"
+url = f"https://www.imobiliariapindense.com.br/buscar?order=most_relevant&direction=desc&availability=rent&search_type=properties_map&property_type=Apartamento&property_type=Casa&property_type=Sobrado&value_max={int(PRECO_MAX)}&value_min={int(PRECO_MIN)}"
 html = requests.get(url).content
 soup = BeautifulSoup(html, "html.parser")
 imoveis = []
@@ -38,6 +38,9 @@ for div in divs:
     base_url = f"https://{urlparse(url).netloc}"
     if link and link.startswith("/"):
         link = base_url + link
+
+    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+        continue
 
     _id = f"{titulo}+{preco}+{link}"
     _id = hashlib.md5(_id.encode()).hexdigest()

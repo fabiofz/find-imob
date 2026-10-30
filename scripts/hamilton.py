@@ -40,7 +40,7 @@ for pg in range(1, int(max(numeros)) + 1):
         titulo_tag = div.select_one(".titulo-imovel")
         titulo = titulo_tag.get_text(strip=True) if titulo_tag else None
 
-        if not titulo or not any(tipo in titulo.lower() for tipo in IMOVEIS_ACEITOS):
+        if not titulo:
             continue
 
         link_tag = div.select_one('a[href*="/imovel/"]')
@@ -56,8 +56,7 @@ for pg in range(1, int(max(numeros)) + 1):
                 break
         preco = limpar_preco(preco)
         
-        preco_num = preco_para_float(preco)
-        if preco_num is None or not (2000 <= preco_num <= 4500):
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
             continue
 
         _id = f"{titulo}{preco}{link}"
