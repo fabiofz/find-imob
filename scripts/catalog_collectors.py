@@ -7,9 +7,9 @@ from urllib.parse import urljoin, urlparse, parse_qs
 import requests
 from bs4 import BeautifulSoup
 
-from utils.funcs import gerar_excel, pegar_json, preco_para_float, salvar_json, limpar_preco
+from utils.funcs import pegar_json, preco_para_float, salvar_json, limpar_preco
 from utils.variables import (
-    CIDADES_BUSCA, EXCEL_FINAL, GERAL_JSON, PATH_GD, PRECO_MAX, PRECO_MIN,
+    CIDADES_BUSCA, GERAL_JSON, PRECO_MAX, PRECO_MIN,
     TIPOS_BUSCA, imovel_atende_filtros, normalizar_filtro,
 )
 
@@ -482,11 +482,6 @@ def main(portais=None):
 
     if novos_total:
         salvar_json(dados, GERAL_JSON)
-        exportar = [
-            {chave: valor for chave, valor in item.items() if chave != "id"}
-            for item in novos_total
-        ]
-        gerar_excel(exportar, f"{PATH_GD}{EXCEL_FINAL}")
     if falhas:
         raise RuntimeError(f"Falharam {len(falhas)} portal(is) do coletor genérico.")
 

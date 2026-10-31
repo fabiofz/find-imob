@@ -71,9 +71,3 @@ for url in urls :
             dados.append(imov)
 
 salvar_json(dados, GERAL_JSON)
-
-dados_sem_id = [
-    {k: v for k, v in item.items() if k != "id"}
-    for item in imoveis
-]
-gerar_excel(dados_sem_id, f"{PATH_GD}{EXCEL_FINAL}")

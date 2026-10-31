@@ -1,9 +1,6 @@
-from datetime import datetime
 import os
 import re
 import unicodedata
-
-data_hoje = datetime.now().strftime("%Y-%m-%d-%H")
 
 def _lista_env(nome, padrao):
     texto = os.environ.get(nome)
@@ -21,15 +18,6 @@ CIDADES_BUSCA = _lista_env(
 )
 IMOVEIS_ACEITOS = TIPOS_BUSCA
 GERAL_JSON = "geral.json"
-_diretorio_exportacao = os.environ.get("IMOVEIS_OUTPUT_DIR") or os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "exports"
-)
-PATH_GD = os.path.join(
-    _diretorio_exportacao, ""
-)
-EXCEL_FINAL = f"imoveis_{data_hoje}.xlsx"
-
-
 _TIPO_ALIASES = {
     "apartamento": ("apartamento", "apto"),
     "casa": ("casa",),

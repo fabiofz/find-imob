@@ -2,8 +2,19 @@
 toolbarMode = "minimal"
 
 [server]
-address = "0.0.0.0"
-port = 8501
+enableXsrfProtection = true
+enableCORS = true
+maxUploadSize = 2
+allowedHosts = ["findimob.local", "localhost", "127.0.0.1"]
+address = "127.0.0.1"
+port = 8502
+sslCertFile = ".tls/server.crt"
+sslKeyFile = ".tls/server.key"
 
 [theme]
 primaryColor = "#32cb79"
+
+[browser]
+serverAddress = "findimob.local"
+serverPort = 8501
+gatherUsageStats = false

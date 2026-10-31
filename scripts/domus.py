@@ -164,8 +164,6 @@ def executar():
         return
 
     salvar_json(dados, GERAL_JSON)
-    exportar = [{k: v for k, v in item.items() if k != "id"} for item in novos]
-    gerar_excel(exportar, os.path.join(PATH_GD, EXCEL_FINAL))
     print(f"Domus: {len(novos)} anúncio(s) novo(s).")
 
 

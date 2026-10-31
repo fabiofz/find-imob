@@ -3,8 +3,6 @@ import os
 import tempfile
 from pathlib import Path
 
-from openpyxl import Workbook, load_workbook
-
 
 class RegistrosUnicos(list):
     """Lista que mantém o conjunto de IDs sincronizado quando um coletor insere."""
@@ -36,97 +34,6 @@ class RegistrosUnicos(list):
             self.record_ids.add(identificador)
         if link:
             self.record_links.add(link)
-
-def gerar_excel(dados, caminho_saida):
-    if not dados:
-        print("Nada para exportar")
-        return
-
-    caminho_configurado = Path(caminho_saida)
-    caminho_saida = caminho_configurado
-    caminho_local = Path(__file__).resolve().parents[1] / "exports" / caminho_configurado.name
-    try:
-        caminho_saida.parent.mkdir(parents=True, exist_ok=True)
-    except OSError as erro_destino:
-        caminho_saida = caminho_local
-        caminho_saida.parent.mkdir(parents=True, exist_ok=True)
-        print(
-            f"Aviso: destino indisponível ({erro_destino}); "
-            f"usando exportação local: {caminho_saida}"
-        )
-
-    if caminho_saida.exists():
-        try:
-            wb = load_workbook(caminho_saida)
-        except OSError as erro_destino:
-            caminho_saida = caminho_local
-            caminho_saida.parent.mkdir(parents=True, exist_ok=True)
-            print(
-                f"Aviso: não foi possível abrir o Excel no destino configurado "
-                f"({erro_destino}); usando: {caminho_saida}"
-            )
-            wb = load_workbook(caminho_saida) if caminho_saida.exists() else Workbook()
-            if not caminho_saida.exists():
-                ws = wb.active
-                ws.title = "Imoveis"
-                headers = list(dados[0].keys())
-                ws.append(headers)
-            else:
-                ws = wb.active
-                headers = [cell.value for cell in ws[1]]
-        else:
-            ws = wb.active
-            print("Arquivo existente encontrado, adicionando dados...")
-            headers = [cell.value for cell in ws[1]]
-    else:
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Imoveis"
-        print("Arquivo não existe, criando novo...")
-
-        headers = list(dados[0].keys())
-        ws.append(headers)
-
-    # Cada scraper exporta os anúncios novos encontrados até aquele ponto.
-    # Como o runner executa vários scrapers no mesmo arquivo/hora, ignora
-    # novamente os links que já foram escritos na planilha.
-    link_coluna = headers.index("link") + 1 if "link" in headers else None
-    links_existentes = set()
-    if link_coluna:
-        links_existentes = {
-            ws.cell(row=linha, column=link_coluna).value
-            for linha in range(2, ws.max_row + 1)
-            if ws.cell(row=linha, column=link_coluna).value
-        }
-
-    adicionados = 0
-    for item in dados:
-        link = item.get("link")
-        if link_coluna and link and link in links_existentes:
-            continue
-        ws.append([item.get(h, "") for h in headers])
-        if link_coluna and link:
-            links_existentes.add(link)
-        adicionados += 1
-
-    if not adicionados:
-        print("Nenhum anúncio novo para adicionar ao Excel")
-        return
-
-    try:
-        wb.save(caminho_saida)
-    except OSError as erro_destino:
-        if caminho_saida == caminho_local:
-            raise
-        caminho_local.parent.mkdir(parents=True, exist_ok=True)
-        wb.save(caminho_local)
-        caminho_saida = caminho_local
-        print(
-            f"Aviso: falha ao salvar no destino configurado ({erro_destino}); "
-            f"arquivo salvo localmente: {caminho_saida}"
-        )
-    print(f"Excel atualizado com sucesso: {caminho_saida}")
-
 
 def salvar_json(dados, caminho):
     """Grava o estado da coleta atomicamente para evitar JSON truncado."""

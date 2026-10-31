@@ -176,11 +176,6 @@ def executar():
 
     salvar_json(dados, GERAL_JSON)
 
-    dados_sem_id = [
-        {chave: valor for chave, valor in item.items() if chave != "id"}
-        for item in imoveis
-    ]
-    gerar_excel(dados_sem_id, f"{PATH_GD}{EXCEL_FINAL}")
     print(f"Palacete: {len(imoveis)} novo(s) imóvel(is) adicionado(s).")
 
 

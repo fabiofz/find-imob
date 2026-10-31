@@ -36,10 +36,8 @@ $ipHospedeiro = Get-NetIPAddress -AddressFamily IPv4 |
     Where-Object { $_.InterfaceAlias -eq "Wi-Fi" -and $_.IPAddress -notlike "169.254.*" } |
     Select-Object -First 1 -ExpandProperty IPAddress
 
-Write-Host "Encaminhamento ativo: Windows:8501 -> WSL $ipWsl`:8501"
-if ($ipHospedeiro) {
-    Write-Host "No outro computador, acesse: http://${ipHospedeiro}:8501"
-} else {
-    Write-Host "Consulte o IPv4 do Wi-Fi deste PC e acesse http://IP-DO-PC:8501 no outro computador."
-}
+Write-Host "Encaminhamento ativo na porta 8501 para o IP WSL $ipWsl"
+Write-Host "Acesso com HTTPS: https://findimob.local:8501"
+if ($ipHospedeiro) { Write-Host "IPv4 deste computador: $ipHospedeiro" }
+Write-Host "Para celulares, configure o DNS local para findimob.local apontar para o IPv4 deste PC e instale a CA .tls/findimob-root-ca.crt."
 Write-Host "Se o WSL reiniciar e trocar de IP, execute este script novamente."

@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 import requests
 import streamlit as st
 from bs4 import BeautifulSoup
+import auth_ui
 from utils.funcs import preco_para_float
 
 
@@ -155,6 +156,19 @@ TEMAS = {
     "Branco e verde": {"bg": "#f4f8f5", "panel": "#ffffff", "line": "#d2e2d7", "muted": "#52645a", "text": "#17241b", "sidebar": "#eaf3ed", "hover": "#edf5ef", "band": "#e9f2ec", "field": "#ffffff"},
     "Azul escuro e verde": {"bg": "#0c1727", "panel": "#12233a", "line": "#29415d", "muted": "#b2c3d7", "text": "#f1f6fc", "sidebar": "#091321", "hover": "#1a304b", "band": "#122239", "field": "#14263d"},
 }
+ICONE_TEMA = {
+    "Escuro": "🌙",
+    "Branco e verde": "🌿",
+    "Azul escuro e verde": "🌌",
+}
+
+
+def chave_tema(tema):
+    return {
+        "Escuro": "escuro",
+        "Branco e verde": "branco_verde",
+        "Azul escuro e verde": "azul_verde",
+    }[tema]
 
 
 def carregar_tema():
@@ -172,6 +186,39 @@ def salvar_tema():
         THEME_FILE.write_text(json.dumps({"tema": tema}, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def selecionar_tema(tema):
+    st.session_state.tema_app = tema
+    st.session_state.tema_mobile = tema
+    salvar_tema()
+
+
+def recolher_menu_tema():
+    st.session_state.tema_menu_aberto = False
+
+
+def abrir_menu_tema():
+    st.session_state.tema_menu_aberto = True
+
+
+def renderizar_menu_tema_flutuante():
+    with st.container(key="tema_flutuante"):
+        if st.session_state.tema_menu_aberto:
+            colunas = st.columns(4, gap="small")
+            for coluna, tema in zip(colunas, TEMAS):
+                with coluna:
+                    st.button(
+                        ICONE_TEMA[tema],
+                        key=f"tema_float_{chave_tema(tema)}",
+                        help=f"Usar o esquema {tema}",
+                        on_click=selecionar_tema,
+                        args=(tema,),
+                    )
+            with colunas[-1]:
+                st.button("×", key="tema_float_close", help="Ocultar o menu de cores", on_click=recolher_menu_tema)
+        else:
+            st.button("🎨", key="tema_float_open", help="Mostrar o menu de cores", on_click=abrir_menu_tema)
+
+
 if __name__ == "__main__":
     st.set_page_config(
         page_title="Find Imob | Central de coleta",
@@ -180,8 +227,15 @@ if __name__ == "__main__":
         initial_sidebar_state="expanded",
     )
 
+if not auth_ui.render_auth_gate():
+    st.stop()
+
 if "tema_app" not in st.session_state:
     st.session_state.tema_app = carregar_tema()
+if "tema_menu_aberto" not in st.session_state:
+    st.session_state.tema_menu_aberto = True
+# Mantém o controle móvel alinhado ao tema definido na barra lateral.
+st.session_state.tema_mobile = st.session_state.tema_app
 
 st.markdown(
     """
@@ -195,7 +249,9 @@ st.markdown(
       [data-testid="stSidebar"] [data-testid="stSidebarHeader"] button { position:absolute !important; top:8px; right:12px; z-index:5; }
       [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding-top:0 !important; margin-top:0 !important; }
       [data-testid="stSidebar"] .block-container { padding-top:0 !important; }
-      .sidebar-brand { display:flex; align-items:center; gap:12px; width:100%; min-height:58px; margin:0 0 8px; padding:0 28px 0 0; box-sizing:border-box; }
+      [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap:.45rem; }
+      [data-testid="stSidebar"] hr { margin:.35rem 0 !important; }
+      .sidebar-brand { display:flex; align-items:center; gap:12px; width:100%; min-height:58px; margin:0 0 65px; padding:0 28px 0 0; box-sizing:border-box; }
       .sidebar-brand img { display:block; width:48px; height:48px; flex:0 0 48px; object-fit:contain; }
       .sidebar-brand span { color:var(--green); font-weight:700; letter-spacing:.1em; font-size:1rem; line-height:1.25; white-space:nowrap; }
       [data-testid="stSidebarNav"] { display:none; }
@@ -203,21 +259,30 @@ st.markdown(
       [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color:#b5c5d8; }
       [data-baseweb="tag"] { background:#bd5c17 !important; color:#fff !important; border-color:#f08b3e !important; }
       [data-baseweb="tag"] button { background:transparent !important; color:#fff !important; }
-      [data-testid="stSidebar"] [role="radiogroup"] label { background:transparent; border:1px solid transparent; border-radius:8px; padding:10px 12px; margin:4px 0; color:#b3b3b3; transition:background .16s ease,color .16s ease; }
+      [data-testid="stSidebar"] [role="radiogroup"] label { background:transparent; border:1px solid transparent; border-radius:8px; padding:6px 10px; margin:1px 0; color:#b3b3b3; transition:background .16s ease,color .16s ease; }
+      [data-testid="stSidebar"] [role="radiogroup"] label > div:first-child { display:none !important; }
       [data-testid="stSidebar"] [role="radiogroup"] label:hover { background:#181818; color:#fff; }
-      [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { background:#181818; border-color:#282828; color:#fff; box-shadow:inset 3px 0 var(--green); }
+      [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked), [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p { background:transparent !important; border-color:transparent !important; color:var(--green) !important; box-shadow:none !important; font-weight:700; }
+      [data-testid="stSidebar"] [data-testid="stExpander"] { margin-top:.65rem !important; }
+      .st-key-tema_desktop_escuro [data-testid="stButton"] button, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button, .st-key-tema_desktop_azul_verde [data-testid="stButton"] button,
+      .st-key-tema_mobile_escuro [data-testid="stButton"] button, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button, .st-key-tema_mobile_azul_verde [data-testid="stButton"] button { position:relative; width:50px !important; min-width:50px !important; min-height:46px !important; padding:0 !important; border:0 !important; border-radius:8px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; font-size:1.55rem; opacity:.82; transition:opacity .16s ease,transform .16s ease; }
+      .st-key-tema_desktop_escuro [data-testid="stButton"] button:hover, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button:hover, .st-key-tema_desktop_azul_verde [data-testid="stButton"] button:hover,
+      .st-key-tema_mobile_escuro [data-testid="stButton"] button:hover, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button:hover, .st-key-tema_mobile_azul_verde [data-testid="stButton"] button:hover { background:transparent !important; opacity:1; transform:scale(1.08) !important; }
       .block-container { padding-top:1.5rem; padding-bottom:3rem; max-width:1500px; }
       h1,h2,h3,p,span,label { font-family:'DM Sans',sans-serif; }
       h1 { letter-spacing:-.04em; }
       .eyebrow { text-transform:uppercase; letter-spacing:.16em; color:var(--orange); font-size:.72rem; font-weight:700; }
       .subtle { color:var(--muted); }
+      .empty-state-message { padding:14px 16px; background:var(--band); border:1px solid var(--line); border-left:3px solid var(--green); border-radius:10px; color:var(--text); }
       .metric-card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; min-height:100px; }
       .metric-label { color:var(--muted); font-size:.82rem; }
       .metric-value { color:var(--text); font-size:1.7rem; font-weight:700; margin-top:5px; }
-      .agency-card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 12px 8px; min-height:88px; margin-bottom:5px; transition:background .16s ease,transform .16s ease; }
-      .agency-card:hover { background:var(--panel-hover); transform:translateY(-2px); }
-      .agency-name { font-weight:700; font-size:.9rem; min-height:22px; }
-      .agency-type { color:#a9b6c6; font-size:.7rem; margin-top:1px; }
+      .agency-card { display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; background:transparent; border:0; border-radius:0; padding:0 4px; min-height:68px; margin:0; overflow-wrap:anywhere; }
+      .agency-name { font-weight:700; font-size:.9rem; line-height:1.25; min-height:2.5em; overflow-wrap:anywhere; }
+      .agency-type { color:var(--muted); font-size:.72rem; line-height:1.25; margin-top:3px; }
+      [class*="st-key-agency_entry_"] { position:relative; overflow:hidden; box-sizing:border-box; min-height:84px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:6px 10px 8px; margin:0 0 8px; cursor:default; }
+      [class*="st-key-agency_entry_"] [data-testid="stHorizontalBlock"] { min-height:70px; align-items:center; }
+      [class*="st-key-agency_entry_"]::after { content:""; position:absolute; left:14px; right:14px; bottom:0; height:2px; border-radius:2px; background:var(--green-dark); pointer-events:none; }
       .selected-agency-header { background:var(--panel-hover); color:var(--text); border:1px solid var(--line); border-radius:12px; padding:14px 18px; font-weight:700; font-size:1.05rem; margin:10px 0 16px; }
       .selected-agency-header > span:not(.agency-new-dot) { color:#b5c5d8; font-weight:500; font-size:.86rem; margin-left:10px; }
       [data-testid="stExpander"] details summary { background:#181818; border:1px solid #282828; border-radius:10px; color:#fff; }
@@ -257,6 +322,8 @@ st.markdown(
       .price-band-label { color:var(--text); font-weight:700; letter-spacing:.02em; border-left:3px solid var(--green); padding:6px 10px; margin:8px 0 10px; background:var(--band); border-radius:0 8px 8px 0; }
       div[data-testid="stButton"] button, div[data-testid="stFormSubmitButton"] button { background:var(--green) !important; color:#fff !important; border:0 !important; border-radius:10px; font-weight:700; transition:all .15s ease; }
       div[data-testid="stButton"] button:hover, div[data-testid="stFormSubmitButton"] button:hover { background:var(--green-hover) !important; color:#fff !important; border:0 !important; transform:translateY(-1px); }
+      [class*="st-key-run_agency_"] [data-testid="stButton"] button { width:44px !important; min-width:44px !important; min-height:44px !important; padding:0 !important; border:0 !important; border-radius:12px !important; background:transparent !important; color:var(--green) !important; font-size:1.15rem !important; box-shadow:none !important; }
+      [class*="st-key-run_agency_"] [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; border:0 !important; color:var(--green-hover) !important; transform:scale(1.06) !important; }
       div[data-testid="stDownloadButton"] button { background:var(--green); color:#fff; border:0; border-radius:10px; font-weight:700; transition:all .15s ease; }
       div[data-testid="stDownloadButton"] button:hover { background:var(--green-hover); color:#fff; border:0; transform:translateY(-1px); }
       div.st-key-run_all button { background:var(--green); color:#101010; min-height:48px; }
@@ -282,6 +349,14 @@ st.markdown(
       div[class*="st-key-favorite-on_"] [data-testid="stButton"] button { color:#f3c969 !important; border-color:#8a7131 !important; }
       [data-testid="stExpander"] { border:1px solid var(--line); border-radius:12px; }
       .st-key-pagina_mobile { display:none; }
+      div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { position:fixed !important; z-index:10002; top:16px; right:18px; bottom:auto; left:auto; flex:none !important; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; align-self:auto !important; }
+      .st-key-tema_flutuante { opacity:70%; position:fixed !important; z-index:10003; top:16px !important; right:18px !important; bottom:auto !important; left:auto !important; width:max-content; max-width:calc(100vw - 24px); padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid color-mix(in srgb,var(--line) 90%,transparent); border-radius:18px; box-shadow:0 8px 24px #0005; backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); }
+      .st-key-tema_flutuante [data-testid="stHorizontalBlock"] { width:max-content; max-width:100%; flex-wrap:nowrap !important; gap:2px; }
+      .st-key-tema_flutuante [data-testid="stColumn"] { flex:0 0 42px !important; width:42px !important; min-width:42px !important; }
+      .st-key-tema_flutuante [data-testid="stVerticalBlock"] { align-items:center; }
+      .st-key-tema_flutuante [data-testid="stButton"] button { width:40px !important; min-width:40px !important; min-height:40px !important; padding:0 !important; border:0 !important; border-radius:12px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; font-size:1.35rem !important; }
+      .st-key-tema_flutuante [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; color:var(--text) !important; transform:none !important; }
+      .st-key-tema_float_close [data-testid="stButton"] button { color:var(--muted) !important; font-size:1.5rem !important; }
       @media (min-width: 769px) and (max-width: 1100px) {
         [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(4)) { flex-wrap:wrap; }
         [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(4)) > [data-testid="column"] { flex:1 1 calc(50% - .4rem) !important; width:calc(50% - .4rem) !important; min-width:calc(50% - .4rem) !important; }
@@ -290,17 +365,24 @@ st.markdown(
       }
       @media (max-width: 768px) {
         [data-testid="stSidebar"] { display:none; }
-        [data-testid="collapsedControl"] { display:none; }
+        [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"], [data-testid="stSidebarCollapseButton"], [data-testid="stExpandSidebarButton"] { display:none !important; }
+        [data-testid="stHeader"] { display:none !important; }
         [data-testid="stAppViewContainer"] { overflow-x:hidden; }
-        .block-container { padding:0.75rem .9rem calc(6.5rem + env(safe-area-inset-bottom)); }
-        .st-key-pagina_mobile { display:block; position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important; top:auto !important; z-index:9999; width:100vw !important; box-sizing:border-box; margin:0 !important; padding:8px 8px calc(8px + env(safe-area-inset-bottom)) !important; background:var(--sidebar); border-top:1px solid var(--line); box-shadow:0 -6px 20px #0003; }
-        .st-key-pagina_mobile [role="radiogroup"] { display:flex; flex-wrap:nowrap; justify-content:space-around; gap:4px; overflow:visible; padding:2px 0; }
-        .st-key-pagina_mobile [role="radiogroup"]::-webkit-scrollbar { display:none; }
-        .st-key-pagina_mobile [role="radiogroup"] label { flex:1 1 0; min-width:0; min-height:42px; display:flex; align-items:center; justify-content:center; padding:7px 4px; margin:0; background:transparent; border:1px solid transparent; border-radius:12px; color:var(--muted); white-space:nowrap; font-size:1.35rem; line-height:1; }
-        .st-key-pagina_mobile [role="radiogroup"] label > div:first-child { display:none !important; }
-        .st-key-pagina_mobile [role="radiogroup"] label:has(input:checked) { background:var(--green); border-color:var(--green); color:#10251a; box-shadow:none; font-weight:700; }
+        .block-container, [data-testid="stMainBlockContainer"] { padding-top:0 !important; padding-left:.9rem; padding-right:.9rem; padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
+        div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { top:calc(12px + env(safe-area-inset-top)); right:12px; }
+        .st-key-tema_flutuante { top:calc(12px + env(safe-area-inset-top)) !important; right:12px !important; padding:6px; border-radius:16px; }
+        .st-key-pagina_mobile { display:block; position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important; top:auto !important; z-index:9999; width:100vw !important; box-sizing:border-box; margin:0 !important; padding:8px 8px calc(8px + env(safe-area-inset-bottom)) !important; background:#202124 !important; border-top:1px solid #35373b !important; box-shadow:0 -6px 20px #0005; }
+        .st-key-pagina_mobile [data-testid="stHorizontalBlock"] { flex-wrap:nowrap !important; gap:4px; }
+        .st-key-pagina_mobile [data-testid="stColumn"] { flex:1 1 0 !important; width:20% !important; min-width:0 !important; }
+        .st-key-pagina_mobile [data-testid="stVerticalBlock"] { align-items:center; }
+        .st-key-pagina_mobile [data-testid="stButton"] button { position:relative; width:52px !important; min-width:52px !important; min-height:52px !important; padding:0 !important; border:0 !important; border-radius:15px !important; background:transparent !important; color:#e2e5e9 !important; box-shadow:none !important; font-size:1.7rem !important; }
+        .st-key-pagina_mobile [data-testid="stButton"] button:hover { background:#303236 !important; color:#fff !important; transform:none !important; }
         [data-testid="stHorizontalBlock"] { flex-wrap:wrap; gap:.65rem; }
         [data-testid="stHorizontalBlock"] > [data-testid="column"] { flex:1 1 calc(50% - .4rem) !important; width:calc(50% - .4rem) !important; min-width:calc(50% - .4rem) !important; }
+        [class*="st-key-agency_entry_"] [data-testid="stHorizontalBlock"] { min-height:72px; flex-wrap:nowrap !important; align-items:center; gap:.4rem; }
+        [class*="st-key-agency_entry_"] [data-testid="stColumn"]:first-child > [data-testid="stVerticalBlock"] { height:100%; justify-content:center; }
+        [class*="st-key-agency_entry_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child { flex:1 1 auto !important; width:auto !important; min-width:0 !important; }
+        [class*="st-key-agency_entry_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child { flex:0 0 48px !important; width:48px !important; min-width:48px !important; }
         h1 { font-size:1.8rem !important; line-height:1.1; }
         h2 { font-size:1.35rem !important; }
         .metric-card { padding:14px; min-height:82px; }
@@ -313,6 +395,10 @@ st.markdown(
       @media (max-width: 520px) {
         .block-container { padding-left:.7rem; padding-right:.7rem; }
         [data-testid="stHorizontalBlock"] > [data-testid="column"] { flex:1 1 100% !important; width:100% !important; min-width:100% !important; }
+        [class*="st-key-agency_entry_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child { flex:1 1 auto !important; width:auto !important; min-width:0 !important; }
+        [class*="st-key-agency_entry_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child { flex:0 0 48px !important; width:48px !important; min-width:48px !important; }
+        .st-key-tema_flutuante [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] { flex:0 0 42px !important; width:42px !important; min-width:42px !important; }
+        .st-key-pagina_mobile [data-testid="stHorizontalBlock"] > [data-testid="column"] { flex:1 1 0 !important; width:auto !important; min-width:0 !important; }
         [data-testid="stHorizontalBlock"]:has(div[class*="st-key-favorite"]) > [data-testid="column"] { flex:1 1 calc(50% - .35rem) !important; width:calc(50% - .35rem) !important; min-width:calc(50% - .35rem) !important; }
         .selected-agency-header { padding:12px; font-size:.95rem; }
         .wa-preview { height:138px; }
@@ -325,6 +411,7 @@ st.markdown(
 )
 
 cores_tema = TEMAS[st.session_state.tema_app]
+tema_ativo_key = chave_tema(st.session_state.tema_app)
 st.markdown(
     f"""<style>
       :root {{
@@ -334,11 +421,13 @@ st.markdown(
         --orange:#32cb79; --green:#32cb79; --green-hover:#51d891; --green-dark:#207b4c;
       }}
       [data-testid="stSidebar"] {{ background:var(--sidebar) !important; border-color:var(--line) !important; }}
+      .st-key-tema_float_{tema_ativo_key} [data-testid="stButton"] button {{ background:#32cb7918 !important; border:1px solid #32cb7944 !important; border-radius:12px !important; box-shadow:none !important; opacity:1; }}
       [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {{ color:var(--text); }}
       [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:var(--muted); }}
       [data-testid="stSidebar"] [role="radiogroup"] label {{ color:var(--muted); }}
-      [data-testid="stSidebar"] [role="radiogroup"] label:hover,
-      [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{ background:var(--panel); border-color:var(--line); color:var(--text); }}
+      [data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background:var(--panel); border-color:var(--line); color:var(--text); }}
+      [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked),
+      [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p {{ background:transparent !important; border-color:transparent !important; color:var(--green) !important; box-shadow:none !important; font-weight:700; }}
       .metric-card,.agency-card,[data-testid="stExpander"] details summary {{ background:var(--panel); border-color:var(--line); color:var(--text); }}
       .agency-card:hover,[data-testid="stExpander"] details summary:hover {{ background:var(--panel-hover); }}
       .selected-agency-header,.day-label {{ background:var(--panel-hover); border-color:var(--line); color:var(--text); }}
@@ -939,7 +1028,7 @@ def executar(rotulo, tipo, identificador):
         f"[{hora_inicio}] [INFO] Acompanhando saída em modo tail ({TAIL_LINES} linhas)",
     ]
     terminal = st.empty()
-    status = st.status(f"Executando: {rotulo}", expanded=True)
+    status = st.status(f"Executando: {rotulo}", expanded=False)
     terminal.markdown(
         f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
         + rotulo
@@ -1008,7 +1097,7 @@ def executar(rotulo, tipo, identificador):
     status.update(
         label=(f"Concluído em {duracao}s" if codigo == 0 else f"Finalizado com erro ({codigo})"),
         state=("complete" if codigo == 0 else "error"),
-        expanded=(codigo != 0),
+        expanded=False,
     )
     st.session_state.ultima_execucao_dialogo = {
         "id": st.session_state.get("execucao_dialogo_id"),
@@ -1113,7 +1202,7 @@ for registro_execucao in historico:
         )
 
 paginas_disponiveis = [
-    "Imobiliárias", "Resultados das buscas", "Favoritos", "Histórico mensal", "Log de erros"
+    "Imobiliárias", "Resultados das buscas", "Favoritos", "Histórico mensal", "Log de erros", "Meu perfil"
 ]
 ROTAS_AMIGAVEIS = {
     "Imobiliárias": ("imobiliarias", "pages/imobiliarias.py"),
@@ -1121,6 +1210,7 @@ ROTAS_AMIGAVEIS = {
     "Favoritos": ("favoritos", "pages/favoritos.py"),
     "Histórico mensal": ("historico", "pages/historico.py"),
     "Log de erros": ("erros", "pages/erros.py"),
+    "Meu perfil": ("perfil", "pages/perfil.py"),
 }
 pagina_salva = st.query_params.get("pagina", "Imobiliárias")
 if "pagina" not in st.session_state:
@@ -1151,9 +1241,44 @@ def persistir_parametro_url(chave):
         st.query_params.pop(chave, None)
 
 
-def selecionar_pagina_mobile():
-    st.session_state.pagina = st.session_state.pagina_mobile
+CHAVE_PAGINA = {
+    "Imobiliárias": "imobiliarias",
+    "Resultados das buscas": "resultados",
+    "Favoritos": "favoritos",
+    "Histórico mensal": "historico",
+    "Log de erros": "erros",
+    "Meu perfil": "perfil",
+}
+ICONE_PAGINA = {
+    "Imobiliárias": "⌂",
+    "Resultados das buscas": "⌕",
+    "Favoritos": "★",
+    "Histórico mensal": "◷",
+    "Log de erros": "⚠",
+    "Meu perfil": "♙",
+}
+
+
+def selecionar_pagina_mobile(pagina):
+    st.session_state.pagina = pagina
+    st.session_state.pagina_mobile = pagina
     persistir_parametro_url("pagina")
+
+
+def renderizar_botoes_pagina_mobile():
+    colunas = st.columns(len(paginas_disponiveis), gap="small")
+    for coluna, opcao in zip(colunas, paginas_disponiveis):
+        icone = ICONE_PAGINA[opcao]
+        if opcao == "Resultados das buscas" and st.session_state.resultados_notificacao:
+            icone = "🔴⌕"
+        with coluna:
+            st.button(
+                icone,
+                key=f"nav_mobile_{CHAVE_PAGINA[opcao]}",
+                help=f"Abrir {opcao}",
+                on_click=selecionar_pagina_mobile,
+                args=(opcao,),
+            )
 
 
 @st.fragment
@@ -1186,7 +1311,10 @@ def renderizar_pagina_anuncios(pagina):
     grupos = agrupar_por_imobiliaria(anuncios_da_pagina)
     grupos = {nome: itens for nome, itens in grupos.items() if itens}
     if not grupos:
-        st.info(texto_vazio)
+        st.markdown(
+            f'<div class="empty-state-message">{escape(texto_vazio)}</div>',
+            unsafe_allow_html=True,
+        )
         return
 
     filtro_coluna, busca_coluna = st.columns([1, 2])
@@ -1358,20 +1486,12 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.divider()
-    st.selectbox(
-        "Esquema de cores",
-        options=list(TEMAS),
-        key="tema_app",
-        on_change=salvar_tema,
-    )
-    st.divider()
     pagina = st.radio(
         "Seção",
         paginas_disponiveis,
         format_func=lambda opcao: (
-            f"🔴 {opcao}"
-            if opcao == "Resultados das buscas" and st.session_state.resultados_notificacao
-            else opcao
+            f"{'🔴 ' if opcao == 'Resultados das buscas' and st.session_state.resultados_notificacao else ''}"
+            f"{ICONE_PAGINA[opcao]}  {opcao}"
         ),
         key="pagina",
         on_change=persistir_parametro_url,
@@ -1422,41 +1542,23 @@ with st.sidebar:
                 }
                 salvar_parametros_busca(parametros_busca)
                 st.success("Parâmetros salvos.")
-    st.divider()
-    st.markdown("**Resumo**")
-    st.caption(f"{len(AGENCIES)} imobiliárias conectadas")
-    st.caption(f"{len(historico)} execuções registradas")
-    st.caption(f"{'Erros registrados' if ERROR_LOG_FILE.exists() else 'Sem erros registrados'}")
-    st.divider()
-    st.markdown("**Arquivos**")
-    st.caption("Catálogo · geral.json")
-    st.caption("Exportação · Excel")
+    auth_ui.render_sidebar_account()
 
 if st.session_state.get("pagina_mobile") != pagina:
     st.session_state.pagina_mobile = pagina
-st.radio(
-    "Navegação",
-    paginas_disponiveis,
-    key="pagina_mobile",
-    horizontal=True,
-    help="Navegação: início, resultados, favoritos, histórico mensal e log de erros.",
-    label_visibility="collapsed",
-    format_func=lambda opcao: {
-        "Imobiliárias": "⌂",
-        "Resultados das buscas": (
-            "🔴⌕"
-            if st.session_state.resultados_notificacao else "⌕"
-        ),
-        "Favoritos": "★",
-        "Histórico mensal": "◷",
-        "Log de erros": "⚠",
-    }[opcao],
-    on_change=selecionar_pagina_mobile,
+pagina_mobile_ativa = CHAVE_PAGINA.get(pagina, "imobiliarias")
+st.markdown(
+    f"""<style>
+      .st-key-pagina_mobile .st-key-nav_mobile_{pagina_mobile_ativa} [data-testid="stButton"] button {{ background:#32cb79 !important; color:#10251a !important; box-shadow:0 3px 10px #32cb7955 !important; }}
+    </style>""",
+    unsafe_allow_html=True,
 )
+with st.container(key="pagina_mobile"):
+    renderizar_botoes_pagina_mobile()
 
 st.markdown('<div class="eyebrow">Find Imob &nbsp; / &nbsp; Operações</div>', unsafe_allow_html=True)
 st.title(
-    pagina if pagina in {"Resultados das buscas", "Favoritos"} else "Central de coleta"
+    pagina if pagina in {"Resultados das buscas", "Favoritos", "Meu perfil"} else "Central de coleta"
 )
 st.markdown(
     '<p class="subtle">Anúncios coletados, organizados por imobiliária.</p>'
@@ -1504,18 +1606,22 @@ if pagina == "Imobiliárias":
                     if quantidade_execucoes == 1
                     else f"{quantidade_execucoes} execuções individuais"
                 )
-                st.markdown(
-                    f'<div class="agency-card"><div class="agency-name">{nome}</div>'
-                    f'<div class="agency-type">{rotulo_execucoes}</div></div>',
-                    unsafe_allow_html=True,
-                )
-                if st.button(
-                    "▶  Executar imobiliária",
-                    key=f"run_agency_{identificador}",
-                    use_container_width=True,
-                ):
-                    execucao_id = str(time.time_ns())
-                    visualizar_execucao(nome, tipo, identificador, execucao_id)
+                with st.container(key=f"agency_entry_{identificador}"):
+                    coluna_dados, coluna_acao = st.columns([5, 1], gap="small", vertical_alignment="center")
+                    with coluna_dados:
+                        st.markdown(
+                            f'<div class="agency-card"><div class="agency-name">{nome}</div>'
+                            f'<div class="agency-type">{rotulo_execucoes}</div></div>',
+                            unsafe_allow_html=True,
+                        )
+                    with coluna_acao:
+                        if st.button(
+                            "▶",
+                            key=f"run_agency_{identificador}",
+                            help=f"Executar {nome}",
+                        ):
+                            execucao_id = str(time.time_ns())
+                            visualizar_execucao(nome, tipo, identificador, execucao_id)
 
 elif pagina in {"Resultados das buscas", "Favoritos"}:
     renderizar_pagina_anuncios(pagina)
@@ -1539,6 +1645,9 @@ elif pagina == "Histórico mensal":
                 icone = "✅" if item["resultado"] == "sucesso" else "⚠️"
                 with st.expander(f"{icone}  {momento.strftime('%H:%M:%S')}  —  {item['rotulo']}  ·  {item['duracao']}s"):
                     st.code("\n".join(item.get("log", [])) or "Sem saída registrada.", language="text")
+elif pagina == "Meu perfil":
+    auth_ui.render_profile_page()
+
 elif pagina == "Log de erros":
     st.subheader("Log de erros")
     st.markdown("As falhas de coleta são registradas em `logs_erros.txt` e permanecem disponíveis entre execuções.")
@@ -1553,3 +1662,6 @@ elif pagina == "Log de erros":
         st.code("\n".join(texto_erros.splitlines()[-1000:]), language="text")
     else:
         st.success("Nenhum erro foi registrado até agora.")
+
+# Renderizado ao fim para que o contêiner flutuante não crie espaço antes do conteúdo.
+renderizar_menu_tema_flutuante()
