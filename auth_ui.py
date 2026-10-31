@@ -61,6 +61,22 @@ def _render_auth_styles():
         html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
           background:var(--bg) !important; color:var(--text) !important;
         }}
+        [data-testid="stAlertContainer"]:has([data-testid="stAlertContentError"]) {{
+          background:#e11236 !important; color:#fff !important;
+          border:1px solid #ff294b !important; box-shadow:0 0 0 1px #ff294b55;
+        }}
+        [data-testid="stAlertContentError"],
+        [data-testid="stAlertContentError"] * {{ color:#fff !important; white-space:pre-wrap; }}
+        [data-testid="stAlertContentError"] svg {{ fill:currentColor !important; stroke:currentColor !important; }}
+        .stApp[data-test-script-state="running"] div[data-testid="stElementContainer"]:has(.st-key-auth_theme_float),
+        .stApp[data-test-script-state="running"] .st-key-auth_theme_float,
+        .stApp[data-test-script-state="rerunRequested"] div[data-testid="stElementContainer"]:has(.st-key-auth_theme_float),
+        .stApp[data-test-script-state="rerunRequested"] .st-key-auth_theme_float,
+        .stApp[data-test-script-state="stopRequested"] div[data-testid="stElementContainer"]:has(.st-key-auth_theme_float),
+        .stApp[data-test-script-state="stopRequested"] .st-key-auth_theme_float {{
+          visibility:hidden !important; opacity:0 !important; pointer-events:none !important;
+          transition:none !important;
+        }}
         [data-testid="stSidebar"], [data-testid="stSidebarCollapsedControl"],
         [data-testid="collapsedControl"], [data-testid="stHeader"] {{
           display:none !important;
@@ -296,7 +312,7 @@ def _logout():
 
 def _show_error(slot, message):
     if message:
-        slot.error(message)
+        slot.error(f"⚠️  {message}")
 
 
 def _render_auth_route_links(active):
@@ -343,7 +359,7 @@ def _render_login():
             else:
                 st.login()
         except Exception:
-            st.error("Não foi possível iniciar o login Google. Confira a configuração OIDC em .streamlit/secrets.toml e reinicie o app.")
+            st.error("⚠️  Não foi possível iniciar o login Google. Confira a configuração OIDC em .streamlit/secrets.toml e reinicie o app.")
 
 
 def _render_photo_upload(prefix, label, optional=False):
@@ -498,7 +514,7 @@ def render_auth_gate():
         if st.session_state.pop("auth_google_pending", False):
             st.info("Conta Google registrada. O acesso aguarda aprovação do administrador.")
         if st.session_state.pop("auth_google_error", None):
-            st.error("Use uma conta Google com e-mail verificado.")
+            st.error("⚠️  Use uma conta Google com e-mail verificado.")
         auth_route = st.session_state.get("_auth_route_mode") or "login"
         _render_auth_route_links(auth_route)
         if auth_route == "register":

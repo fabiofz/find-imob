@@ -17,6 +17,9 @@ primaryColor = "#32cb79"
 backgroundColor = "#121212"
 secondaryBackgroundColor = "#181818"
 textColor = "#f5f5f5"
+redColor = "#ff1744"
+redBackgroundColor = "#a50025"
+redTextColor = "#ffffff"
 
 [browser]
 serverAddress = "findimob.local"

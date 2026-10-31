@@ -274,6 +274,11 @@ st.markdown(
       .eyebrow { text-transform:uppercase; letter-spacing:.16em; color:var(--orange); font-size:.72rem; font-weight:700; }
       .subtle { color:var(--muted); }
       .empty-state-message { padding:14px 16px; background:var(--band); border:1px solid var(--line); border-left:3px solid var(--green); border-radius:10px; color:var(--text); }
+      [data-testid="stAlertContainer"]:has([data-testid="stAlertContentError"]) { background:#e11236 !important; color:#fff !important; border:1px solid #ff294b !important; box-shadow:0 0 0 1px #ff294b55; }
+      [data-testid="stAlertContentError"], [data-testid="stAlertContentError"] * { color:#fff !important; white-space:pre-wrap; }
+      [data-testid="stAlertContentError"] svg { fill:currentColor !important; stroke:currentColor !important; }
+      .st-key-error_log_panel [data-testid="stCodeBlock"] { border-left:4px solid #ff294b !important; }
+      .st-key-error_log_panel [data-testid="stCodeBlock"] code { color:#ff788c !important; }
       .metric-card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; min-height:100px; }
       .metric-label { color:var(--muted); font-size:.82rem; }
       .metric-value { color:var(--text); font-size:1.7rem; font-weight:700; margin-top:5px; }
@@ -356,6 +361,12 @@ st.markdown(
       .st-key-tema_flutuante [data-testid="stVerticalBlock"] { align-items:center; }
       .st-key-tema_flutuante [data-testid="stButton"] button { width:40px !important; min-width:40px !important; min-height:40px !important; padding:0 !important; border:0 !important; border-radius:12px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; font-size:1.35rem !important; }
       .st-key-tema_flutuante [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; color:var(--text) !important; transform:none !important; }
+      .stApp[data-test-script-state="running"] div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante),
+      .stApp[data-test-script-state="running"] .st-key-tema_flutuante,
+      .stApp[data-test-script-state="rerunRequested"] div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante),
+      .stApp[data-test-script-state="rerunRequested"] .st-key-tema_flutuante,
+      .stApp[data-test-script-state="stopRequested"] div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante),
+      .stApp[data-test-script-state="stopRequested"] .st-key-tema_flutuante { visibility:hidden !important; opacity:0 !important; pointer-events:none !important; transition:none !important; }
       .st-key-tema_float_close [data-testid="stButton"] button { color:var(--muted) !important; font-size:1.5rem !important; }
       @media (min-width: 769px) and (max-width: 1100px) {
         [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(4)) { flex-wrap:wrap; }
@@ -1091,7 +1102,7 @@ def executar(rotulo, tipo, identificador):
         except OSError as erro_log:
             log.append(f"[{hora_fim}] [ERRO] Não foi possível gravar logs_erros.txt: {erro_log}")
     status.update(
-        label=(f"Concluído em {duracao}s" if codigo == 0 else f"Finalizado com erro ({codigo})"),
+        label=(f"Concluído em {duracao}s" if codigo == 0 else f"🚨  Finalizado com erro ({codigo})"),
         state=("complete" if codigo == 0 else "error"),
         expanded=False,
     )
@@ -1158,7 +1169,7 @@ def visualizar_execucao(rotulo, tipo, identificador, execucao_id):
                 unsafe_allow_html=True,
             )
             st.status(
-                f"{'Concluído' if codigo == 0 else f'Finalizado com erro ({codigo})'} · {resultado['duracao']}s",
+                f"{'Concluído' if codigo == 0 else f'🚨  Finalizado com erro ({codigo})'} · {resultado['duracao']}s",
                 state="complete" if codigo == 0 else "error",
                 expanded=codigo != 0,
             )
@@ -1250,7 +1261,7 @@ ICONE_PAGINA = {
     "Resultados das buscas": "⌕",
     "Favoritos": "★",
     "Histórico mensal": "◷",
-    "Log de erros": "⚠",
+    "Log de erros": "🚨",
     "Meu perfil": "♙",
 }
 
@@ -1526,9 +1537,9 @@ with st.sidebar:
             valor_min = float(st.session_state.busca_preco_min)
             valor_max = float(st.session_state.busca_preco_max)
             if valor_min > valor_max:
-                st.error("O valor mínimo não pode ser maior que o máximo.")
+                st.error("⚠️  O valor mínimo não pode ser maior que o máximo.")
             elif not st.session_state.busca_tipos or not st.session_state.busca_cidades:
-                st.error("Selecione ao menos um tipo de imóvel e uma cidade.")
+                st.error("⚠️  Selecione ao menos um tipo de imóvel e uma cidade.")
             else:
                 parametros_busca = {
                     "preco_min": valor_min,
@@ -1638,15 +1649,15 @@ elif pagina == "Histórico mensal":
             )
             st.markdown(f'<div class="day-label">{rotulo_dia}</div>', unsafe_allow_html=True)
             for momento, item in sorted(itens, key=lambda registro: registro[0], reverse=True):
-                icone = "✅" if item["resultado"] == "sucesso" else "⚠️"
+                icone = "✅" if item["resultado"] == "sucesso" else "🚨"
                 with st.expander(f"{icone}  {momento.strftime('%H:%M:%S')}  —  {item['rotulo']}  ·  {item['duracao']}s"):
                     st.code("\n".join(item.get("log", [])) or "Sem saída registrada.", language="text")
 elif pagina == "Meu perfil":
     auth_ui.render_profile_page()
 
 elif pagina == "Log de erros":
-    st.subheader("Log de erros")
-    st.markdown("As falhas de coleta são registradas em `logs_erros.txt` e permanecem disponíveis entre execuções.")
+    st.subheader("🚨  Log de erros")
+    st.markdown("🚨  As falhas de coleta são registradas em `logs_erros.txt` e permanecem disponíveis entre execuções.")
     if ERROR_LOG_FILE.exists():
         texto_erros = ERROR_LOG_FILE.read_text(encoding="utf-8", errors="replace")
         st.download_button(
@@ -1655,7 +1666,8 @@ elif pagina == "Log de erros":
             file_name="logs_erros.txt",
             mime="text/plain",
         )
-        st.code("\n".join(texto_erros.splitlines()[-1000:]), language="text")
+        with st.container(key="error_log_panel"):
+            st.code("\n".join(texto_erros.splitlines()[-1000:]), language="text")
     else:
         st.success("Nenhum erro foi registrado até agora.")
 
