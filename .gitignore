@@ -10,8 +10,6 @@ logs_erros.txt
 .parametros_busca.json
 .tema.json
 
-**/exports/
-
 **/.venv/
 
 .users.sqlite3*
