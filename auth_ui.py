@@ -1,6 +1,7 @@
 """Login, cadastro de perfis e aprovação administrativa."""
 from io import BytesIO
 import json
+import base64
 import re
 import time
 import warnings
@@ -69,7 +70,7 @@ def _render_auth_styles():
           padding:2rem 1rem 3rem !important;
         }}
         .st-key-auth_shell {{
-          box-sizing:border-box; width:60vw; max-width:900px; min-width:0;
+          box-sizing:border-box; width:40vw; max-width:700px; min-width:0;
           margin:4vh auto !important; padding:clamp(22px,3.5vw,44px);
           color:var(--text); background:var(--panel);
           border:1px solid var(--line); border-radius:22px;
@@ -85,6 +86,12 @@ def _render_auth_styles():
         .st-key-auth_shell [data-testid="stTabs"] button[aria-selected="true"] {{
           color:var(--green) !important;
         }}
+        .st-key-auth_route_nav [data-testid="stHorizontalBlock"] {{ width:max-content !important; gap:0; border-bottom:1px solid var(--line); margin:8px 0 18px; }}
+        .st-key-auth_route_nav [data-testid="stColumn"] {{ min-width:0 !important; width:max-content !important; flex:0 0 auto !important; padding-right:8px; }}
+        .st-key-auth_route_nav [data-testid="stPageLink"] {{ padding:0 !important; }}
+        .st-key-auth_route_nav a {{ display:block; padding:10px 14px !important; border-bottom:2px solid transparent; color:var(--muted) !important; text-decoration:none !important; white-space:nowrap; }}
+        .st-key-auth_route_nav a:hover {{ color:var(--text) !important; }}
+        .st-key-auth_route_login a, .st-key-auth_route_cadastrar a {{ border-bottom:2px solid var(--green); color:var(--text) !important; }}
         .st-key-auth_shell [data-testid="stForm"] {{
           padding:1rem 1.15rem; border:1px solid var(--line);
           border-radius:16px; background:color-mix(in srgb,var(--panel) 94%,var(--bg));
@@ -128,7 +135,9 @@ def _render_auth_styles():
         .st-key-auth_theme_{selected} [data-testid="stButton"] button {{
           border-color:var(--green) !important; background:#32cb7918 !important;
         }}
-        .st-key-auth_logo img {{ display:block; max-height:74px; width:auto; margin:0 auto .65rem; }}
+        .auth-brand {{ display:flex; align-items:center; justify-content:center; gap:14px; margin:0 auto 14px; }}
+        .auth-brand img {{ display:block; width:58px; height:58px; object-fit:contain; }}
+        .auth-brand h1 {{ margin:0; text-align:left !important; font-size:clamp(1.8rem,4vw,2.6rem); line-height:1.1; color:var(--text); }}
         .st-key-auth_photo_crop [data-testid="stHorizontalBlock"] {{
           align-items:center; gap:1rem;
         }}
@@ -142,8 +151,20 @@ def _render_auth_styles():
           }}
           .st-key-auth_shell [data-testid="stForm"] {{ padding:.6rem .65rem; }}
           .st-key-auth_theme_float {{ top:calc(env(safe-area-inset-top, 0px) + 10px); right:10px; }}
+          .auth-brand {{ gap:10px; margin-bottom:12px; }}
+          .auth-brand img {{ width:48px; height:48px; }}
         }}
         </style>""",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_auth_brand():
+    logo = Path(__file__).resolve().parent / "assets" / "findimob.svg"
+    encoded_logo = base64.b64encode(logo.read_bytes()).decode("ascii")
+    st.markdown(
+        f'<div class="auth-brand"><img src="data:image/svg+xml;base64,{encoded_logo}" '
+        'alt="Logo Find Imob"><h1>Find Imob</h1></div>',
         unsafe_allow_html=True,
     )
 
@@ -278,6 +299,17 @@ def _show_error(slot, message):
         slot.error(message)
 
 
+def _render_auth_route_links(active):
+    with st.container(key="auth_route_nav"):
+        left, right = st.columns([1, 1], gap="small")
+        with left:
+            with st.container(key="auth_route_login" if active == "login" else "auth_route_login_inactive"):
+                st.page_link("pages/entrar.py", label="Entrar")
+        with right:
+            with st.container(key="auth_route_cadastrar" if active == "register" else "auth_route_cadastrar_inactive"):
+                st.page_link("pages/cadastrar.py", label="Criar conta")
+
+
 def _render_login():
     st.subheader("Entrar")
     identifier = st.text_input("Usuário ou e-mail", key="auth_login_identifier")
@@ -393,7 +425,6 @@ def _render_initial_profile(user):
 
 
 def _render_registration():
-    st.caption("Cadastros novos aguardam aprovação do administrador.")
     full_name = st.text_input("Nome", key="signup_full_name")
     full_name_error = st.empty()
     email = st.text_input("E-mail", key="signup_email")
@@ -449,9 +480,7 @@ def render_auth_gate():
         elif user["must_change_password"]:
             _render_auth_styles()
             with st.container(key="auth_shell"):
-                with st.container(key="auth_logo"):
-                    st.image(str(Path(__file__).resolve().parent / "assets" / "findimob.svg"), width=82)
-                st.title("Find Imob")
+                _render_auth_brand()
                 st.subheader("Proteja sua conta")
                 _render_initial_profile(user)
             _render_theme_picker()
@@ -462,22 +491,20 @@ def render_auth_gate():
 
     _render_auth_styles()
     with st.container(key="auth_shell"):
-        with st.container(key="auth_logo"):
-            st.image(str(Path(__file__).resolve().parent / "assets" / "findimob.svg"), width=82)
-        st.title("Find Imob")
+        _render_auth_brand()
         st.caption("Entre para acessar o painel ou solicite a criação da sua conta.")
-        st.caption("Primeiro acesso: admin / admin. Na primeira entrada, troque a senha e complete o perfil.")
         if timed_out:
             st.warning("Sua sessão expirou. Entre novamente.")
         if st.session_state.pop("auth_google_pending", False):
             st.info("Conta Google registrada. O acesso aguarda aprovação do administrador.")
         if st.session_state.pop("auth_google_error", None):
             st.error("Use uma conta Google com e-mail verificado.")
-        login_tab, register_tab = st.tabs(["Entrar", "Criar conta"])
-        with login_tab:
-            _render_login()
-        with register_tab:
+        auth_route = st.session_state.get("_auth_route_mode") or "login"
+        _render_auth_route_links(auth_route)
+        if auth_route == "register":
             _render_registration()
+        else:
+            _render_login()
     _render_theme_picker()
     return False
 

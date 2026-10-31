@@ -564,11 +564,8 @@ def excluir_anuncio(chave):
 
 
 def carregar_cache_previews():
-    try:
-        dados = json.loads(PREVIEW_CACHE_FILE.read_text(encoding="utf-8"))
-        return dados if isinstance(dados, dict) else {}
-    except (OSError, json.JSONDecodeError):
-        return {}
+    """Cache de prévias temporariamente desativado; nunca reutiliza dados antigos."""
+    return {}
 
 
 def carregar_parametros_busca():
@@ -600,9 +597,8 @@ def salvar_parametros_busca(parametros):
 
 
 def salvar_cache_previews(cache):
-    PREVIEW_CACHE_FILE.write_text(
-        json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    """Persistência de prévias desativada temporariamente."""
+    return None
 
 
 def validar_imagem_preview(url):
