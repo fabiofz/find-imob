@@ -75,6 +75,12 @@ Se o site usar os cartões `.imovelcard` ou o layout de cartões Tailwind, adici
 
 Os seletores HTML e os formatos das URLs dependem dos sites de terceiros e podem precisar de atualização quando eles mudarem.
 
+### Aplicativo Android
+
+O projeto Android instalável fica em android/. Ele oferece uma casca nativa para abrir o painel responsivo, com botão de recarregar quando a conexão falha. Para instruções de compilação e preparação do AAB, consulte android/README.md.
+
+O app exige um endereço público HTTPS com certificado válido. O endereço local findimob.local e os certificados da rede doméstica não funcionam para uma distribuição pública pela Play Store. Também é necessário configurar assinatura de release, política de privacidade e declarações de dados antes de publicar.
+
 ### Login com Google
 
 O app inclui autenticação Google por OIDC do Streamlit. Copie o modelo em .streamlit/secrets.toml.example para .streamlit/secrets.toml, gere um cookie_secret aleatório e preencha client_id e client_secret do cliente Web no Google Cloud. Cadastros Google novos também aguardam aprovação administrativa.
