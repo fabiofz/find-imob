@@ -2,6 +2,7 @@
 toolbarMode = "minimal"
 
 [server]
+headless = true
 enableXsrfProtection = true
 enableCORS = true
 maxUploadSize = 2
