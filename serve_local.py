@@ -1,7 +1,9 @@
 """Proxy local: redireciona HTTP para HTTPS e encaminha TLS ao Streamlit."""
 import asyncio
+import ipaddress
 import signal
 import sys
+from urllib.parse import urlsplit
 
 ROOT = "findimob.local"
 PUBLIC_PORT = 8501
@@ -60,14 +62,32 @@ async def _redirect_http(reader, writer, first_byte):
         if "\r" in path or "\n" in path:
             path = "/"
         total = 0
+        request_host = ""
         while total < 65536:
             line = await reader.readline()
             total += len(line)
             if not line or line in (b"\r\n", b"\n"):
                 break
+            if line.lower().startswith(b"host:"):
+                request_host = line.partition(b":")[2].decode("ascii", errors="ignore").strip()
+        redirect_host = ROOT
+        try:
+            parsed_host = urlsplit(f"//{request_host}")
+            hostname = parsed_host.hostname or ""
+            port = parsed_host.port or PUBLIC_PORT
+            is_local = hostname.lower() == ROOT
+            try:
+                is_local = is_local or ipaddress.ip_address(hostname).is_private or ipaddress.ip_address(hostname).is_loopback
+            except ValueError:
+                pass
+            if is_local:
+                host_label = f"[{hostname}]" if ":" in hostname else hostname
+                redirect_host = f"{host_label}:{port}"
+        except ValueError:
+            pass
         response = (
             f"HTTP/1.1 308 Permanent Redirect\r\n"
-            f"Location: https://{ROOT}:{PUBLIC_PORT}{path}\r\n"
+            f"Location: https://{redirect_host}{path}\r\n"
             "Cache-Control: no-store\r\n"
             "Connection: close\r\n"
             "Content-Length: 0\r\n\r\n"

@@ -152,14 +152,12 @@ DIAS_SEMANA_PT = (
     "sexta-feira", "sábado", "domingo",
 )
 TEMAS = {
-    "Escuro": {"bg": "#121212", "panel": "#181818", "line": "#282828", "muted": "#b3b3b3", "text": "#f5f5f5", "sidebar": "#000000", "hover": "#242424", "band": "#121a24", "field": "#111720"},
+    "Escuro": {"bg": "#121212", "panel": "#181818", "line": "#282828", "muted": "#b3b3b3", "text": "#f5f5f5", "sidebar": "#000000", "hover": "#242424", "band": "#121a24", "field": "#181818"},
     "Branco e verde": {"bg": "#f4f8f5", "panel": "#ffffff", "line": "#d2e2d7", "muted": "#52645a", "text": "#17241b", "sidebar": "#eaf3ed", "hover": "#edf5ef", "band": "#e9f2ec", "field": "#ffffff"},
-    "Azul escuro e verde": {"bg": "#0c1727", "panel": "#12233a", "line": "#29415d", "muted": "#b2c3d7", "text": "#f1f6fc", "sidebar": "#091321", "hover": "#1a304b", "band": "#122239", "field": "#14263d"},
 }
 ICONE_TEMA = {
     "Escuro": "🌙",
     "Branco e verde": "🌿",
-    "Azul escuro e verde": "🌌",
 }
 
 
@@ -167,7 +165,6 @@ def chave_tema(tema):
     return {
         "Escuro": "escuro",
         "Branco e verde": "branco_verde",
-        "Azul escuro e verde": "azul_verde",
     }[tema]
 
 
@@ -203,7 +200,7 @@ def abrir_menu_tema():
 def renderizar_menu_tema_flutuante():
     with st.container(key="tema_flutuante"):
         if st.session_state.tema_menu_aberto:
-            colunas = st.columns(4, gap="small")
+            colunas = st.columns(3, gap="small")
             for coluna, tema in zip(colunas, TEMAS):
                 with coluna:
                     st.button(
@@ -232,6 +229,8 @@ if not auth_ui.render_auth_gate():
 
 if "tema_app" not in st.session_state:
     st.session_state.tema_app = carregar_tema()
+elif st.session_state.tema_app not in TEMAS:
+    st.session_state.tema_app = "Escuro"
 if "tema_menu_aberto" not in st.session_state:
     st.session_state.tema_menu_aberto = True
 # Mantém o controle móvel alinhado ao tema definido na barra lateral.
@@ -264,10 +263,10 @@ st.markdown(
       [data-testid="stSidebar"] [role="radiogroup"] label:hover { background:#181818; color:#fff; }
       [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked), [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p { background:transparent !important; border-color:transparent !important; color:var(--green) !important; box-shadow:none !important; font-weight:700; }
       [data-testid="stSidebar"] [data-testid="stExpander"] { margin-top:.65rem !important; }
-      .st-key-tema_desktop_escuro [data-testid="stButton"] button, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button, .st-key-tema_desktop_azul_verde [data-testid="stButton"] button,
-      .st-key-tema_mobile_escuro [data-testid="stButton"] button, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button, .st-key-tema_mobile_azul_verde [data-testid="stButton"] button { position:relative; width:50px !important; min-width:50px !important; min-height:46px !important; padding:0 !important; border:0 !important; border-radius:8px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; font-size:1.55rem; opacity:.82; transition:opacity .16s ease,transform .16s ease; }
-      .st-key-tema_desktop_escuro [data-testid="stButton"] button:hover, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button:hover, .st-key-tema_desktop_azul_verde [data-testid="stButton"] button:hover,
-      .st-key-tema_mobile_escuro [data-testid="stButton"] button:hover, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button:hover, .st-key-tema_mobile_azul_verde [data-testid="stButton"] button:hover { background:transparent !important; opacity:1; transform:scale(1.08) !important; }
+      .st-key-tema_desktop_escuro [data-testid="stButton"] button, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button
+      .st-key-tema_mobile_escuro [data-testid="stButton"] button, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button { position:relative; width:50px !important; min-width:50px !important; min-height:46px !important; padding:0 !important; border:0 !important; border-radius:8px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; font-size:1.55rem; opacity:.82; transition:opacity .16s ease,transform .16s ease; }
+      .st-key-tema_desktop_escuro [data-testid="stButton"] button:hover, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button:hover
+      .st-key-tema_mobile_escuro [data-testid="stButton"] button:hover, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button:hover:hover { background:transparent !important; opacity:1; transform:scale(1.08) !important; }
       .block-container { padding-top:1.5rem; padding-bottom:3rem; max-width:1500px; }
       h1,h2,h3,p,span,label { font-family:'DM Sans',sans-serif; }
       h1 { letter-spacing:-.04em; }
@@ -429,7 +428,19 @@ st.markdown(
         --bg:{cores_tema['bg']}; --panel:{cores_tema['panel']}; --line:{cores_tema['line']};
         --muted:{cores_tema['muted']}; --text:{cores_tema['text']}; --sidebar:{cores_tema['sidebar']};
         --panel-hover:{cores_tema['hover']}; --band:{cores_tema['band']}; --field:{cores_tema['field']};
+        --field-border:#353333;
+        --field-focus-border:{'#777777' if st.session_state.tema_app == 'Escuro' else '#32cb79'};
         --orange:#32cb79; --green:#32cb79; --green-hover:#51d891; --green-dark:#207b4c;
+      }}
+      [data-testid="stTextInput"] [class*="st-emotion-cache"],
+      [data-testid="stNumberInput"] [class*="st-emotion-cache"],
+      [data-testid="stDateInput"] [class*="st-emotion-cache"],
+      [data-testid="stTimeInput"] [class*="st-emotion-cache"],
+      [data-testid="stTextArea"] [class*="st-emotion-cache"],
+      [data-testid="stSelectbox"] [class*="st-emotion-cache"],
+      [data-testid="stMultiSelect"] [class*="st-emotion-cache"],
+      [data-testid="stFileUploader"] [class*="st-emotion-cache"] {{
+        border-color:var(--field-border) !important; background-color:var(--field) !important;
       }}
       [data-testid="stSidebar"] {{ background:var(--sidebar) !important; border-color:var(--line) !important; }}
       .st-key-tema_float_{tema_ativo_key} [data-testid="stButton"] button {{ background:#32cb7918 !important; border:1px solid #32cb7944 !important; border-radius:12px !important; box-shadow:none !important; opacity:1; }}
@@ -444,8 +455,51 @@ st.markdown(
       .selected-agency-header,.day-label {{ background:var(--panel-hover); border-color:var(--line); color:var(--text); }}
       .selected-agency-header > span:not(.agency-new-dot) {{ color:var(--muted); }}
       .price-band-label,.date-time-label {{ background:var(--band); color:var(--text); }}
-      div[data-testid="stTextInput"] input {{ background:var(--field); color:var(--text); border-color:var(--line); }}
-      div[data-testid="stTextInput"] input::placeholder {{ color:var(--muted); opacity:.8; }}
+      [data-testid="stTextInput"] [data-baseweb="input"],
+      [data-testid="stNumberInput"] [data-baseweb="input"],
+      [data-testid="stDateInput"] [data-baseweb="input"],
+      [data-testid="stTimeInput"] [data-baseweb="input"] {{
+        box-sizing:border-box; min-height:42px; overflow:hidden;
+        background:var(--field) !important; border:1px solid var(--field-border) !important;
+        border-radius:9px !important; box-shadow:none !important;
+      }}
+      [data-testid="stTextInput"] [data-baseweb="input"]:focus-within,
+      [data-testid="stNumberInput"] [data-baseweb="input"]:focus-within,
+      [data-testid="stDateInput"] [data-baseweb="input"]:focus-within,
+      [data-testid="stTimeInput"] [data-baseweb="input"]:focus-within {{ border-color:var(--field-focus-border) !important; }}
+      [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input,
+      [data-testid="stDateInput"] input, [data-testid="stTimeInput"] input {{
+        min-height:40px; background:transparent !important; color:var(--text) !important;
+        border:0 !important; box-shadow:none !important;
+      }}
+      [data-testid="stTextInput"] input::placeholder, [data-testid="stNumberInput"] input::placeholder {{ color:var(--muted) !important; opacity:.8; }}
+      [data-testid="stTextInput"] [data-baseweb="input"] button,
+      [data-testid="stNumberInput"] [data-baseweb="input"] button,
+      [data-testid="stDateInput"] [data-baseweb="input"] button,
+      [data-testid="stTimeInput"] [data-baseweb="input"] button {{
+        background:var(--field) !important; color:var(--green) !important;
+        border:0 !important; border-left:1px solid var(--field-border) !important;
+        border-radius:0 !important; box-shadow:none !important;
+      }}
+      [data-testid="stTextArea"] textarea {{
+        box-sizing:border-box; min-height:42px; color:var(--text) !important;
+        background:var(--field) !important; border:1px solid var(--field-border) !important;
+        border-radius:9px !important; box-shadow:none !important;
+      }}
+      [data-testid="stTextArea"] textarea:focus {{ border-color:var(--field-focus-border) !important; }}
+      [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+      [data-testid="stMultiSelect"] [data-baseweb="select"] > div {{
+        min-height:42px; color:var(--text) !important; background:var(--field) !important;
+        border:1px solid var(--field-border) !important; border-radius:9px !important;
+        box-shadow:none !important;
+      }}
+      [data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within,
+      [data-testid="stMultiSelect"] [data-baseweb="select"] > div:focus-within {{ border-color:var(--field-focus-border) !important; }}
+      [data-testid="stSelectbox"] [data-baseweb="select"] *, [data-testid="stMultiSelect"] [data-baseweb="select"] * {{ color:var(--text) !important; }}
+      [data-testid="stFileUploader"] section {{
+        color:var(--text) !important; background:var(--field) !important;
+        border:1px solid var(--field-border) !important; border-radius:9px !important;
+      }}
     </style>""",
     unsafe_allow_html=True,
 )
@@ -923,7 +977,7 @@ def renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos):
 
 def renderizar_previews(imobiliaria, resultados, cache, pagina_favoritos, novos):
     for inicio in range(0, len(resultados), 4):
-        colunas = st.columns(4, gap="small")
+        colunas = st.columns(3, gap="small")
         for coluna, anuncio in zip(colunas, resultados[inicio:inicio + 4]):
             with coluna:
                 renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos)

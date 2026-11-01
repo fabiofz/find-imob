@@ -24,10 +24,6 @@ THEMES = {
         "icon": "🌿", "key": "branco_verde", "bg": "#f4f8f5", "panel": "#ffffff",
         "line": "#b8c7bd", "text": "#17241b", "muted": "#52645a",
     },
-    "Azul escuro e verde": {
-        "icon": "🌌", "key": "azul_verde", "bg": "#0c1727", "panel": "#12233a",
-        "line": "#29415d", "text": "#f1f6fc", "muted": "#b2c3d7",
-    },
 }
 
 
@@ -56,8 +52,21 @@ def _render_auth_styles():
         :root {{
           --bg:{theme['bg']}; --panel:{theme['panel']}; --line:{theme['line']};
           --text:{theme['text']}; --muted:{theme['muted']};
-          --field-border:color-mix(in srgb,{theme['line']} 70%,{theme['muted']});
+          --field-bg:{'#181818' if selected == 'escuro' else '#ffffff'};
+          --field-border:#353333;
+          --field-focus-border:{'#777777' if selected == 'escuro' else '#32cb79'};
+          --eye-color:{'#32cb79' if selected == 'escuro' else theme['muted']};
           --green:#32cb79; --green-hover:#51d891;
+        }}
+        [data-testid="stTextInput"] [class*="st-emotion-cache"],
+        [data-testid="stNumberInput"] [class*="st-emotion-cache"],
+        [data-testid="stDateInput"] [class*="st-emotion-cache"],
+        [data-testid="stTimeInput"] [class*="st-emotion-cache"],
+        [data-testid="stTextArea"] [class*="st-emotion-cache"],
+        [data-testid="stSelectbox"] [class*="st-emotion-cache"],
+        [data-testid="stMultiSelect"] [class*="st-emotion-cache"],
+        [data-testid="stFileUploader"] [class*="st-emotion-cache"] {{
+          border-color:var(--field-border) !important; background-color:var(--field-bg) !important;
         }}
         html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
           background:var(--bg) !important; color:var(--text) !important;
@@ -69,6 +78,17 @@ def _render_auth_styles():
         [data-testid="stAlertContentError"],
         [data-testid="stAlertContentError"] * {{ color:#fff !important; white-space:pre-wrap; }}
         [data-testid="stAlertContentError"] svg {{ fill:currentColor !important; stroke:currentColor !important; }}
+        .st-key-initial_password_notice [data-testid="stAlertContainer"]:has([data-testid="stAlertContentInfo"]) {{
+          background:#f59e0b !important; border:1px solid #fb923c !important;
+          color:#211304 !important; box-shadow:0 4px 14px #f59e0b22;
+        }}
+        .st-key-initial_password_notice [data-testid="stAlertContentInfo"],
+        .st-key-initial_password_notice [data-testid="stAlertContentInfo"] * {{
+          color:#211304 !important;
+        }}
+        .st-key-initial_password_notice [data-testid="stAlertContentInfo"] svg {{
+          fill:currentColor !important; stroke:currentColor !important;
+        }}
         .stApp[data-test-script-state="running"] div[data-testid="stElementContainer"]:has(.st-key-auth_theme_float),
         .stApp[data-test-script-state="running"] .st-key-auth_theme_float,
         .stApp[data-test-script-state="rerunRequested"] div[data-testid="stElementContainer"]:has(.st-key-auth_theme_float),
@@ -93,6 +113,13 @@ def _render_auth_styles():
           border:1px solid var(--line); border-radius:22px;
           box-shadow:0 20px 70px #0002;
         }}
+        .st-key-auth_back [data-testid="stPageLink"] a {{
+          display:inline-flex; align-items:center; min-height:36px; padding:6px 10px !important;
+          border-radius:9px; color:var(--muted) !important; text-decoration:none !important;
+        }}
+        .st-key-auth_back [data-testid="stPageLink"] a:hover {{
+          color:var(--green) !important; background:color-mix(in srgb,var(--green) 10%,transparent);
+        }}
         .st-key-auth_shell h1 {{ text-align:center; color:var(--text); }}
         .st-key-auth_shell [data-testid="stCaptionContainer"] {{
           text-align:center; color:var(--muted);
@@ -113,29 +140,72 @@ def _render_auth_styles():
           padding:1rem 1.15rem; border:1px solid var(--line);
           border-radius:16px; background:color-mix(in srgb,var(--panel) 94%,var(--bg));
         }}
-        .st-key-auth_shell [data-baseweb="input"],
-        .st-key-auth_shell [data-baseweb="base-input"],
-        .st-key-auth_shell [data-baseweb="textarea"] {{
-          background:transparent !important; border:0 !important; box-shadow:none !important;
-        }}
-        .st-key-auth_shell [data-testid="stTextInput"] input {{
-          min-height:42px; background:color-mix(in srgb,var(--bg) 72%,var(--panel)) !important;
-          color:var(--text) !important; border:1px solid var(--field-border) !important;
+        .st-key-auth_shell [data-testid="stTextInput"] [data-baseweb="input"],
+        .st-key-auth_shell [data-testid="stNumberInput"] [data-baseweb="input"],
+        .st-key-auth_shell [data-testid="stDateInput"] [data-baseweb="input"],
+        .st-key-auth_shell [data-testid="stTimeInput"] [data-baseweb="input"] {{
+          box-sizing:border-box; min-height:42px; overflow:hidden;
+          background:var(--field-bg) !important; border:1px solid var(--field-border) !important;
           border-radius:9px !important; box-shadow:none !important;
         }}
-        .st-key-auth_shell [data-baseweb="input"]:has(button) input {{
-          border-radius:9px 0 0 9px !important;
+        .st-key-auth_shell [data-testid="stTextInput"] [data-baseweb="input"]:focus-within,
+        .st-key-auth_shell [data-testid="stNumberInput"] [data-baseweb="input"]:focus-within,
+        .st-key-auth_shell [data-testid="stDateInput"] [data-baseweb="input"]:focus-within,
+        .st-key-auth_shell [data-testid="stTimeInput"] [data-baseweb="input"]:focus-within {{
+          border-color:var(--field-focus-border) !important;
         }}
-        .st-key-auth_shell [data-testid="stTextInput"] input:focus {{
-          border-color:var(--green) !important; box-shadow:0 0 0 1px var(--green) !important;
+        .st-key-auth_shell [data-baseweb="base-input"] {{
+          min-height:40px; background:transparent !important; border:0 !important;
+          box-shadow:none !important; box-sizing:border-box;
+        }}
+        .st-key-auth_shell [data-testid="stTextInput"] input,
+        .st-key-auth_shell [data-testid="stNumberInput"] input,
+        .st-key-auth_shell [data-testid="stDateInput"] input,
+        .st-key-auth_shell [data-testid="stTimeInput"] input {{
+          display:block; box-sizing:border-box; width:100%; min-height:40px;
+          background:transparent !important; color:var(--text) !important;
+          border:0 !important; border-radius:0 !important; box-shadow:none !important;
         }}
         .st-key-auth_shell [data-baseweb="input"] button {{
-          background:color-mix(in srgb,var(--bg) 72%,var(--panel)) !important;
-          color:var(--muted) !important; border:1px solid var(--field-border) !important;
-          border-left:0 !important; border-radius:0 9px 9px 0 !important;
+          min-height:40px; background:var(--field-bg) !important; color:var(--eye-color) !important;
+          border:0 !important; border-left:1px solid var(--field-border) !important;
+          border-radius:0 !important; box-shadow:none !important;
+        }}
+        .st-key-auth_shell [data-baseweb="input"] button svg,
+        .st-key-auth_shell [data-baseweb="input"] button svg path {{
+          color:var(--eye-color) !important; stroke:var(--eye-color) !important;
+        }}
+        .st-key-auth_shell [data-testid="stTextArea"] textarea {{
+          box-sizing:border-box; min-height:42px; color:var(--text) !important;
+          background:var(--field-bg) !important; border:1px solid var(--field-border) !important;
+          border-radius:9px !important; box-shadow:none !important;
+        }}
+        .st-key-auth_shell [data-testid="stTextArea"] textarea:focus {{
+          border-color:var(--field-focus-border) !important;
+        }}
+        .st-key-auth_shell [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+        .st-key-auth_shell [data-testid="stMultiSelect"] [data-baseweb="select"] > div {{
+          min-height:42px; background:var(--field-bg) !important; color:var(--text) !important;
+          border:1px solid var(--field-border) !important; border-radius:9px !important;
+          box-shadow:none !important;
+        }}
+        .st-key-auth_shell [data-baseweb="input"] button svg,
+        .st-key-auth_shell [data-baseweb="input"] button svg path {{
+          color:var(--eye-color) !important; stroke:var(--eye-color) !important;
+        }}
+        .st-key-auth_shell [data-testid="InputInstructions"] {{
+          display:flex !important; justify-content:flex-end; color:var(--muted) !important;
+          font-size:.72rem !important; white-space:nowrap;
+        }}
+        .st-key-auth_shell [data-testid="InputInstructions"] span {{ display:none !important; }}
+        .st-key-auth_shell [data-testid="InputInstructions"]::after {{
+          content:"Pressione Enter para aplicar";
+        }}
+        .st-key-auth_shell [data-testid="stForm"] [data-testid="InputInstructions"]::after {{
+          content:"Pressione Enter para enviar o formulário";
         }}
         .st-key-auth_shell [data-baseweb="select"] > div {{
-          background:color-mix(in srgb,var(--bg) 72%,var(--panel)) !important;
+          background:var(--field-bg) !important;
           color:var(--text) !important; border:1px solid var(--field-border) !important;
           border-radius:9px !important;
         }}
@@ -200,11 +270,61 @@ def _render_auth_styles():
           width:min(1180px,100%); margin:1rem auto 3rem; padding:0 clamp(8px,3vw,30px);
           color:var(--text);
         }}
-        .auth-landing-header {{ display:flex; align-items:center; justify-content:space-between; gap:20px; padding:10px 0 28px; border-bottom:1px solid var(--line); }}
+        .st-key-auth_landing_header {{ padding:10px 0 24px; border-bottom:1px solid var(--line); }}
+        .st-key-auth_landing_header [data-testid="stHorizontalBlock"] {{ align-items:center; }}
+        .st-key-auth_home_desktop_links {{ display:block; }}
+        .st-key-auth_home_mobile_links {{ display:none !important; }}
+        .st-key-auth_home_desktop_links [data-testid="stHorizontalBlock"] {{ justify-content:flex-end; gap:10px; }}
+        .st-key-auth_home_login_button [data-testid="stButton"] button,
+        .st-key-auth_home_register_button [data-testid="stButton"] button {{
+          min-height:46px; padding:0 20px !important; border-radius:10px !important;
+          font-weight:700 !important; transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+        }}
+        .st-key-auth_home_login_button [data-testid="stButton"] button {{
+          background:var(--panel) !important; color:var(--text) !important;
+          border:1px solid var(--line) !important; box-shadow:none !important;
+        }}
+        .st-key-auth_home_login_button [data-testid="stButton"] button:hover {{
+          background:var(--panel-hover) !important; border-color:var(--green) !important;
+          transform:translateY(-2px);
+        }}
+        .st-key-auth_home_register_button [data-testid="stButton"] button {{
+          background:var(--green) !important; color:#fff !important; border:1px solid var(--green) !important;
+          box-shadow:0 5px 16px #32cb7933 !important;
+        }}
+        .st-key-auth_home_register_button [data-testid="stButton"] button:hover {{
+          background:var(--green-hover) !important; border-color:var(--green-hover) !important;
+          box-shadow:0 8px 22px #32cb7955 !important; transform:translateY(-2px);
+        }}
+        .st-key-auth_home_mobile_login [data-testid="stPageLink"] a,
+        .st-key-auth_home_mobile_register [data-testid="stPageLink"] a {{
+          display:flex; align-items:center; justify-content:center; min-height:46px;
+          padding:0 16px !important; border:1px solid var(--line); border-radius:10px;
+          color:var(--text) !important; text-decoration:none !important; font-weight:700;
+        }}
+        .st-key-auth_home_mobile_register [data-testid="stPageLink"] a {{
+          background:var(--green); border-color:var(--green); color:#fff !important;
+        }}
         .auth-landing-brand {{ display:flex; align-items:center; gap:12px; font-size:1.25rem; font-weight:700; color:var(--text); }}
         .auth-landing-brand img {{ width:44px; height:44px; object-fit:contain; }}
         .auth-landing-links {{ display:flex; align-items:center; gap:22px; }}
-        .auth-landing-links a {{ color:var(--text) !important; font-weight:600; text-decoration:none !important; }}
+        .auth-landing-links a {{
+          display:inline-flex; align-items:center; justify-content:center; min-height:46px;
+          padding:0 20px; border:1px solid var(--line); border-radius:10px;
+          color:var(--text) !important; font-weight:700; text-decoration:none !important;
+          transition:transform .15s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease;
+        }}
+        .auth-landing-links a:hover {{ transform:translateY(-2px); border-color:var(--green); box-shadow:0 6px 18px #0003; }}
+        .auth-landing-links .auth-link-login {{ background:var(--panel); }}
+        .auth-landing-links .auth-link-login:hover {{ background:var(--panel-hover); }}
+        .auth-landing-links .auth-link-register {{
+          background:var(--green); border-color:var(--green); color:#fff !important;
+          box-shadow:0 5px 16px #32cb7933;
+        }}
+        .auth-landing-links .auth-link-register:hover {{
+          background:var(--green-hover); border-color:var(--green-hover); color:#fff !important;
+          box-shadow:0 8px 22px #32cb7955;
+        }}
         .auth-landing-hero {{ display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:clamp(24px,5vw,64px); padding:clamp(44px,8vw,100px) 0 56px; }}
         .auth-landing-eyebrow {{ color:var(--green); font-weight:700; letter-spacing:.16em; text-transform:uppercase; font-size:.82rem; }}
         .auth-landing-hero h1 {{ margin:16px 0; font-size:clamp(2.4rem,5.6vw,4.6rem); line-height:1.04; letter-spacing:-.04em; color:var(--text); }}
@@ -215,13 +335,31 @@ def _render_auth_styles():
         .auth-landing-signup h2 {{ margin:18px auto 26px; max-width:760px; color:var(--text); font-size:clamp(2rem,4.8vw,3.6rem); line-height:1.08; letter-spacing:-.035em; }}
         .st-key-auth_landing_signup {{ box-sizing:border-box; max-width:900px; margin:8px auto 46px; padding:clamp(24px,5vw,48px); background:var(--panel); border:1px solid var(--line); border-radius:22px; box-shadow:0 18px 50px #0002; }}
         .st-key-auth_landing_signup [data-testid="stForm"] {{ border:0; padding:0; background:transparent; }}
-        .st-key-auth_landing_signup [data-baseweb="input"] {{ min-height:52px; background:color-mix(in srgb,var(--bg) 72%,var(--panel)) !important; border:1px solid var(--field-border) !important; border-radius:10px 0 0 10px !important; box-shadow:none !important; }}
-        .st-key-auth_landing_signup [data-baseweb="base-input"] {{ background:transparent !important; border:0 !important; }}
-        .st-key-auth_landing_signup input {{ min-height:50px; background:transparent !important; color:var(--text) !important; border:0 !important; }}
-        .st-key-auth_landing_signup [data-testid="stForm"] [data-testid="stHorizontalBlock"] {{ gap:0 !important; align-items:stretch; }}
+        .st-key-auth_landing_signup [data-testid="stTextInput"] [data-baseweb="input"],
+        .st-key-auth_landing_signup [data-testid="stTextInput"] [data-baseweb="base-input"],
+        .st-key-auth_landing_signup [data-testid="stTextInput"] input {{
+          min-height:44px; background:transparent !important; color:var(--text) !important;
+          border:0 !important; outline:0 !important; border-radius:0 !important;
+          box-shadow:none !important;
+        }}
+        .st-key-auth_landing_email [data-baseweb="input"],
+        .st-key-auth_landing_email [data-baseweb="base-input"],
+        .st-key-auth_landing_email input,
+        .st-key-auth_landing_email [class*="st-emotion-cache"] {{
+          background:transparent !important; border:0 !important; outline:0 !important;
+          border-radius:0 !important; box-shadow:none !important;
+        }}
+        .st-key-auth_landing_signup [data-testid="stForm"] [data-testid="stHorizontalBlock"] {{
+          box-sizing:border-box; width:80%; margin:0 auto; padding:4px; gap:0 !important;
+          align-items:stretch; border:1px solid var(--field-border); border-radius:10px;
+          background:color-mix(in srgb,var(--field-bg) 94%,var(--line));
+        }}
         .st-key-auth_landing_signup [data-testid="stForm"] [data-testid="stColumn"]:first-child {{ padding-right:0 !important; }}
         .st-key-auth_landing_signup [data-testid="stForm"] [data-testid="stColumn"]:last-child {{ padding-left:0 !important; }}
-        .st-key-auth_landing_signup [data-testid="stFormSubmitButton"] button {{ min-height:52px; border-radius:0 10px 10px 0 !important; background:#168f45 !important; color:#fff !important; border:1px solid #168f45 !important; font-size:1rem !important; font-weight:700 !important; }}
+        .st-key-auth_landing_signup [data-testid="stFormSubmitButton"] button {{
+          min-height:44px; border-radius:7px !important; background:#078b36 !important;
+          color:#fff !important; border:0 !important; font-size:1rem !important; font-weight:700 !important;
+        }}
         .st-key-auth_landing_signup [data-testid="stFormSubmitButton"] button:hover {{ background:#117a3b !important; border-color:#117a3b !important; }}
         .st-key-auth_landing_cta {{ max-width:560px; }}
         .st-key-auth_landing_cta [data-testid="stPageLink"] a {{ min-height:52px; border-radius:12px !important; font-size:1.08rem !important; font-weight:700 !important; }}
@@ -236,11 +374,16 @@ def _render_auth_styles():
         .auth-feature {{ padding:22px; background:var(--panel); border:1px solid var(--line); border-radius:16px; }}
         .auth-feature b {{ display:block; margin-bottom:8px; color:var(--text); font-size:1.1rem; }}
         .auth-feature p {{ margin:0; color:var(--muted); line-height:1.5; }}
-        .auth-password-feedback {{ margin:-.35rem 0 1rem; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:color-mix(in srgb,var(--panel) 86%,var(--bg)); }}
-        .auth-password-feedback > strong {{ display:block; margin-bottom:6px; }}
-        .auth-password-feedback.weak > strong {{ color:#e53950 !important; }}
-        .auth-password-feedback.strong > strong {{ color:var(--green) !important; }}
-        .auth-password-feedback ul {{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 12px; margin:0; padding:0; list-style:none; color:var(--muted); font-size:.9rem; }}
+        .auth-password-feedback {{ margin:-.2rem 0 1rem; padding:15px 16px; border:1px solid color-mix(in srgb,var(--line) 78%,var(--green) 22%); border-radius:15px; background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 92%,var(--bg)),color-mix(in srgb,var(--panel) 82%,var(--bg))); box-shadow:0 7px 20px #0002; }}
+        .auth-password-heading {{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }}
+        .auth-password-heading strong {{ font-size:.98rem; letter-spacing:.01em; }}
+        .auth-password-count {{ color:var(--muted); font-size:.8rem; white-space:nowrap; }}
+        .auth-password-feedback.weak .auth-password-heading strong {{ color:#e8ad55 !important; }}
+        .auth-password-feedback.strong .auth-password-heading strong {{ color:var(--green) !important; }}
+        .auth-password-meter {{ height:5px; margin-bottom:13px; overflow:hidden; border-radius:999px; background:color-mix(in srgb,var(--line) 85%,var(--bg)); }}
+        .auth-password-meter span {{ display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#e8ad55,#32cb79); transition:width .2s ease; }}
+        .auth-password-feedback ul {{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 16px; margin:0; padding:0; list-style:none; color:var(--muted); font-size:.88rem; line-height:1.4; }}
+        .auth-password-feedback li {{ display:flex; align-items:flex-start; gap:8px; min-width:0; }}
         .auth-password-feedback li.passed {{ color:var(--green) !important; }}
         .auth-password-feedback li.pending {{ color:var(--muted) !important; }}
         .st-key-auth_crop_controls [data-testid="stButton"] button {{ min-height:54px; border-radius:13px !important; font-size:1.05rem !important; font-weight:700 !important; }}
@@ -256,18 +399,26 @@ def _render_auth_styles():
           .st-key-auth_theme_float {{ top:calc(env(safe-area-inset-top, 0px) + 10px); right:10px; }}
           .auth-brand {{ gap:10px; margin-bottom:12px; }}
           .auth-brand img {{ width:48px; height:48px; }}
-          .auth-landing-header {{ align-items:flex-start; }}
+          .st-key-auth_landing_header [data-testid="stHorizontalBlock"] {{ flex-direction:column; align-items:stretch; gap:12px; }}
           .auth-landing-brand {{ font-size:1.05rem; }}
-          .auth-landing-links {{ gap:10px; flex-direction:column; align-items:stretch; }}
+          .st-key-auth_home_desktop_links {{ display:none !important; }}
+          .st-key-auth_home_mobile_links {{ display:block !important; }}
+          .st-key-auth_home_mobile_links [data-testid="stHorizontalBlock"] {{ gap:10px; }}
+          .st-key-auth_home_mobile_login [data-testid="stPageLink"] a,
+          .st-key-auth_home_mobile_register [data-testid="stPageLink"] a {{ width:100%; box-sizing:border-box; }}
           .auth-landing-hero {{ grid-template-columns:1fr; padding:42px 0 30px; }}
           .auth-landing-hero h1 {{ font-size:clamp(2.25rem,11vw,3.5rem); }}
           .auth-landing-cta {{ flex-direction:column; }}
           .auth-landing-cta [data-testid="stPageLink"] a {{ width:100%; justify-content:center; }}
           .auth-landing-preview {{ transform:none; }}
           .st-key-auth_landing_signup {{ padding:22px 16px; margin-bottom:30px; }}
-          .st-key-auth_landing_signup [data-testid="stForm"] [data-testid="stHorizontalBlock"] {{ flex-direction:column; gap:10px !important; }}
+          .st-key-auth_landing_signup [data-testid="stForm"] [data-testid="stHorizontalBlock"] {{
+            width:100%; padding:0; border:0; border-radius:0; background:transparent;
+            flex-direction:column; gap:10px !important;
+          }}
           .st-key-auth_landing_signup [data-testid="stForm"] [data-testid="stColumn"] {{ width:100% !important; flex:1 1 100% !important; padding:0 !important; }}
-          .st-key-auth_landing_signup [data-baseweb="input"], .st-key-auth_landing_signup [data-testid="stFormSubmitButton"] button {{ border-radius:10px !important; }}
+          .st-key-auth_landing_signup [data-baseweb="input"] {{ border:1px solid var(--field-border) !important; border-radius:10px !important; }}
+          .st-key-auth_landing_signup [data-testid="stFormSubmitButton"] button {{ border-radius:10px !important; }}
           .auth-landing-features {{ grid-template-columns:1fr; padding-top:0; }}
           .st-key-auth_crop_controls [data-testid="stButton"] button {{ min-height:60px; }}
           .auth-password-feedback ul {{ grid-template-columns:1fr; }}
@@ -297,15 +448,15 @@ def _render_theme_picker():
         st.session_state.auth_theme_open = True
     with st.container(key="auth_theme_float"):
         if st.session_state.auth_theme_open:
-            cols = st.columns(4, gap="small")
+            cols = st.columns(3, gap="small")
             selected = _current_theme()
-            for col, (theme, data) in zip(cols[:3], THEMES.items()):
+            for col, (theme, data) in zip(cols[:2], THEMES.items()):
                 with col:
                     st.button(data["icon"], key=f"auth_theme_{data['key']}",
                               help=f"Usar o esquema {theme}",
                               type="primary" if theme == selected else "secondary",
                               on_click=_select_auth_theme, args=(theme,))
-            with cols[3]:
+            with cols[2]:
                 if st.button("×", key="auth_theme_close", help="Ocultar esquemas de cores"):
                     st.session_state.auth_theme_open = False
                     st.rerun()
@@ -315,14 +466,8 @@ def _render_theme_picker():
                 st.rerun()
 
 
-def _crop_uploaded_photo(upload, widget_prefix):
-    state_key = f"{widget_prefix}_cropped_photo"
-    if upload is None:
-        st.session_state.pop(state_key, None)
-        return None, None
-    data = upload.getvalue()
+def _decode_uploaded_photo(data):
     if not data or len(data) > MAX_AVATAR_BYTES:
-        st.session_state.pop(state_key, None)
         return None, "A foto precisa ter até 2 MB."
     try:
         Image.MAX_IMAGE_PIXELS = 16_000_000
@@ -331,72 +476,133 @@ def _crop_uploaded_photo(upload, widget_prefix):
             with Image.open(BytesIO(data)) as source:
                 if source.format not in {"JPEG", "PNG", "WEBP"}:
                     raise ValueError("Use uma imagem JPEG, PNG ou WebP.")
-                image = ImageOps.exif_transpose(source)
-                if image.width * image.height > 16_000_000:
+                if source.width * source.height > 16_000_000:
                     raise ValueError("A imagem excede a resolução permitida.")
+                image = ImageOps.exif_transpose(source)
                 image.load()
-                image = image.convert("RGB")
-        width, height = image.size
-        if not width or not height:
-            raise ValueError("A imagem não tem dimensões válidas.")
+                return image.convert("RGB"), None
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError,
-            Image.DecompressionBombWarning) as error:
-        st.session_state.pop(state_key, None)
+            Image.DecompressionBombWarning):
         return None, "Não foi possível abrir essa imagem."
     except ValueError as error:
-        st.session_state.pop(state_key, None)
         return None, str(error)
 
-    with st.container(key="auth_photo_crop"):
-        st.markdown("**Etapa 1 de 2 · Ajuste a foto**")
-        st.write("Aproxime e mova a foto até o rosto ficar dentro do quadrado.")
-        zoom = st.slider(
-            "Aproximar ou afastar", min_value=1.0, max_value=3.0, value=1.0, step=0.1,
-            key=f"{widget_prefix}_crop_zoom",
-        )
-        st.markdown("**Etapa 2 de 2 · Centralize o rosto**")
-        st.caption("Toque nas setas para mover a foto. Toque em Centralizar para recomeçar.")
-        x_key, y_key = f"{widget_prefix}_crop_x", f"{widget_prefix}_crop_y"
-        st.session_state.setdefault(x_key, 50)
-        st.session_state.setdefault(y_key, 50)
-        with st.container(key="auth_crop_controls"):
-            top = st.columns([1, 1, 1])
-            with top[1]:
-                if st.button("↑  Cima", key=f"{widget_prefix}_crop_up", use_container_width=True):
-                    st.session_state[y_key] = min(100, st.session_state[y_key] + 8)
-            middle = st.columns([1, 1, 1])
-            with middle[0]:
-                if st.button("←  Esquerda", key=f"{widget_prefix}_crop_left", use_container_width=True):
-                    st.session_state[x_key] = min(100, st.session_state[x_key] + 8)
-            with middle[1]:
-                if st.button("Centralizar", key=f"{widget_prefix}_crop_center", use_container_width=True):
-                    st.session_state[x_key] = st.session_state[y_key] = 50
-            with middle[2]:
-                if st.button("Direita  →", key=f"{widget_prefix}_crop_right", use_container_width=True):
-                    st.session_state[x_key] = max(0, st.session_state[x_key] - 8)
-            bottom = st.columns([1, 1, 1])
-            with bottom[1]:
-                if st.button("↓  Baixo", key=f"{widget_prefix}_crop_down", use_container_width=True):
-                    st.session_state[y_key] = max(0, st.session_state[y_key] - 8)
-        x_position, y_position = st.session_state[x_key], st.session_state[y_key]
 
-        side = max(1, int(min(width, height) / zoom))
-        left = int((width - side) * x_position / 100)
-        top = int((height - side) * y_position / 100)
-        preview = image.crop((left, top, left + side, top + side))
-        output = preview.resize((150, 150), Image.Resampling.LANCZOS)
-        buffer = BytesIO()
-        output.save(buffer, format="JPEG", quality=90, optimize=True)
-        cropped = buffer.getvalue()
-        st.session_state[state_key] = cropped
-        st.image(cropped, width=210, caption="Sua foto de perfil (quadrada)")
+def _make_cropped_photo(image, widget_prefix):
+    width, height = image.size
+    zoom = float(st.session_state.get(f"{widget_prefix}_crop_zoom", 1.0))
+    x_position = int(st.session_state.get(f"{widget_prefix}_crop_x", 50))
+    y_position = int(st.session_state.get(f"{widget_prefix}_crop_y", 50))
+    side = max(1, int(min(width, height) / zoom))
+    left = int((width - side) * x_position / 100)
+    top = int((height - side) * y_position / 100)
+    preview = image.crop((left, top, left + side, top + side))
+    output = preview.resize((150, 150), Image.Resampling.LANCZOS)
+    buffer = BytesIO()
+    output.save(buffer, format="JPEG", quality=90, optimize=True)
+    cropped = buffer.getvalue()
+    st.session_state[f"{widget_prefix}_cropped_photo"] = cropped
+    return cropped
+
+
+def _open_photo_crop_dialog(widget_prefix):
+    st.session_state[f"{widget_prefix}_crop_dialog_open"] = True
+    st.session_state["_active_photo_crop_prefix"] = widget_prefix
+
+
+def _close_photo_crop_dialog():
+    prefix = st.session_state.pop("_active_photo_crop_prefix", None)
+    if prefix:
+        st.session_state.pop(f"{prefix}_crop_dialog_open", None)
+
+
+@st.dialog("Ajuste a foto do perfil", width="small", on_dismiss=_close_photo_crop_dialog)
+def _render_photo_crop_dialog(widget_prefix, data):
+    image, error = _decode_uploaded_photo(data)
+    if error:
+        st.error(error)
+        return
+    st.write("Aproxime e mova a foto até o rosto ficar dentro do quadrado.")
+    st.slider(
+        "Aproximar ou afastar", min_value=1.0, max_value=3.0, value=1.0, step=0.1,
+        key=f"{widget_prefix}_crop_zoom",
+    )
+    st.caption("Use as setas para ajustar o enquadramento.")
+    x_key, y_key = f"{widget_prefix}_crop_x", f"{widget_prefix}_crop_y"
+    st.session_state.setdefault(x_key, 50)
+    st.session_state.setdefault(y_key, 50)
+    with st.container(key="auth_crop_controls"):
+        top = st.columns([1, 1, 1])
+        with top[1]:
+            st.button(
+                "Cima", key=f"{widget_prefix}_crop_up", use_container_width=True,
+                on_click=lambda: st.session_state.__setitem__(y_key, min(100, st.session_state[y_key] + 8)),
+            )
+        middle = st.columns([1, 1, 1])
+        with middle[0]:
+            st.button(
+                "Esquerda", key=f"{widget_prefix}_crop_left", use_container_width=True,
+                on_click=lambda: st.session_state.__setitem__(x_key, min(100, st.session_state[x_key] + 8)),
+            )
+        with middle[1]:
+            st.button(
+                "Centralizar", key=f"{widget_prefix}_crop_center", use_container_width=True,
+                on_click=lambda: (st.session_state.__setitem__(x_key, 50), st.session_state.__setitem__(y_key, 50)),
+            )
+        with middle[2]:
+            st.button(
+                "Direita", key=f"{widget_prefix}_crop_right", use_container_width=True,
+                on_click=lambda: st.session_state.__setitem__(x_key, max(0, st.session_state[x_key] - 8)),
+            )
+        bottom = st.columns([1, 1, 1])
+        with bottom[1]:
+            st.button(
+                "Baixo", key=f"{widget_prefix}_crop_down", use_container_width=True,
+                on_click=lambda: st.session_state.__setitem__(y_key, max(0, st.session_state[y_key] - 8)),
+            )
+    cropped = _make_cropped_photo(image, widget_prefix)
+    st.image(cropped, width=210, caption="Prévia quadrada de 150 x 150 px")
+    if st.button("Usar esta foto", key=f"{widget_prefix}_crop_confirm", type="primary", use_container_width=True):
+        st.session_state.pop(f"{widget_prefix}_crop_dialog_open", None)
+        st.session_state.pop("_active_photo_crop_prefix", None)
+        st.rerun()
+
+
+def _crop_uploaded_photo(upload, widget_prefix):
+    state_key = f"{widget_prefix}_cropped_photo"
+    original_key = f"{widget_prefix}_original_photo"
+    if upload is None:
+        st.session_state.pop(state_key, None)
+        st.session_state.pop(original_key, None)
+        st.session_state.pop(f"{widget_prefix}_crop_dialog_open", None)
+        return None, None
+    data = upload.getvalue()
+    image, error = _decode_uploaded_photo(data)
+    if error:
+        st.session_state.pop(state_key, None)
+        st.session_state.pop(original_key, None)
+        return None, error
+    if st.session_state.get(original_key) != data:
+        st.session_state[original_key] = data
+        st.session_state[f"{widget_prefix}_crop_zoom"] = 1.0
+        st.session_state[f"{widget_prefix}_crop_x"] = 50
+        st.session_state[f"{widget_prefix}_crop_y"] = 50
+        st.session_state.pop(f"{widget_prefix}_crop_dialog_open", None)
+    cropped = _make_cropped_photo(image, widget_prefix)
+    st.image(cropped, width=96, caption="Prévia")
+    st.button(
+        "Ajustar foto", key=f"{widget_prefix}_crop_open",
+        on_click=_open_photo_crop_dialog, args=(widget_prefix,),
+    )
+    if st.session_state.get(f"{widget_prefix}_crop_dialog_open"):
+        st.session_state["_active_photo_crop_prefix"] = widget_prefix
+        _render_photo_crop_dialog(widget_prefix, data)
     return cropped, None
 
 
 def _password_requirements(password):
     return (
         ("Pelo menos 8 caracteres", len(password) >= 8),
-        ("No máximo 128 caracteres", len(password) <= 128),
         ("Uma letra minúscula", any(char.islower() for char in password)),
         ("Uma letra maiúscula", any(char.isupper() for char in password)),
         ("Um número", any(char.isdigit() for char in password)),
@@ -405,18 +611,29 @@ def _password_requirements(password):
 
 
 def _render_password_feedback(password):
+    if not password:
+        return
     requirements = _password_requirements(password)
-    is_strong = all(passed for _, passed in requirements)
+    passed_count = sum(passed for _, passed in requirements)
+    requirement_count = len(requirements)
+    is_strong = passed_count == requirement_count and len(password) <= 128
     strength = "Senha forte" if is_strong else "Senha fraca"
     strength_class = "strong" if is_strong else "weak"
+    progress = round(passed_count / requirement_count * 100)
     items = "".join(
         f'<li class="{"passed" if passed else "pending"}">'
-        f'{"✓" if passed else "○"}&nbsp;&nbsp;{label}</li>'
+        f'<span aria-hidden="true">{"✓" if passed else "○"}</span>'
+        f'<span>{label}</span></li>'
         for label, passed in requirements
     )
     st.markdown(
         f'<div class="auth-password-feedback {strength_class}" aria-live="polite">'
-        f'<strong>{strength}</strong><ul>{items}</ul></div>',
+        f'<div class="auth-password-heading"><strong>{strength}</strong>'
+        f'<span class="auth-password-count">{passed_count} de {requirement_count} requisitos</span></div>'
+        f'<div class="auth-password-meter" role="meter" aria-valuemin="0" '
+        f'aria-valuemax="{requirement_count}" aria-valuenow="{passed_count}">'
+        f'<span style="width:{progress}%"></span></div>'
+        f'<ul>{items}</ul></div>',
         unsafe_allow_html=True,
     )
 
@@ -528,7 +745,8 @@ def _render_photo_upload(prefix, label, optional=False):
 
 
 def _render_initial_profile(user):
-    st.info("A senha inicial é provisória. Complete seu perfil e crie uma nova senha para continuar.")
+    with st.container(key="initial_password_notice"):
+        st.info("A senha inicial é provisória. Complete seu perfil e crie uma nova senha para continuar.")
     full_name = st.text_input(
         "Nome completo", value=user["full_name"], key="initial_full_name"
     )
@@ -546,14 +764,14 @@ def _render_initial_profile(user):
     photo, photo_error_slot, photo_error = _render_photo_upload(
         "initial", "Foto do perfil", optional=True
     )
-    password = st.text_input("Nova senha", type="password", key="initial_password")
+    password = st.text_input("Nova senha", type="password", key="initial_password", live=True)
     _render_password_feedback(password)
     password_error = st.empty()
     confirmation = st.text_input(
         "Confirme a nova senha", type="password", key="initial_password_confirm"
     )
     confirmation_error = st.empty()
-    if not st.button("Salvar e entrar", type="primary", key="initial_profile_submit"):
+    if not st.button("Salvar e entrar", type="primary", key="initial_profile_submit", use_container_width=True):
         return False
 
     errors = {
@@ -597,7 +815,7 @@ def _render_registration():
     full_name_error = st.empty()
     email = st.text_input("E-mail", key="signup_email")
     email_error = st.empty()
-    password = st.text_input("Senha", type="password", key="signup_password")
+    password = st.text_input("Senha", type="password", key="signup_password", live=True)
     _render_password_feedback(password)
     password_error = st.empty()
     if not st.button("Solicitar acesso", type="primary", key="signup_submit",
@@ -620,6 +838,22 @@ def _render_registration():
     st.success("Solicitação enviada. Complete os dados do perfil após a aprovação.")
 
 
+def _open_home_auth_popup(route):
+    st.session_state.auth_home_popup = route
+
+
+def _close_home_auth_popup():
+    st.session_state.pop("auth_home_popup", None)
+
+
+@st.dialog("Acesse o Find Imob", width="small", on_dismiss=_close_home_auth_popup)
+def _render_home_auth_popup(route):
+    if route == "login":
+        _render_login()
+    elif route == "register":
+        _render_registration()
+
+
 def _auth_route_from_url():
     """Use the actual URL so the homepage works even after navigating between pages."""
     try:
@@ -640,13 +874,34 @@ def _render_homepage():
     logo = Path(__file__).resolve().parent / "assets" / "findimob.svg"
     encoded_logo = base64.b64encode(logo.read_bytes()).decode("ascii")
     with st.container(key="auth_landing"):
-        st.markdown(
-            f'<div class="auth-landing-header"><div class="auth-landing-brand">'
-            f'<img src="data:image/svg+xml;base64,{encoded_logo}" alt="">Find Imob</div>'
-            '<div class="auth-landing-links"><a href="/entrar">Entrar</a>'
-            '<a href="/cadastrar">Criar minha conta</a></div></div>',
-            unsafe_allow_html=True,
-        )
+        with st.container(key="auth_landing_header"):
+            brand_col, actions_col = st.columns([1, 1.25], vertical_alignment="center")
+            with brand_col:
+                st.markdown(
+                    f'<div class="auth-landing-brand"><img src="data:image/svg+xml;base64,{encoded_logo}" alt="">Find Imob</div>',
+                    unsafe_allow_html=True,
+                )
+            with actions_col:
+                with st.container(key="auth_home_desktop_links"):
+                    login_col, register_col = st.columns([.8, 1.2], gap="small")
+                    with login_col:
+                        st.button(
+                            "Entrar", key="auth_home_login_button", use_container_width=True,
+                            on_click=_open_home_auth_popup, args=("login",),
+                        )
+                    with register_col:
+                        st.button(
+                            "Criar minha conta", key="auth_home_register_button", use_container_width=True,
+                            on_click=_open_home_auth_popup, args=("register",),
+                        )
+                with st.container(key="auth_home_mobile_links"):
+                    login_col, register_col = st.columns([.8, 1.2], gap="small")
+                    with login_col:
+                        with st.container(key="auth_home_mobile_login"):
+                            st.page_link("pages/entrar.py", label="Entrar")
+                    with register_col:
+                        with st.container(key="auth_home_mobile_register"):
+                            st.page_link("pages/cadastrar.py", label="Criar minha conta")
         st.markdown(
             """<section class="auth-landing-hero">
               <div><div class="auth-landing-eyebrow">Find Imob · Operações imobiliárias</div>
@@ -670,7 +925,7 @@ def _render_homepage():
                 unsafe_allow_html=True,
             )
             with st.form("auth_landing_signup_form", border=False):
-                email_col, submit_col = st.columns([2.1, 1], gap="small", vertical_alignment="bottom")
+                email_col, submit_col = st.columns([1.2, 1], gap="small", vertical_alignment="bottom")
                 with email_col:
                     email = st.text_input(
                         "Seu e-mail", placeholder="Insira seu e-mail",
@@ -678,7 +933,7 @@ def _render_homepage():
                     )
                 with submit_col:
                     submitted = st.form_submit_button(
-                        "Criar minha conta", type="primary", use_container_width=True,
+                        "Cadastrar-se no Find Imob", type="primary", use_container_width=True,
                     )
             if submitted:
                 message = _email_message(email.strip())
@@ -688,12 +943,6 @@ def _render_homepage():
                     st.switch_page("pages/cadastrar.py")
             if st.session_state.get("auth_landing_email_error"):
                 st.error(f"⚠️  {st.session_state.auth_landing_email_error}")
-        with st.container(key="auth_landing_cta"):
-            left, right = st.columns([1, 1], gap="small")
-            with left:
-                st.page_link("pages/entrar.py", label="Entrar no Find Imob", icon="🏠", use_container_width=True)
-            with right:
-                st.page_link("pages/cadastrar.py", label="Criar minha conta", icon="📝", use_container_width=True)
         st.markdown(
             """<section class="auth-landing-features">
               <div class="auth-feature"><b>🔎 Encontre com facilidade</b><p>Pesquise entre os portais cadastrados sem precisar abrir cada site.</p></div>
@@ -702,6 +951,9 @@ def _render_homepage():
             </section>""",
             unsafe_allow_html=True,
         )
+    popup_route = st.session_state.get("auth_home_popup")
+    if popup_route in {"login", "register"}:
+        _render_home_auth_popup(popup_route)
 
 
 def render_auth_gate():
@@ -749,6 +1001,8 @@ def render_auth_gate():
         _render_theme_picker()
         return False
     with st.container(key="auth_shell"):
+        with st.container(key="auth_back"):
+            st.page_link("app.py", label="Voltar")
         _render_auth_brand()
         st.caption("Entre para acessar o painel ou solicite a criação da sua conta.")
         if timed_out:

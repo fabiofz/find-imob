@@ -3,6 +3,8 @@ toolbarMode = "minimal"
 
 [server]
 headless = true
+runOnSave = true
+fileWatcherType = "poll"
 enableXsrfProtection = true
 enableCORS = true
 maxUploadSize = 2
