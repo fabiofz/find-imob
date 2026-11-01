@@ -94,6 +94,14 @@ def initialize():
                 locked_until INTEGER NOT NULL DEFAULT 0
             )
         """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS auth_sessions (
+                token_hash TEXT PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                expires_at INTEGER NOT NULL,
+                created_at INTEGER NOT NULL
+            )
+        """)
         admin = db.execute(
             "SELECT id FROM users WHERE username = ?", ("admin",)
         ).fetchone()
@@ -163,6 +171,56 @@ def authenticate(identifier, password):
     _secure_file()
     return dict(user), "ok"
 
+
+def create_auth_session(user_id, ttl_seconds):
+    token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    now = int(time.time())
+    with _connect() as db:
+        db.execute("DELETE FROM auth_sessions WHERE expires_at <= ?", (now,))
+        db.execute(
+            "INSERT INTO auth_sessions (token_hash,user_id,expires_at,created_at) VALUES (?,?,?,?)",
+            (token_hash, user_id, now + int(ttl_seconds), now),
+        )
+    _secure_file()
+    return token
+
+
+def restore_auth_session(token, ttl_seconds):
+    if not isinstance(token, str) or not 32 <= len(token) <= 128:
+        return None
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    now = int(time.time())
+    with _connect() as db:
+        session = db.execute(
+            "SELECT user_id,expires_at FROM auth_sessions WHERE token_hash=?",
+            (token_hash,),
+        ).fetchone()
+        if not session or session["expires_at"] <= now:
+            if session:
+                db.execute("DELETE FROM auth_sessions WHERE token_hash=?", (token_hash,))
+            return None
+        user = db.execute(
+            "SELECT * FROM users WHERE id=? AND active=1", (session["user_id"],)
+        ).fetchone()
+        if not user:
+            db.execute("DELETE FROM auth_sessions WHERE token_hash=?", (token_hash,))
+            return None
+        db.execute(
+            "UPDATE auth_sessions SET expires_at=? WHERE token_hash=?",
+            (now + int(ttl_seconds), token_hash),
+        )
+    _secure_file()
+    return dict(user)
+
+
+def revoke_auth_session(token):
+    if not isinstance(token, str) or not token:
+        return
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    with _connect() as db:
+        db.execute("DELETE FROM auth_sessions WHERE token_hash=?", (token_hash,))
+    _secure_file()
 
 def create_user(full_name, display_name, email, phone, password, avatar):
     email = email.strip().casefold()

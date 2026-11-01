@@ -249,7 +249,7 @@ st.markdown(
       [data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding-top:0 !important; margin-top:0 !important; }
       [data-testid="stSidebar"] .block-container { padding-top:0 !important; }
       [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap:.45rem; }
-      [data-testid="stSidebar"] hr { margin:.35rem 0 !important; }
+      [data-testid="stSidebar"] hr { margin:.35rem 0 20px !important; }
       .sidebar-brand { display:flex; align-items:center; gap:12px; width:100%; min-height:58px; margin:0 0 65px; padding:0 28px 0 0; box-sizing:border-box; }
       .sidebar-brand img { display:block; width:48px; height:48px; flex:0 0 48px; object-fit:contain; }
       .sidebar-brand span { color:var(--green); font-weight:700; letter-spacing:.1em; font-size:1rem; line-height:1.25; white-space:nowrap; }
@@ -353,8 +353,29 @@ st.markdown(
       div[class*="st-key-favorite-on_"] [data-testid="stButton"] button { color:#f3c969 !important; border-color:#8a7131 !important; }
       [data-testid="stExpander"] { border:1px solid var(--line); border-radius:12px; }
       .st-key-pagina_mobile { display:none; }
-      div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { position:fixed !important; z-index:10002; top:16px; right:18px; bottom:auto; left:auto; flex:none !important; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; align-self:auto !important; }
-      .st-key-tema_flutuante { opacity:70%; position:fixed !important; z-index:10003; top:16px !important; right:18px !important; bottom:auto !important; left:auto !important; width:max-content; max-width:calc(100vw - 24px); padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid color-mix(in srgb,var(--line) 90%,transparent); border-radius:18px; box-shadow:0 8px 24px #0005; backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); }
+      div[data-testid="stElementContainer"].st-key-account_menu,
+      div[data-testid="stElementContainer"]:has(.st-key-account_menu),
+      .st-key-account_menu { position:fixed !important; top:12px !important; right:18px !important; left:auto !important; bottom:auto !important; z-index:11000; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; }
+      .st-key-account_menu button[aria-haspopup="dialog"],
+      .st-key-account_menu [data-testid="stPopoverButton"],
+      .st-key-account_menu [data-testid="stPopoverButton"] button,
+      .st-key-account_menu_popover button[aria-haspopup="dialog"],
+      .st-key-account_menu_popover [data-testid="stPopoverButton"],
+      .st-key-account_menu_popover [data-testid="stPopoverButton"] button { width:56px !important; min-width:56px !important; height:56px !important; min-height:56px !important; padding:0 !important; overflow:hidden; border:2px solid var(--green) !important; border-radius:50% !important; background-color:var(--panel) !important; background-position:center !important; background-size:cover !important; color:transparent !important; font-size:0 !important; box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 24%,transparent), 0 8px 22px #0006 !important; }
+      .st-key-account_menu button[aria-haspopup="dialog"] svg,
+      .st-key-account_menu [data-testid="stPopoverButton"] svg,
+      .st-key-account_menu_popover button[aria-haspopup="dialog"] svg,
+      .st-key-account_menu_popover [data-testid="stPopoverButton"] svg,
+      .st-key-account_menu_popover [data-testid="stPopoverButton"] button svg { display:none !important; }
+      .st-key-account_menu [data-testid="stPopoverBody"],
+      .st-key-account_menu_popover [data-testid="stPopoverBody"] { min-width:176px; padding:7px !important; background:var(--panel) !important; border:1px solid var(--line) !important; border-radius:14px !important; box-shadow:0 10px 26px #0004 !important; }
+      .st-key-account_menu [data-testid="stPopoverBody"] [data-testid="stButton"] button,
+      .st-key-account_menu_popover [data-testid="stPopoverBody"] [data-testid="stButton"] button { min-height:38px; padding:0 10px !important; border:1px solid transparent !important; border-radius:9px !important; background:transparent !important; color:var(--muted) !important; box-shadow:none !important; font-weight:600; justify-content:flex-start; }
+      .st-key-account_menu [data-testid="stPopoverBody"] [data-testid="stButton"] button:hover,
+      .st-key-account_menu_popover [data-testid="stPopoverBody"] [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; border-color:var(--line) !important; color:var(--text) !important; box-shadow:none !important; transform:none !important; }
+      .st-key-account_menu_logout [data-testid="stButton"] button:hover { background:#ef444415 !important; border-color:#ef444433 !important; color:#f87171 !important; }
+      div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { position:fixed !important; z-index:10002; top:80px; right:18px; bottom:auto; left:auto; flex:none !important; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; align-self:auto !important; }
+      .st-key-tema_flutuante { opacity:70%; position:fixed !important; z-index:10003; top:80px !important; right:18px !important; bottom:auto !important; left:auto !important; width:max-content; max-width:calc(100vw - 24px); padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid color-mix(in srgb,var(--line) 90%,transparent); border-radius:18px; box-shadow:0 8px 24px #0005; backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); }
       .st-key-tema_flutuante [data-testid="stHorizontalBlock"] { width:max-content; max-width:100%; flex-wrap:nowrap !important; gap:2px; }
       .st-key-tema_flutuante [data-testid="stColumn"] { flex:0 0 42px !important; width:42px !important; min-width:42px !important; }
       .st-key-tema_flutuante [data-testid="stVerticalBlock"] { align-items:center; }
@@ -379,8 +400,9 @@ st.markdown(
         [data-testid="stHeader"] { display:none !important; }
         [data-testid="stAppViewContainer"] { overflow-x:hidden; }
         .block-container, [data-testid="stMainBlockContainer"] { padding-top:0 !important; padding-left:.9rem; padding-right:.9rem; padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
-        div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { top:calc(12px + env(safe-area-inset-top)); right:12px; }
-        .st-key-tema_flutuante { top:calc(12px + env(safe-area-inset-top)) !important; right:12px !important; padding:6px; border-radius:16px; }
+        div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { top:calc(80px + env(safe-area-inset-top)); right:12px; }
+        div[data-testid="stElementContainer"].st-key-account_menu, div[data-testid="stElementContainer"]:has(.st-key-account_menu), .st-key-account_menu { top:calc(12px + env(safe-area-inset-top)) !important; right:12px !important; left:auto !important; }
+        .st-key-tema_flutuante { top:calc(80px + env(safe-area-inset-top)) !important; right:12px !important; padding:6px; border-radius:16px; }
         .st-key-pagina_mobile { display:block; position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important; top:auto !important; z-index:9999; width:100vw !important; box-sizing:border-box; margin:0 !important; padding:8px 8px calc(8px + env(safe-area-inset-bottom)) !important; background:#202124 !important; border-top:1px solid #35373b !important; box-shadow:0 -6px 20px #0005; }
         .st-key-pagina_mobile [data-testid="stHorizontalBlock"] { flex-wrap:nowrap !important; gap:4px; }
         .st-key-pagina_mobile [data-testid="stColumn"] { flex:1 1 0 !important; width:20% !important; min-width:0 !important; }
@@ -446,6 +468,13 @@ st.markdown(
       .st-key-tema_float_{tema_ativo_key} [data-testid="stButton"] button {{ background:#32cb7918 !important; border:1px solid #32cb7944 !important; border-radius:12px !important; box-shadow:none !important; opacity:1; }}
       [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {{ color:var(--text); }}
       [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:var(--muted); }}
+      [data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+      [data-testid="stSidebar"] [data-testid="stWidgetLabel"] *,
+      [data-testid="stSidebar"] label,
+      [data-testid="stSidebar"] label p {{ background:transparent !important; box-shadow:none !important; }}
+      [data-testid="stSidebar"] [data-testid="stForm"] {{ padding:14px 12px; border:1px solid var(--line); border-radius:14px; background:color-mix(in srgb,var(--panel) 78%,var(--sidebar)); }}
+      [data-testid="stSidebar"] [data-testid="stMultiSelect"] [data-baseweb="select"] > div {{ max-height:124px; overflow-y:auto; align-items:flex-start; padding:6px; }}
+      [data-testid="stSidebar"] [data-testid="stMultiSelect"] [data-baseweb="tag"] {{ margin:3px; }}
       [data-testid="stSidebar"] [role="radiogroup"] label {{ color:var(--muted); }}
       [data-testid="stSidebar"] [role="radiogroup"] label:hover {{ background:var(--panel); border-color:var(--line); color:var(--text); }}
       [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked),
@@ -1273,7 +1302,20 @@ ROTAS_AMIGAVEIS = {
     "Log de erros": ("erros", "pages/erros.py"),
     "Meu perfil": ("perfil", "pages/perfil.py"),
 }
-pagina_salva = st.query_params.get("pagina", "Imobiliárias")
+rotas_para_paginas = {rota: nome for nome, (rota, _) in ROTAS_AMIGAVEIS.items()}
+rotas_para_paginas.update({Path(arquivo).stem: nome for nome, (_, arquivo) in ROTAS_AMIGAVEIS.items()})
+pagina_solicitada = st.query_params.get("pagina", "")
+if not pagina_solicitada:
+    pagina_solicitada = st.query_params.get("page", "")
+    pagina_solicitada = str(pagina_solicitada).rsplit("/", 1)[-1].removesuffix(".py")
+pagina_salva = pagina_solicitada if pagina_solicitada in paginas_disponiveis else rotas_para_paginas.get(str(pagina_solicitada), "")
+if not pagina_salva:
+    try:
+        caminho_atual = urlparse(st.context.url).path.rstrip("/")
+        rota_atual = caminho_atual.rsplit("/", 1)[-1]
+        pagina_salva = rotas_para_paginas.get(rota_atual, "Imobiliárias")
+    except (AttributeError, TypeError, ValueError):
+        pagina_salva = "Imobiliárias"
 if "pagina" not in st.session_state:
     st.session_state.pagina = pagina_salva if pagina_salva in paginas_disponiveis else "Imobiliárias"
 if "resultados_notificacao" not in st.session_state:
@@ -1614,6 +1656,7 @@ st.markdown(
     </style>""",
     unsafe_allow_html=True,
 )
+auth_ui.render_top_account_menu()
 with st.container(key="pagina_mobile"):
     renderizar_botoes_pagina_mobile()
 

@@ -13,6 +13,30 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 import auth_store as store
 
 SESSION_TIMEOUT = 30 * 60
+_AUTH_TOKEN_PENDING = "__findimob_auth_pending__"
+_AUTH_SESSION_STORAGE = st.components.v2.component(
+    "findimob_auth_session_storage",
+    html="<span aria-hidden=\"true\"></span>",
+    js="""
+    export default function({ data, setStateValue }) {
+      const key = "findimob.auth.session.v1";
+      let token = "";
+      try {
+        if (data?.action === "save") {
+          token = String(data.token || "");
+          if (token) sessionStorage.setItem(key, token);
+        } else if (data?.action === "clear") {
+          sessionStorage.removeItem(key);
+        } else {
+          token = sessionStorage.getItem(key) || "";
+        }
+      } catch (error) {
+        token = "";
+      }
+      setStateValue("token", token);
+    }
+    """,
+)
 MAX_AVATAR_BYTES = 2 * 1024 * 1024
 THEME_FILE = Path(__file__).resolve().parent / ".tema.json"
 THEMES = {
@@ -662,13 +686,43 @@ def _email_message(email):
 
 
 def _set_authenticated(user):
+    previous_token = st.session_state.get("_auth_session_token")
+    if previous_token:
+        store.revoke_auth_session(previous_token)
+    token = store.create_auth_session(user["id"], SESSION_TIMEOUT)
     st.session_state.auth_user_id = user["id"]
     st.session_state.auth_last_activity = time.time()
     st.session_state.auth_avatar = user.get("avatar")
+    st.session_state._auth_session_token = token
+    st.session_state._auth_persist_command = "save"
+
+
+def _restore_authenticated_session(user, token):
+    st.session_state.auth_user_id = user["id"]
+    st.session_state.auth_last_activity = time.time()
+    st.session_state.auth_avatar = user.get("avatar")
+    st.session_state._auth_session_token = token
+
+
+def _sync_auth_session_storage():
+    command = st.session_state.pop("_auth_persist_command", None)
+    token = st.session_state.get("_auth_session_token", "")
+    action = command or "read"
+    result = _AUTH_SESSION_STORAGE(
+        data={"action": action, "token": token},
+        default={"token": _AUTH_TOKEN_PENDING},
+        on_token_change=lambda: None,
+        key="auth_session_storage",
+    )
+    return action, result.token
 
 
 def _logout():
-    for key in ("auth_user_id", "auth_last_activity", "auth_avatar"):
+    token = st.session_state.get("_auth_session_token")
+    if token:
+        store.revoke_auth_session(token)
+    st.session_state["_auth_persist_command"] = "clear"
+    for key in ("auth_user_id", "auth_last_activity", "auth_avatar", "_auth_session_token"):
         st.session_state.pop(key, None)
 
 
@@ -706,9 +760,7 @@ def _render_login():
         else:
             user, result = store.authenticate(identifier, password)
             if user:
-                st.session_state.auth_user_id = user["id"]
-                st.session_state.auth_last_activity = time.time()
-                st.session_state.auth_avatar = user.get("avatar")
+                _set_authenticated(user)
                 st.rerun()
             if result == "locked":
                 _show_error(password_error, "Muitas tentativas. Aguarde 15 minutos.")
@@ -958,6 +1010,7 @@ def _render_homepage():
 
 def render_auth_gate():
     store.initialize()
+    storage_action, persisted_token = _sync_auth_session_storage()
     try:
         identity = st.user
         if identity.is_logged_in and not st.session_state.get("auth_user_id"):
@@ -975,11 +1028,29 @@ def render_auth_gate():
     except (AttributeError, KeyError):
         pass
     user_id = st.session_state.get("auth_user_id")
+    if not user_id and storage_action != "clear":
+        if persisted_token == _AUTH_TOKEN_PENDING:
+            st.stop()
+        if persisted_token:
+            restored_user = store.restore_auth_session(persisted_token, SESSION_TIMEOUT)
+            if restored_user:
+                _restore_authenticated_session(restored_user, persisted_token)
+                user_id = restored_user["id"]
+            else:
+                st.session_state["_auth_persist_command"] = "clear"
+                st.rerun()
     timed_out = False
     if user_id:
         user = store.get_user(user_id)
         last_activity = st.session_state.get("auth_last_activity", 0)
-        if not user or not user["active"] or time.time() - last_activity > SESSION_TIMEOUT:
+        expired = not user or not user["active"] or time.time() - last_activity > SESSION_TIMEOUT
+        if not expired:
+            token = st.session_state.get("_auth_session_token")
+            if token:
+                expired = store.restore_auth_session(token, SESSION_TIMEOUT) is None
+            else:
+                _set_authenticated(user)
+        if expired:
             timed_out = bool(user and user["active"])
             _logout()
         elif user["must_change_password"]:
@@ -1070,25 +1141,57 @@ def render_profile_page():
     st.success("Perfil atualizado.")
 
 
-def render_sidebar_account():
+def _open_profile_from_account_menu():
+    st.session_state.pagina = "Meu perfil"
+    st.session_state.pagina_mobile = "Meu perfil"
+    st.session_state._friendly_route = "perfil"
+    st.switch_page("pages/perfil.py")
+
+
+def _logout_from_account_menu():
+    _logout()
+    try:
+        if st.user.is_logged_in:
+            st.logout()
+    except (AttributeError, KeyError):
+        pass
+
+
+def render_top_account_menu():
     user_id = st.session_state.get("auth_user_id")
     user = store.get_user(user_id) if user_id else None
     if not user:
         return
-    st.divider()
-    if user.get("avatar"):
-        st.image(user["avatar"], width=48)
-    st.caption(f"{user['display_name']} · {user['email']}")
-    if st.button("Sair", key="auth_logout", use_container_width=True):
-        _logout()
-        try:
-            if st.user.is_logged_in:
-                st.logout()
-        except (AttributeError, KeyError):
-            pass
-        st.rerun()
-    if user["role"] != "admin":
+
+    avatar = user.get("avatar")
+    avatar_css = ""
+    if avatar:
+        avatar_data = base64.b64encode(avatar).decode("ascii")
+        avatar_css = f"""<style>
+        .st-key-account_menu button[aria-haspopup="dialog"], .st-key-account_menu [data-testid="stPopoverButton"], .st-key-account_menu [data-testid="stPopoverButton"] button, .st-key-account_menu [data-testid="stPopover"] > button, .st-key-account_menu_popover button[aria-haspopup="dialog"], .st-key-account_menu_popover [data-testid="stPopoverButton"], .st-key-account_menu_popover [data-testid="stPopoverButton"] button {{
+          background-image:url('data:image/jpeg;base64,{avatar_data}') !important;
+          color:transparent !important; font-size:0 !important;
+        }}
+        </style>"""
+    st.markdown(avatar_css, unsafe_allow_html=True)
+    with st.container(key="account_menu"):
+        label = " " if avatar else (user.get("display_name") or "U")[:1].upper()
+        with st.popover(label, key="account_menu_popover"):
+            st.button(
+                "Editar perfil", key="account_menu_edit_profile", use_container_width=True,
+                on_click=_open_profile_from_account_menu,
+            )
+            if st.button("Sair", key="account_menu_logout", use_container_width=True):
+                _logout_from_account_menu()
+                st.rerun()
+
+
+def render_sidebar_account():
+    user_id = st.session_state.get("auth_user_id")
+    user = store.get_user(user_id) if user_id else None
+    if not user or user["role"] != "admin":
         return
+    st.divider()
     pending = store.pending_users()
     with st.expander(f"Aprovar acessos ({len(pending)})", expanded=False):
         if not pending:
