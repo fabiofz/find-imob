@@ -21,6 +21,7 @@ import requests
 import streamlit as st
 from bs4 import BeautifulSoup
 import auth_ui
+import review_store
 from utils.funcs import preco_para_float
 
 
@@ -29,6 +30,7 @@ LOGO_FILE = ROOT / "assets" / "findimob.svg"
 HISTORY_FILE = ROOT / ".execucoes.json"
 ERROR_LOG_FILE = ROOT / "logs_erros.txt"
 PREVIEW_CACHE_FILE = ROOT / ".link_previews.json"
+ACTIVE_EXECUTION_FILE = ROOT / ".execucao_ativa.json"
 RESULTS_NOTIFICATION_FILE = ROOT / ".resultados_notificacao.json"
 ADVERTISEMENT_STATE_FILE = ROOT / ".anuncios_estado.json"
 BUSCA_CONFIG_FILE = ROOT / ".parametros_busca.json"
@@ -90,6 +92,23 @@ AGENCIES = [
     ("Imobiliária São Paulo", "catalog", "Imobiliária São Paulo"),
     ("Unidas Imóveis", "catalog", "Unidas Imóveis"),
     ("Personal Consultoria", "catalog", "Personal Consultoria"),
+    ("Sales Imóveis", "catalog", "Sales Imóveis"),
+    ("Euro Imóveis", "catalog", "Euro Imóveis"),
+    ("Imobiliária Danelli", "catalog", "Imobiliária Danelli"),
+    ("ATOM Inteligência Imobiliária", "catalog", "ATOM Inteligência Imobiliária"),
+    ("City Taubaté Imobiliária", "catalog", "City Taubaté Imobiliária"),
+    ("Solar Imóveis Taubaté", "catalog", "Solar Imóveis Taubaté"),
+    ("Salzano Imóveis", "catalog", "Salzano Imóveis"),
+    ("Teomi Imóveis", "catalog", "Teomi Imóveis"),
+    ("Go Home Soluções Imobiliárias", "catalog", "Go Home Soluções Imobiliárias"),
+    ("BS Negócios Imobiliários", "catalog", "BS Negócios Imobiliários"),
+    ("Vilella Imóveis", "catalog", "Vilella Imóveis"),
+    ("Universo Ello Imóveis", "catalog", "Universo Ello Imóveis"),
+    ("Carla Maria Imóveis", "catalog", "Carla Maria Imóveis"),
+    ("Imobiliária Apolo", "catalog", "Imobiliária Apolo"),
+    ("Imobiliária Guerrero", "catalog", "Imobiliária Guerrero"),
+    ("Saframa Imóveis", "catalog", "Saframa Imóveis"),
+    ("Imobiliária Aliança", "catalog", "Imobiliária Aliança"),
     ("Rio Center Imóveis", "catalog", "Rio Center Imóveis"),
     ("Imobiliária Inovare", "catalog", "Imobiliária Inovare"),
     ("Gomes Nova Opção", "catalog", "Gomes Nova Opção"),
@@ -129,6 +148,21 @@ AGENCY_DOMAINS = {
     "Imobiliária São Paulo": ("imobiliariasp.com.br",),
     "Unidas Imóveis": ("unidasimoveistaubate.com.br",),
     "Personal Consultoria": ("personalimob.com.br",),
+    "Sales Imóveis": ("salesimoveis.imb.br",),
+    "Euro Imóveis": ("euroimoveis.cim.br",),
+    "Imobiliária Danelli": ("danelli.com.br",),
+    "ATOM Inteligência Imobiliária": ("atomimobiliaria.com.br",),
+    "City Taubaté Imobiliária": ("citytaubate.com.br",),
+    "Solar Imóveis Taubaté": ("solarimoveistaubate.com.br",),
+    "Salzano Imóveis": ("salzanoimoveis.com.br",),
+    "Teomi Imóveis": ("teomiimoveis.com.br",),
+    "Go Home Soluções Imobiliárias": ("gohomebrasil.com.br",),
+    "BS Negócios Imobiliários": ("bsimoveistaubate.com.br",),
+    "Vilella Imóveis": ("vilellaimoveis.com.br",),
+    "Universo Ello Imóveis": ("universoello.com.br",),
+    "Carla Maria Imóveis": ("carlamariaimoveis.com.br",),
+    "Imobiliária Guerrero": ("imobiliariaguerrero.com.br",),
+    "Saframa Imóveis": ("saframa.com.br",),
     "Rio Center Imóveis": ("imobiliariariocenter.com.br",),
     "Imobiliária Inovare": ("imobiliariainovare.com.br",),
     "Gomes Nova Opção": ("gomesnovaopcaoimoveis.com.br",),
@@ -289,9 +323,9 @@ st.markdown(
       [class*="st-key-agency_entry_"]::after { content:""; position:absolute; left:14px; right:14px; bottom:0; height:2px; border-radius:2px; background:var(--green-dark); pointer-events:none; }
       .selected-agency-header { background:var(--panel-hover); color:var(--text); border:1px solid var(--line); border-radius:12px; padding:14px 18px; font-weight:700; font-size:1.05rem; margin:10px 0 16px; }
       .selected-agency-header > span:not(.agency-new-dot) { color:#b5c5d8; font-weight:500; font-size:.86rem; margin-left:10px; }
-      [data-testid="stExpander"] details summary { background:#181818; border:1px solid #282828; border-radius:10px; color:#fff; }
-      [data-testid="stExpander"] details summary p { color:#fff !important; font-weight:700; }
-      [data-testid="stExpander"] details summary:hover { background:#242424; border-color:#444; }
+      [data-testid="stExpander"] details summary { background:var(--panel); border:1px solid var(--line); border-radius:10px; color:var(--text); }
+      [data-testid="stExpander"] details summary p { color:var(--text) !important; font-weight:700; }
+      [data-testid="stExpander"] details summary:hover { background:var(--panel-hover); border-color:var(--line); }
       .wa-preview { position:relative; box-sizing:border-box; height:144px; display:flex; flex-direction:column; overflow:hidden; border:1px solid #c4cad2; border-radius:11px; background:#e5e7eb; color:#1f2937; margin-bottom:12px; }
       .wa-preview-main { display:grid; grid-template-columns:minmax(90px, 42%) minmax(0, 1fr); flex:1; min-height:0; height:112px; background:#d1d5db; }
       .wa-preview-photo { width:100%; height:100%; background-color:#c4cad2; background-position:center; background-size:cover; background-repeat:no-repeat; }
@@ -333,11 +367,14 @@ st.markdown(
       div.st-key-run_all button { background:var(--green); color:#101010; min-height:48px; }
       div.st-key-run_all button:hover { background:var(--green-hover); color:#101010; border:0; }
       [data-testid="stDialog"] { align-items:center; padding:16px !important; }
-      [data-testid="stDialog"] > div { box-sizing:border-box; width:min(1200px, calc(100vw - 32px)) !important; max-width:calc(100vw - 32px) !important; max-height:calc(100dvh - 32px) !important; overflow-y:auto !important; background:#101720; border:1px solid #33465a; border-radius:18px; }
+      [data-testid="stDialog"] > div { box-sizing:border-box; width:min(1200px, calc(100vw - 32px)) !important; max-width:calc(100vw - 32px) !important; max-height:calc(100dvh - 32px) !important; overflow-y:auto !important; background:var(--bg) !important; border:1px solid var(--line) !important; border-radius:18px; }
       [data-testid="stDialog"] .terminal-body { max-height:min(38vh, 320px); }
       @media (max-height: 700px) { [data-testid="stDialog"] .terminal-body { max-height:32vh; } }
-      [data-testid="stDialog"] h2 { color:#f0f5fa; }
-      div[data-testid="stTextInput"] input { background:#111720; border-color:#273342; }
+      [data-testid="stDialog"] h2 { color:var(--text) !important; }
+      [data-testid="stDialog"] div[data-testid="stTextInput"] input,
+      [data-testid="stDialog"] div[data-testid="stTextArea"] textarea { background:var(--field) !important; border-color:var(--field-border) !important; color:var(--text) !important; }
+      .review-dialog-notice { display:flex; align-items:center; gap:10px; padding:14px 16px; margin:4px 0 16px; border:1px solid color-mix(in srgb,var(--green) 28%,var(--line)); border-left:4px solid var(--green); border-radius:12px; background:color-mix(in srgb,var(--green) 10%,var(--panel)); color:var(--text); font-weight:600; }
+      .review-dialog-notice span { color:var(--green); font-size:1.15rem; }
       div.st-key-busca_imobiliaria input { background:#fff !important; color:#17212b !important; border-color:#cbd5df !important; }
       div.st-key-busca_imobiliaria input::placeholder { color:#657383 !important; opacity:1; }
       div.st-key-busca_anuncio input { background:#fff !important; color:#17212b !important; border-color:#cbd5df !important; }
@@ -367,15 +404,15 @@ st.markdown(
       .st-key-account_menu_popover button[aria-haspopup="dialog"] svg,
       .st-key-account_menu_popover [data-testid="stPopoverButton"] svg,
       .st-key-account_menu_popover [data-testid="stPopoverButton"] button svg { display:none !important; }
-      .st-key-account_menu [data-testid="stPopoverBody"],
-      .st-key-account_menu_popover [data-testid="stPopoverBody"] { min-width:176px; padding:7px !important; background:var(--panel) !important; border:1px solid var(--line) !important; border-radius:14px !important; box-shadow:0 10px 26px #0004 !important; }
-      .st-key-account_menu [data-testid="stPopoverBody"] [data-testid="stButton"] button,
-      .st-key-account_menu_popover [data-testid="stPopoverBody"] [data-testid="stButton"] button { min-height:38px; padding:0 10px !important; border:1px solid transparent !important; border-radius:9px !important; background:transparent !important; color:var(--muted) !important; box-shadow:none !important; font-weight:600; justify-content:flex-start; }
-      .st-key-account_menu [data-testid="stPopoverBody"] [data-testid="stButton"] button:hover,
-      .st-key-account_menu_popover [data-testid="stPopoverBody"] [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; border-color:var(--line) !important; color:var(--text) !important; box-shadow:none !important; transform:none !important; }
-      .st-key-account_menu_logout [data-testid="stButton"] button:hover { background:#ef444415 !important; border-color:#ef444433 !important; color:#f87171 !important; }
-      div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { position:fixed !important; z-index:10002; top:80px; right:18px; bottom:auto; left:auto; flex:none !important; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; align-self:auto !important; }
-      .st-key-tema_flutuante { opacity:70%; position:fixed !important; z-index:10003; top:80px !important; right:18px !important; bottom:auto !important; left:auto !important; width:max-content; max-width:calc(100vw - 24px); padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid color-mix(in srgb,var(--line) 90%,transparent); border-radius:18px; box-shadow:0 8px 24px #0005; backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); }
+      div[data-testid="stPopoverBody"]:has(.st-key-account_menu_actions) { width:max-content !important; min-width:0 !important; padding:7px !important; background:color-mix(in srgb,var(--panel) 90%,transparent) !important; border:1px solid var(--line) !important; border-radius:18px !important; box-shadow:0 8px 24px #0005 !important; backdrop-filter:blur(16px); }
+      .st-key-account_menu_actions { width:max-content !important; padding:0 !important; }
+      .st-key-account_menu_actions [data-testid="stHorizontalBlock"] { width:max-content !important; gap:2px !important; }
+      .st-key-account_menu_actions [data-testid="stColumn"] { flex:0 0 42px !important; width:42px !important; min-width:42px !important; }
+      .st-key-account_menu_actions [data-testid="stButton"] button { width:40px !important; min-width:40px !important; height:40px !important; min-height:40px !important; padding:0 !important; border:0 !important; border-radius:12px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; }
+      .st-key-account_menu_actions [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; color:var(--text) !important; transform:none !important; }
+      .st-key-account_menu_actions [data-testid="stButton"] button svg { width:18px !important; height:18px !important; }
+      div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { position:fixed !important; z-index:10002; top:12px; right:88px; bottom:auto; left:auto; flex:none !important; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; align-self:auto !important; }
+      .st-key-tema_flutuante { opacity:70%; position:fixed !important; z-index:10003; top:12px !important; right:88px !important; bottom:auto !important; left:auto !important; width:max-content; max-width:calc(100vw - 24px); padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid color-mix(in srgb,var(--line) 90%,transparent); border-radius:18px; box-shadow:0 8px 24px #0005; backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); }
       .st-key-tema_flutuante [data-testid="stHorizontalBlock"] { width:max-content; max-width:100%; flex-wrap:nowrap !important; gap:2px; }
       .st-key-tema_flutuante [data-testid="stColumn"] { flex:0 0 42px !important; width:42px !important; min-width:42px !important; }
       .st-key-tema_flutuante [data-testid="stVerticalBlock"] { align-items:center; }
@@ -387,6 +424,14 @@ st.markdown(
       .stApp[data-test-script-state="rerunRequested"] .st-key-tema_flutuante,
       .stApp[data-test-script-state="stopRequested"] div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante),
       .stApp[data-test-script-state="stopRequested"] .st-key-tema_flutuante { visibility:hidden !important; opacity:0 !important; pointer-events:none !important; transition:none !important; }
+      @keyframes findimob-spin { to { transform:rotate(360deg); } }
+      div[data-testid="stElementContainer"]:has(.st-key-progresso_ativo) { width:max-content !important; max-width:calc(100vw - 28px) !important; margin:12px auto 18px !important; }
+      .st-key-progresso_ativo { display:inline-flex !important; width:max-content !important; max-width:100% !important; padding:5px; border:1px solid color-mix(in srgb,#ef3344 30%,var(--line)); border-radius:15px; background:color-mix(in srgb,#ef3344 6%,var(--panel)); box-shadow:0 4px 14px #0003; }
+      .st-key-progresso_ativo [data-testid="stButton"] { width:max-content !important; }
+      .st-key-progresso_ativo [data-testid="stButton"] button { width:164px !important; min-width:164px !important; min-height:40px !important; padding:0 15px !important; border-radius:11px !important; background:#d92732 !important; border:1px solid #ff4b55 !important; color:#fff !important; box-shadow:none !important; font-weight:650 !important; }
+      .st-key-progresso_ativo [data-testid="stButton"] button::before { content:"⟳"; display:inline-block; margin-right:9px; color:#fff; font-size:1.12rem; line-height:1; vertical-align:-1px; animation:findimob-spin .9s linear infinite; }
+      .st-key-progresso_ativo [data-testid="stButton"] button:hover { background:#ed343f !important; box-shadow:0 3px 10px #ef334433 !important; transform:translateY(-1px); }
+      @media (max-width:520px) { .st-key-progresso_ativo [data-testid="stButton"] button { width:150px !important; min-width:150px !important; } }
       .st-key-tema_float_close [data-testid="stButton"] button { color:var(--muted) !important; font-size:1.5rem !important; }
       @media (min-width: 769px) and (max-width: 1100px) {
         [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(4)) { flex-wrap:wrap; }
@@ -400,9 +445,9 @@ st.markdown(
         [data-testid="stHeader"] { display:none !important; }
         [data-testid="stAppViewContainer"] { overflow-x:hidden; }
         .block-container, [data-testid="stMainBlockContainer"] { padding-top:0 !important; padding-left:.9rem; padding-right:.9rem; padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
-        div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { top:calc(80px + env(safe-area-inset-top)); right:12px; }
+        div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { top:calc(12px + env(safe-area-inset-top)); right:80px; }
         div[data-testid="stElementContainer"].st-key-account_menu, div[data-testid="stElementContainer"]:has(.st-key-account_menu), .st-key-account_menu { top:calc(12px + env(safe-area-inset-top)) !important; right:12px !important; left:auto !important; }
-        .st-key-tema_flutuante { top:calc(80px + env(safe-area-inset-top)) !important; right:12px !important; padding:6px; border-radius:16px; }
+        .st-key-tema_flutuante { top:calc(12px + env(safe-area-inset-top)) !important; right:80px !important; padding:6px; border-radius:16px; }
         .st-key-pagina_mobile { display:block; position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important; top:auto !important; z-index:9999; width:100vw !important; box-sizing:border-box; margin:0 !important; padding:8px 8px calc(8px + env(safe-area-inset-bottom)) !important; background:#202124 !important; border-top:1px solid #35373b !important; box-shadow:0 -6px 20px #0005; }
         .st-key-pagina_mobile [data-testid="stHorizontalBlock"] { flex-wrap:nowrap !important; gap:4px; }
         .st-key-pagina_mobile [data-testid="stColumn"] { flex:1 1 0 !important; width:20% !important; min-width:0 !important; }
@@ -462,7 +507,15 @@ st.markdown(
       [data-testid="stSelectbox"] [class*="st-emotion-cache"],
       [data-testid="stMultiSelect"] [class*="st-emotion-cache"],
       [data-testid="stFileUploader"] [class*="st-emotion-cache"] {{
-        border-color:var(--field-border) !important; background-color:var(--field) !important;
+        border-color:var(--field-border) !important;
+      }}
+      [data-testid="stMain"] {{ color:var(--text) !important; }}
+      [data-testid="stMain"] [data-testid="stWidgetLabel"],
+      [data-testid="stMain"] [data-testid="stWidgetLabel"] *,
+      [data-testid="stMain"] [data-testid="stWidgetLabel"] p,
+      [data-testid="stMain"] label,
+      [data-testid="stMain"] label p {{
+        color:var(--text) !important; background:transparent !important; box-shadow:none !important;
       }}
       [data-testid="stSidebar"] {{ background:var(--sidebar) !important; border-color:var(--line) !important; }}
       .st-key-tema_float_{tema_ativo_key} [data-testid="stButton"] button {{ background:#32cb7918 !important; border:1px solid #32cb7944 !important; border-radius:12px !important; box-shadow:none !important; opacity:1; }}
@@ -480,6 +533,7 @@ st.markdown(
       [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked),
       [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p {{ background:transparent !important; border-color:transparent !important; color:var(--green) !important; box-shadow:none !important; font-weight:700; }}
       .metric-card,.agency-card,[data-testid="stExpander"] details summary {{ background:var(--panel); border-color:var(--line); color:var(--text); }}
+      [data-testid="stExpander"] details summary p {{ color:var(--text) !important; background:transparent !important; }}
       .agency-card:hover,[data-testid="stExpander"] details summary:hover {{ background:var(--panel-hover); }}
       .selected-agency-header,.day-label {{ background:var(--panel-hover); border-color:var(--line); color:var(--text); }}
       .selected-agency-header > span:not(.agency-new-dot) {{ color:var(--muted); }}
@@ -695,14 +749,14 @@ def salvar_cache_previews(cache):
     return None
 
 
-def validar_imagem_preview(url):
+def validar_imagem_preview(url, referer=None):
     try:
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             return False
         with requests.get(
             url,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; FindImobPreview/1.0)"},
+            headers={"User-Agent": "Mozilla/5.0 (compatible; FindImobPreview/1.0)", "Referer": referer or ""},
             timeout=(2, 3),
             allow_redirects=True,
             stream=True,
@@ -720,7 +774,7 @@ def validar_imagem_preview(url):
                 b"ftypavif" in cabecalho or b"ftypavis" in cabecalho,
             )
             svg_valido = tipo == "image/svg+xml" and b"<svg" in cabecalho.lower()
-            return (tipo.startswith("image/") and any(assinaturas)) or svg_valido
+            return any(assinaturas) or svg_valido
     except (requests.RequestException, ValueError, TypeError):
         return False
 
@@ -822,7 +876,7 @@ def buscar_metadados_preview(url):
             if candidata_url in vistos:
                 continue
             vistos.add(candidata_url)
-            if validar_imagem_preview(candidata_url):
+            if validar_imagem_preview(candidata_url, resposta.url):
                 imagem_url = candidata_url
                 imagem_validada = True
                 break
@@ -836,6 +890,74 @@ def buscar_metadados_preview(url):
     except (requests.RequestException, ValueError, TypeError):
         return {"consultado": datetime.now(LOCAL_TZ).isoformat()}
 
+
+
+def enriquecer_anuncios_da_coleta(tipo, identificador, anuncios_antes, log, links_alvo=None, ao_progredir=None):
+    """Busca e grava título, descrição e foto junto dos anúncios da coleta."""
+    catalogo = listar_anuncios()
+    novos = [item for item in catalogo if chave_anuncio(item) not in anuncios_antes]
+    elegiveis = []
+    for item in reversed(catalogo):
+        link = str(item.get("link") or "")
+        if not link.startswith(("http://", "https://")):
+            continue
+        if item.get("preview_consultado") and item.get("imagem_validada") and item.get("descricao"):
+            continue
+        if links_alvo is not None:
+            if link not in links_alvo:
+                continue
+        elif chave_anuncio(item) in anuncios_antes:
+            # A coleta automática enriquece apenas anúncios recém-capturados;
+            # o botão manual cuida do preenchimento de anúncios antigos.
+            continue
+        elegiveis.append(item)
+
+    prioridade_novos = [item for item in reversed(novos) if item in elegiveis]
+    selecionados = []
+    vistos = set()
+    for item in [*prioridade_novos, *elegiveis]:
+        link = str(item.get("link") or "")
+        if link and link not in vistos:
+            vistos.add(link)
+            selecionados.append(item)
+        # Todos os anúncios desta captura são enriquecidos; a recuperação de
+        # registros antigos é limitada para não prolongar execuções em massa.
+        limite = len(set(links_alvo)) if links_alvo is not None else len(prioridade_novos)
+        if len(selecionados) >= limite:
+            break
+    if not selecionados:
+        log.append("Sem anúncios pendentes de fotos e descrição para esta coleta.")
+        return 0, 0
+
+    log.append(f"Buscando fotos e descrições de {len(selecionados)} anúncio(s)…")
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        tarefas = {
+            executor.submit(buscar_metadados_preview, str(item.get("link") or "")): item
+            for item in selecionados
+        }
+        for indice, tarefa in enumerate(as_completed(tarefas), start=1):
+            item = tarefas[tarefa]
+            try:
+                metadados = tarefa.result() or {}
+            except Exception as erro:
+                metadados = {"consultado": datetime.now(LOCAL_TZ).isoformat()}
+                log.append(f"[FOTOS] Não foi possível consultar um anúncio: {erro}")
+            item["preview_titulo"] = metadados.get("titulo", "")
+            item["descricao"] = metadados.get("descricao", "")
+            item["imagem"] = metadados.get("imagem", "")
+            item["imagem_validada"] = bool(metadados.get("imagem_validada"))
+            item["preview_consultado"] = metadados.get("consultado") or datetime.now(LOCAL_TZ).isoformat()
+            imagens_validas = sum(bool(registro.get("imagem_validada")) for registro in selecionados)
+            if ao_progredir:
+                ao_progredir(indice, len(selecionados), imagens_validas)
+            if indice == len(selecionados) or indice % 5 == 0:
+                log.append(f"[FOTOS] Consultados {indice} de {len(selecionados)} anúncio(s); {imagens_validas} foto(s) válida(s).")
+
+    caminho = ROOT / "geral.json"
+    temporario = ROOT / ".geral.json.tmp"
+    temporario.write_text(json.dumps(catalogo, ensure_ascii=False, indent=2), encoding="utf-8")
+    temporario.replace(caminho)
+    return len(selecionados), sum(bool(item.get("imagem_validada")) for item in selecionados)
 
 def agrupar_por_imobiliaria(anuncios):
     grupos = {nome: [] for nome, _, _ in AGENCIES}
@@ -859,9 +981,9 @@ def html_preview_anuncio(imobiliaria, anuncio, cache, novo=False):
     except (TypeError, ValueError):
         parsed_link = urlparse("")
     preview = cache.get(link, {})
-    titulo = escape(str(preview.get("titulo") or anuncio.get("titulo") or "Imóvel sem título"))
+    titulo = escape(str(preview.get("titulo") or anuncio.get("preview_titulo") or anuncio.get("titulo") or "Imóvel sem título"))
     descricao = escape(
-        str(preview.get("descricao") or f"Locação de imóvel · {anuncio.get('preco') or 'consulte o preço'}")
+        str(preview.get("descricao") or anuncio.get("descricao") or f"Locação de imóvel · {anuncio.get('preco') or 'consulte o preço'}")
     )
     preco = escape(str(anuncio.get("preco") or "Preço não informado"))
     tipo_destaque = any(
@@ -875,13 +997,13 @@ def html_preview_anuncio(imobiliaria, anuncio, cache, novo=False):
         classe_cartao = "wa-preview wa-preview--orange"
     else:
         classe_cartao = "wa-preview"
-    imagem_url = preview.get("imagem", "")
+    imagem_url = preview.get("imagem") or anuncio.get("imagem", "")
     try:
         parsed_imagem = urlparse(imagem_url)
     except (TypeError, ValueError):
         parsed_imagem = urlparse("")
     if (
-        preview.get("imagem_validada")
+        (preview.get("imagem_validada") or anuncio.get("imagem_validada"))
         and parsed_imagem.scheme in {"http", "https"}
         and parsed_imagem.netloc
     ):
@@ -945,7 +1067,7 @@ def deduplicar_anuncios(anuncios, cache):
         chaves_anuncio = [("link", chave_link)] if chave_link else []
 
         preview = cache.get(link, {})
-        imagem = preview.get("imagem") if preview.get("imagem_validada") else ""
+        imagem = (preview.get("imagem") if preview.get("imagem_validada") else "") or (anuncio.get("imagem") if anuncio.get("imagem_validada") else "")
         if imagem:
             titulo = unicodedata.normalize(
                 "NFKD", str(anuncio.get("titulo") or "")
@@ -963,6 +1085,135 @@ def deduplicar_anuncios(anuncios, cache):
     return unicos
 
 
+
+
+def _selecionar_nota_avaliacao(state_key, value):
+    st.session_state[state_key] = int(value)
+
+
+@st.dialog("Avaliações do imóvel", width="medium")
+def dialogo_avaliacoes_imovel(property_key, property_title):
+    user_id = st.session_state.get("auth_user_id")
+    user = auth_ui.store.get_user(user_id) if user_id else None
+    reviews = review_store.list_approved(property_key)
+    if reviews:
+        media = sum(item["stars"] for item in reviews) / len(reviews)
+        st.markdown(f"### {'★' * round(media)}{'☆' * (5 - round(media))}  {media:.1f} · {len(reviews)} avaliação(ões)")
+        for item in reviews:
+            st.text(f"{item['author_name']} · {'★' * item['stars']}{'☆' * (5 - item['stars'])}")
+            if item["lived_here"]:
+                st.caption("🏠 Já morei")
+            if item["pros"]:
+                st.text(f"👍 Prós: {item['pros']}")
+            if item["cons"]:
+                st.text(f"👎 Contras: {item['cons']}")
+            st.divider()
+    else:
+        st.markdown(
+            '<div class="review-dialog-notice"><span>ℹ</span>'
+            'Este imóvel ainda não tem avaliações aprovadas.</div>',
+            unsafe_allow_html=True,
+        )
+    if not user or not user.get("active"):
+        st.caption("Entre na sua conta para enviar uma avaliação.")
+        return
+    prior = review_store.get_user_review(property_key, user_id)
+    if prior and prior["status"] == "pending":
+        st.markdown(
+            '<div class="review-dialog-notice"><span>✓</span>'
+            'Sua avaliação está aguardando aprovação do administrador.</div>',
+            unsafe_allow_html=True,
+        )
+    elif prior and prior["status"] == "approved":
+        st.caption("Você já avaliou este imóvel. Uma nova avaliação substituirá a anterior após aprovação.")
+    rating_key = f"review_stars_{property_key}"
+    if rating_key not in st.session_state:
+        st.session_state[rating_key] = 5
+    stars = int(st.session_state[rating_key])
+    st.markdown("**Nota**")
+    rating_style = f"""<style>
+    .st-key-review_rating_{property_key} {{
+        width:max-content !important; max-width:100% !important;
+        padding:5px !important; border:1px solid var(--line,#353333) !important;
+        border-radius:15px !important;
+        background:color-mix(in srgb,var(--panel,#181818) 90%,transparent) !important;
+    }}
+    .st-key-review_rating_{property_key} [data-testid="stHorizontalBlock"] {{
+        width:max-content !important; gap:2px !important;
+    }}
+    .st-key-review_rating_{property_key} [data-testid="stColumn"] {{
+        flex:0 0 40px !important; width:40px !important; min-width:40px !important;
+    }}
+    .st-key-review_rating_{property_key} [data-testid="stButton"] button {{
+        width:38px !important; min-width:38px !important; height:38px !important;
+        min-height:38px !important; padding:0 !important; border:0 !important;
+        border-radius:10px !important; background:transparent !important;
+        color:var(--text,#f5f5f5) !important; box-shadow:none !important;
+        transform:none !important; font-size:1.15rem !important;
+    }}
+    .st-key-review_rating_{property_key} [data-testid="stButton"] button:hover {{
+        background:var(--panel-hover,#242424) !important;
+        color:var(--text,#f5f5f5) !important; border:0 !important;
+        box-shadow:none !important; transform:none !important;
+    }}
+    div[data-testid="stDialog"] [data-testid="stForm"] {{
+        border:1px solid var(--line,#353333) !important;
+        border-radius:16px !important;
+        background:color-mix(in srgb,var(--panel,#181818) 65%,transparent) !important;
+        padding:16px !important;
+    }}
+    div[data-testid="stDialog"] [data-testid="stTextArea"] textarea {{
+        min-height:88px !important; border-radius:12px !important;
+    }}
+    div[data-testid="stDialog"] [data-testid="stForm"] label p {{
+        font-weight:600 !important;
+    }}
+    @media(max-width:600px) {{
+        div[data-testid="stDialog"] [data-testid="stForm"] {{padding:12px !important;}}
+        div[data-testid="stDialog"] [data-testid="stTextArea"] textarea {{min-height:76px !important;}}
+    }}
+    </style>"""
+    st.markdown(rating_style, unsafe_allow_html=True)
+    with st.container(key=f"review_rating_{property_key}"):
+        star_columns = st.columns(5, gap="small")
+        for value, column in enumerate(star_columns, start=1):
+            with column:
+                icon = "⭐" if value <= stars else "☆"
+                st.button(
+                    icon,
+                    key=f"review_star_{value}_{property_key}",
+                    on_click=_selecionar_nota_avaliacao,
+                    args=(rating_key, value),
+                )
+    stars = int(st.session_state[rating_key])
+    st.caption("Escolha de 1 a 5 estrelas.")
+    with st.form(f"review_form_{property_key}"):
+        lived_here = st.checkbox("Já morei neste imóvel")
+        anonymous = st.checkbox("Comentar como anônimo")
+        pros = st.text_area(
+            "Prós", max_chars=2000, height=88, placeholder="O que você gostou?"
+        )
+        pros_error = st.empty()
+        cons = st.text_area(
+            "Contras", max_chars=2000, height=88,
+            placeholder="O que poderia melhorar?"
+        )
+        cons_error = st.empty()
+        submitted = st.form_submit_button("Enviar para aprovação", use_container_width=True)
+    if submitted:
+        if not pros.strip() and not cons.strip():
+            pros_error.error("Informe os prós ou os contras do imóvel.")
+            cons_error.error("Informe os contras ou os prós do imóvel.")
+        elif review_store.submit(
+            property_key, property_title, user_id,
+            "Anônimo" if anonymous else (
+                user.get("display_name") or user.get("full_name") or "Usuário"
+            ),
+            stars, lived_here, pros, cons,
+        ):
+            st.success("Avaliação enviada. Ela ficará visível após aprovação do administrador.")
+
+
 def renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos):
     chave = chave_anuncio(anuncio)
     estado = carregar_estado_anuncios()
@@ -978,8 +1229,20 @@ def renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos):
         html_preview_anuncio(imobiliaria, anuncio, cache, novo=chave in novos),
         unsafe_allow_html=True,
     )
-    acao_coluna, excluir_coluna = st.columns(2, gap="small")
     hash_anuncio = hashlib.sha256(chave.encode()).hexdigest()[:16]
+    total_avaliacoes = review_store.list_approved(hash_anuncio)
+    media_avaliacoes = (
+        sum(item["stars"] for item in total_avaliacoes) / len(total_avaliacoes)
+        if total_avaliacoes else 0
+    )
+    if st.button(
+        f"★ {media_avaliacoes:.1f} · Avaliações ({len(total_avaliacoes)})",
+        key=f"reviews_{hash_anuncio}",
+        use_container_width=True,
+    ):
+        titulo = str(anuncio.get("titulo") or anuncio.get("title") or imobiliaria)
+        dialogo_avaliacoes_imovel(hash_anuncio, titulo)
+    acao_coluna, excluir_coluna = st.columns(2, gap="small")
     with acao_coluna:
         if st.button(
             "★" if favorito_atual else "☆",
@@ -1148,9 +1411,11 @@ def executar(rotulo, tipo, identificador):
             bufsize=1,
             env=ambiente,
         )
+        salvar_estado_execucao_ativo({"pid": processo.pid, "id": st.session_state.get("execucao_dialogo_id"), "rotulo": rotulo, "log": log[-TAIL_LINES:]})
         for linha in processo.stdout:
             hora = datetime.now(LOCAL_TZ).strftime("%H:%M:%S")
             log.append(f"[{hora}] {linha.rstrip()}")
+            salvar_estado_execucao_ativo({"pid": processo.pid, "id": st.session_state.get("execucao_dialogo_id"), "rotulo": rotulo, "log": log[-TAIL_LINES:]})
             corpo = "\n".join(log[-TAIL_LINES:]) or "Aguardando saída..."
             terminal.markdown(
                 f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
@@ -1165,7 +1430,19 @@ def executar(rotulo, tipo, identificador):
         log.append(f"Erro ao iniciar o coletor: {erro}")
     finally:
         st.session_state.coletando = False
+        try:
+            estado_ativo = json.loads(ACTIVE_EXECUTION_FILE.read_text(encoding="utf-8"))
+            if estado_ativo.get("id") == st.session_state.get("execucao_dialogo_id"):
+                ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
+        except (OSError, json.JSONDecodeError):
+            pass
 
+    if codigo == 0:
+        status.update(label="Captura concluída · buscando fotos e descrições…", state="running", expanded=False)
+        try:
+            enriquecer_anuncios_da_coleta(tipo, identificador, anuncios_antes, log)
+        except Exception as erro_enriquecimento:
+            log.append(f"[FOTOS] Falha no enriquecimento dos anúncios: {erro_enriquecimento}")
     duracao = round(time.monotonic() - inicio, 1)
     resultado = "sucesso" if codigo == 0 else "falha"
     hora_fim = datetime.now(LOCAL_TZ).strftime("%H:%M:%S")
@@ -1219,6 +1496,7 @@ def executar(rotulo, tipo, identificador):
     historico = ler_historico()
     historico.append(
         {
+            "id": st.session_state.get("execucao_dialogo_id"),
             "inicio": instante.isoformat(),
             "rotulo": rotulo,
             "resultado": resultado,
@@ -1230,6 +1508,56 @@ def executar(rotulo, tipo, identificador):
     salvar_historico(historico)
     st.session_state.ultimo_resultado = resultado
 
+
+
+def salvar_estado_execucao_ativo(dados):
+    temporario = ACTIVE_EXECUTION_FILE.with_suffix(".tmp")
+    temporario.write_text(json.dumps(dados, ensure_ascii=False), encoding="utf-8")
+    temporario.replace(ACTIVE_EXECUTION_FILE)
+
+
+def ler_estado_execucao_ativo():
+    try:
+        dados = json.loads(ACTIVE_EXECUTION_FILE.read_text(encoding="utf-8"))
+        pid = int(dados.get("pid", 0))
+        if pid <= 0:
+            return None
+        try:
+            os.kill(pid, 0)
+            stat_file = Path(f"/proc/{pid}/stat")
+            if stat_file.exists():
+                process_state = stat_file.read_text(encoding="utf-8").rsplit(")", 1)[-1].strip().split(" ", 1)[0]
+                if process_state == "Z":
+                    ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
+                    return None
+        except ProcessLookupError:
+            ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
+            return None
+        except PermissionError:
+            pass
+        return dados
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return None
+
+
+@st.dialog("Progresso da coleta", width="large")
+def visualizar_execucao_ativa():
+    dados = ler_estado_execucao_ativo()
+    if not dados:
+        st.info("Não há uma coleta em andamento.")
+        return
+    st.caption(f"Em execução · {dados.get('rotulo', 'Coleta')}")
+    st.code("\n".join(dados.get("log", [])) or "Preparando…", language="text")
+    st.button("Atualizar progresso", key="atualizar_progresso_ativo")
+
+
+def renderizar_progresso_ativo():
+    dados = ler_estado_execucao_ativo()
+    if not dados:
+        return
+    with st.container(key="progresso_ativo"):
+        if st.button("Ver progresso", key="ver_progresso_ativo"):
+            visualizar_execucao_ativa()
 
 @st.dialog("Visualizador de execução", width="large")
 def visualizar_execucao(rotulo, tipo, identificador, execucao_id):
@@ -1262,6 +1590,40 @@ def visualizar_execucao(rotulo, tipo, identificador, execucao_id):
         st.rerun()
 
 
+
+@st.dialog("Detalhes do processo encerrado", width="large")
+def visualizar_execucao_salva(execucao_id):
+    registro = next(
+        (
+            item for item in reversed(ler_historico())
+            if str(item.get("id") or item.get("inicio")) == str(execucao_id)
+        ),
+        None,
+    )
+    if not registro:
+        st.warning("O registro deste processo não foi encontrado no histórico.")
+        return
+
+    momento = datetime.fromisoformat(registro["inicio"]).astimezone(LOCAL_TZ)
+    codigo = registro.get("codigo", 0 if registro.get("resultado") == "sucesso" else 1)
+    log = registro.get("log", [])
+    corpo = "\n".join(log).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    st.caption(f"{registro.get('rotulo', 'Processo')} · {momento.strftime('%d/%m/%Y às %H:%M:%S')}")
+    st.markdown(
+        f'<div class="terminal"><div class="terminal-head">● REGISTRO · {len(log)} LINHAS &nbsp; · &nbsp; '
+        + escape(registro.get("rotulo", "Processo"))
+        + '</div><div class="terminal-body">'
+        + corpo
+        + "</div></div>",
+        unsafe_allow_html=True,
+    )
+    st.status(
+        f"{'Concluído' if codigo == 0 else f'🚨  Finalizado com erro ({codigo})'} · {registro.get('duracao', 0)}s",
+        state="complete" if codigo == 0 else "error",
+        expanded=codigo != 0,
+    )
+    if st.button("Fechar", key="close_saved_execution_viewer", use_container_width=True):
+        st.rerun()
 def iniciar_execucao_dialogo(estado, execucao_id):
     """Retorna True somente na primeira renderização de uma execução do diálogo."""
     if estado.get("execucao_dialogo_id") == execucao_id:
@@ -1484,58 +1846,66 @@ def renderizar_pagina_anuncios(pagina):
     anuncios_visiveis = [
         item for itens in resultados_por_imobiliaria.values() for item in itens
     ]
-    progresso_previews_slot = st.empty()
-    status_previews_slot = st.empty()
     if anuncios_visiveis:
-        carregar_previews = st.button(
-            "Carregar fotos e descrição dos anúncios",
-            key=f"fetch_previews_{'favorites' if pagina == 'Favoritos' else 'results'}",
-        )
-        if carregar_previews:
-            urls = list(dict.fromkeys(
-                str(item.get("link") or "") for item in anuncios_visiveis
-                if str(item.get("link") or "").startswith(("http://", "https://"))
-                and not cache_previews.get(str(item.get("link") or ""), {}).get("imagem_validada")
-            ))
-            if not urls:
-                st.info("As fotos dos anúncios visíveis já estão carregadas.")
-            else:
-                progresso_previews = progresso_previews_slot.progress(
-                    0, text=f"Fotos 0 de {len(urls)}"
-                )
-                status_previews = status_previews_slot.status(
-                    f"Consultando {len(urls)} anúncio(s)…", expanded=False
-                )
-                with ThreadPoolExecutor(max_workers=6) as executor:
-                    tarefas = {
-                        executor.submit(buscar_metadados_preview, url): url
-                        for url in urls
-                    }
-                    for concluido, tarefa in enumerate(as_completed(tarefas), start=1):
-                        url = tarefas[tarefa]
-                        try:
-                            cache_previews[url] = tarefa.result()
-                        except Exception as erro:
-                            cache_previews[url] = {
-                                "erro": str(erro),
-                                "consultado": datetime.now(LOCAL_TZ).isoformat(),
-                            }
-                        salvar_cache_previews(cache_previews)
-                        progresso_previews.progress(
-                            concluido / len(tarefas),
-                            text=f"Fotos {concluido} de {len(tarefas)}",
-                        )
-                validas = sum(
-                    bool(cache_previews.get(url, {}).get("imagem_validada"))
-                    for url in urls
-                )
-                status_previews.update(
-                    label=f"Fotos carregadas: {validas} de {len(urls)} anúncio(s)",
-                    state="complete" if validas else "error",
-                    expanded=not validas,
-                )
-                st.rerun()
+        links_preview_pendentes = {
+            str(item.get("link") or "")
+            for item in anuncios_visiveis
+            if str(item.get("link") or "").startswith(("http://", "https://"))
+            and (not item.get("imagem_validada") or not item.get("descricao"))
+        }
+        if links_preview_pendentes:
+            st.markdown("""<style>
+            .st-key-preview_pending_notice [data-testid="stExpander"] {
+                border: 1px solid color-mix(in srgb, var(--primary-color, #2cc77b) 72%, transparent) !important;
+                background: color-mix(in srgb, var(--primary-color, #2cc77b) 8%, var(--background-color, #121212)) !important;
+                box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color, #2cc77b) 18%, transparent), 0 8px 24px rgba(20, 180, 105, .12);
+            }
+            .st-key-preview_pending_notice [data-testid="stExpander"] summary p {
+                color: var(--primary-color, #2cc77b) !important;
+                font-weight: 750 !important;
+            }
+            </style>""", unsafe_allow_html=True)
+            with st.container(key="preview_pending_notice"):
+                with st.expander(
+                    f"📸 Fotos e descrições · {len(links_preview_pendentes)} anúncio(s) pendente(s)",
+                    expanded=False,
+                ):
+                    st.caption("Busque fotos e descrições dos anúncios já coletados. Os dados ficam salvos no catálogo.")
+                    if st.button(
+                        "Carregar fotos e descrições agora",
+                        key=f"fetch_previews_{'favorites' if pagina == 'Favoritos' else 'results'}",
+                        use_container_width=True,
+                    ):
+                        barra_previews = st.progress(0, text="Preparando consulta…")
+                        status_previews = st.status("Consultando páginas dos imóveis…", expanded=False)
 
+                        def atualizar_progresso_previews(concluidos, total, fotos_validas):
+                            barra_previews.progress(
+                                concluidos / max(total, 1),
+                                text=f"Consultados {concluidos} de {total} · {fotos_validas} foto(s) encontrada(s)",
+                            )
+                            status_previews.update(
+                                label=f"Buscando fotos e descrições · {concluidos} de {total}",
+                                state="running",
+                                expanded=False,
+                            )
+
+                        log_previews = []
+                        total_consultado, fotos_encontradas = enriquecer_anuncios_da_coleta(
+                            "all",
+                            None,
+                            set(),
+                            log_previews,
+                            links_alvo=links_preview_pendentes,
+                            ao_progredir=atualizar_progresso_previews,
+                        )
+                        status_previews.update(
+                            label=f"Concluído · {fotos_encontradas} foto(s) encontrada(s) em {total_consultado} anúncio(s)",
+                            state="complete" if fotos_encontradas else "error",
+                            expanded=not fotos_encontradas,
+                        )
+                        st.toast(f"Fotos encontradas: {fotos_encontradas} de {total_consultado} anúncio(s).")
+                        st.rerun(scope="fragment")
     if (
         imobiliaria_selecionada != "Todas"
         and imobiliaria_selecionada in resultados_por_imobiliaria
@@ -1675,6 +2045,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+renderizar_progresso_ativo()
+
 if pagina == "Imobiliárias":
     col_a, col_b, col_c = st.columns([1, 1, 2])
     with col_a:
@@ -1749,6 +2121,9 @@ elif pagina == "Histórico mensal":
                 icone = "✅" if item["resultado"] == "sucesso" else "🚨"
                 with st.expander(f"{icone}  {momento.strftime('%H:%M:%S')}  —  {item['rotulo']}  ·  {item['duracao']}s"):
                     st.code("\n".join(item.get("log", [])) or "Sem saída registrada.", language="text")
+                    id_historico = item.get("id") or item.get("inicio")
+                    if st.button("Abrir detalhes do processo", key=f"abrir_processo_historico_{id_historico}"):
+                        visualizar_execucao_salva(id_historico)
 elif pagina == "Meu perfil":
     auth_ui.render_profile_page()
 

@@ -11,6 +11,7 @@ import streamlit as st
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 import auth_store as store
+import review_store
 
 SESSION_TIMEOUT = 30 * 60
 _AUTH_TOKEN_PENDING = "__findimob_auth_pending__"
@@ -72,6 +73,9 @@ def _render_auth_styles():
     st.markdown(
         f"""<style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+        @keyframes auth-session-spin {{ to {{ transform:rotate(360deg); }} }}
+        .auth-session-loading {{ display:flex; align-items:center; justify-content:center; gap:12px; min-height:100vh; color:var(--muted); font-size:1rem; }}
+        .auth-session-loading__spinner {{ width:20px; height:20px; border:2px solid color-mix(in srgb,var(--green) 25%,transparent); border-top-color:var(--green); border-radius:50%; animation:auth-session-spin .8s linear infinite; }}
         html, body, [data-testid="stAppViewContainer"] {{ font-family:'DM Sans',sans-serif; }}
         :root {{
           --bg:{theme['bg']}; --panel:{theme['panel']}; --line:{theme['line']};
@@ -90,7 +94,7 @@ def _render_auth_styles():
         [data-testid="stSelectbox"] [class*="st-emotion-cache"],
         [data-testid="stMultiSelect"] [class*="st-emotion-cache"],
         [data-testid="stFileUploader"] [class*="st-emotion-cache"] {{
-          border-color:var(--field-border) !important; background-color:var(--field-bg) !important;
+          border-color:var(--field-border) !important;
         }}
         html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
           background:var(--bg) !important; color:var(--text) !important;
@@ -160,6 +164,56 @@ def _render_auth_styles():
         .st-key-auth_route_nav a {{ display:block; padding:10px 14px !important; border-bottom:2px solid transparent; color:var(--muted) !important; text-decoration:none !important; white-space:nowrap; }}
         .st-key-auth_route_nav a:hover {{ color:var(--text) !important; }}
         .st-key-auth_route_login a, .st-key-auth_route_cadastrar a {{ border-bottom:2px solid var(--green); color:var(--text) !important; }}
+        div[data-testid="stDialog"] [role="dialog"] {{
+          background:var(--panel) !important; color:var(--text) !important;
+          border:1px solid var(--line) !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="stDialogHeader"],
+        div[data-testid="stDialog"] [data-testid="stDialogBody"] {{
+          background:var(--panel) !important; color:var(--text) !important;
+        }}
+        div[data-testid="stDialog"] [role="dialog"] h1,
+        div[data-testid="stDialog"] [role="dialog"] h2,
+        div[data-testid="stDialog"] [role="dialog"] h3,
+        div[data-testid="stDialog"] [role="dialog"] label,
+        div[data-testid="stDialog"] [role="dialog"] label p {{
+          color:var(--text) !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="stForm"] {{
+          padding:1rem 1.15rem; border:1px solid var(--line) !important;
+          border-radius:16px; background:color-mix(in srgb,var(--panel) 94%,var(--bg)) !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="stWidgetLabel"],
+        div[data-testid="stDialog"] [data-testid="stWidgetLabel"] *,
+        div[data-testid="stDialog"] [role="dialog"] label,
+        div[data-testid="stDialog"] [role="dialog"] label p {{
+          background:var(--field-bg) !important; box-shadow:none !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="stTextInput"] [data-baseweb="input"] {{
+          background:var(--field-bg) !important; border:1px solid var(--field-border) !important;
+          border-radius:9px !important; box-shadow:none !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="stTextInput"] [data-baseweb="base-input"],
+        div[data-testid="stDialog"] [data-testid="stTextInput"] input {{
+          background:var(--field-bg) !important; color:var(--text) !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="stTextInput"] input::placeholder {{
+          color:#cccccc !important; opacity:1 !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="InputInstructions"] {{
+          color:#cccccc !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="InputInstructions"] span {{
+          display:none !important;
+        }}
+        div[data-testid="stDialog"] [data-testid="InputInstructions"]::after {{
+          content:"Pressione Enter para enviar o formulario";
+          color:#cccccc !important;
+        }}
+        div[data-testid="stDialog"] [data-baseweb="input"] button {{
+          background:var(--field-bg) !important; color:var(--eye-color) !important;
+          border-left:1px solid var(--field-border) !important;
+        }}
         .st-key-auth_shell [data-testid="stForm"] {{
           padding:1rem 1.15rem; border:1px solid var(--line);
           border-radius:16px; background:color-mix(in srgb,var(--panel) 94%,var(--bg));
@@ -237,7 +291,13 @@ def _render_auth_styles():
           border-color:var(--line) !important; border-top-color:var(--line) !important;
           opacity:1 !important;
         }}
-        .st-key-auth_shell label, .st-key-auth_shell p,
+        .st-key-auth_shell [data-testid="stWidgetLabel"],
+        .st-key-auth_shell [data-testid="stWidgetLabel"] *,
+        .st-key-auth_shell label, .st-key-auth_shell label p {{
+          color:var(--text) !important; background:var(--field-bg) !important;
+          box-shadow:none !important;
+        }}
+        .st-key-auth_shell p,
         .st-key-auth_shell [data-testid="stMarkdownContainer"] {{
           color:var(--text);
         }}
@@ -1030,6 +1090,13 @@ def render_auth_gate():
     user_id = st.session_state.get("auth_user_id")
     if not user_id and storage_action != "clear":
         if persisted_token == _AUTH_TOKEN_PENDING:
+            _render_auth_styles()
+            st.markdown(
+                '<div class="auth-session-loading" role="status">'
+                '<span class="auth-session-loading__spinner" aria-hidden="true"></span>'
+                '<span>Verificando sua sessao...</span></div>',
+                unsafe_allow_html=True,
+            )
             st.stop()
         if persisted_token:
             restored_user = store.restore_auth_session(persisted_token, SESSION_TIMEOUT)
@@ -1173,17 +1240,63 @@ def render_top_account_menu():
           color:transparent !important; font-size:0 !important;
         }}
         </style>"""
-    st.markdown(avatar_css, unsafe_allow_html=True)
+    menu_css = """<style>
+    .st-key-account_menu_actions {
+        width: max-content !important;
+        margin: 0 auto !important;
+        padding: 7px !important;
+        border: 1px solid var(--line, #282828) !important;
+        border-radius: 18px !important;
+        background: color-mix(in srgb, var(--panel, #181818) 90%, transparent) !important;
+        backdrop-filter: blur(12px);
+    }
+    .st-key-account_menu_actions [data-testid="stHorizontalBlock"] {
+        width: max-content !important; gap: 2px !important;
+    }
+    .st-key-account_menu_actions [data-testid="stColumn"] {
+        min-width: 0 !important; width: 42px !important; flex: 0 0 42px !important;
+    }
+    .st-key-account_menu_edit_profile button,
+    .st-key-account_menu_logout button {
+        width: 40px !important; min-width: 40px !important;
+        height: 40px !important; min-height: 40px !important;
+        padding: 0 !important; border: 0 !important;
+        border-radius: 12px !important; background: transparent !important;
+        color: var(--text, #f5f5f5) !important; box-shadow: none !important;
+        font-size: 1.25rem !important;
+    }
+    .st-key-account_menu_edit_profile button:hover,
+    .st-key-account_menu_logout button:hover {
+        border-color: transparent !important;
+        background: var(--panel-hover, #242424) !important;
+        color: var(--text, #f5f5f5) !important;
+    }
+    div[data-testid="stPopoverBody"]:has(.st-key-account_menu_actions) {
+        width: max-content !important; min-width: 0 !important;
+        padding: 8px !important; border: 1px solid var(--line, #282828) !important;
+        border-radius: 18px !important;
+        background: color-mix(in srgb, var(--panel, #181818) 90%, transparent) !important;
+        backdrop-filter: blur(12px); box-shadow: 0 8px 28px #0003 !important;
+    }
+    </style>"""
+    st.markdown(avatar_css + menu_css, unsafe_allow_html=True)
     with st.container(key="account_menu"):
         label = " " if avatar else (user.get("display_name") or "U")[:1].upper()
         with st.popover(label, key="account_menu_popover"):
-            st.button(
-                "Editar perfil", key="account_menu_edit_profile", use_container_width=True,
-                on_click=_open_profile_from_account_menu,
-            )
-            if st.button("Sair", key="account_menu_logout", use_container_width=True):
-                _logout_from_account_menu()
-                st.rerun()
+            with st.container(key="account_menu_actions"):
+                profile_col, logout_col = st.columns(2, gap="small")
+                with profile_col:
+                    st.button(
+                        " ", icon=":material/edit:", key="account_menu_edit_profile",
+                        help="Editar perfil", on_click=_open_profile_from_account_menu,
+                    )
+                with logout_col:
+                    if st.button(
+                        " ", icon=":material/logout:", key="account_menu_logout",
+                        help="Sair",
+                    ):
+                        _logout_from_account_menu()
+                        st.rerun()
 
 
 def render_sidebar_account():
@@ -1209,4 +1322,27 @@ def render_sidebar_account():
             with reject_col:
                 if st.button("Recusar", key=f"reject_user_{applicant['id']}"):
                     store.delete_pending_user(applicant["id"])
+                    st.rerun()
+    pending_reviews = review_store.pending()
+    with st.expander(f"Avaliar imóveis ({len(pending_reviews)})", expanded=False):
+        if not pending_reviews:
+            st.caption("Nenhuma avaliação aguardando aprovação.")
+        for review in pending_reviews:
+            st.text(review["property_title"])
+            st.caption(f"{review['author_name']} · {'★' * review['stars']}{'☆' * (5 - review['stars'])}"
+                       + (" · Já morei" if review["lived_here"] else ""))
+            if review["pros"]:
+                st.text(f"Prós: {review['pros']}")
+            if review["cons"]:
+                st.text(f"Contras: {review['cons']}")
+            approve_col, reject_col = st.columns(2)
+            with approve_col:
+                if st.button("Aprovar", key=f"approve_review_{review['id']}",
+                             use_container_width=True):
+                    review_store.moderate(review["id"], "approved", user_id)
+                    st.rerun()
+            with reject_col:
+                if st.button("Recusar", key=f"reject_review_{review['id']}",
+                             use_container_width=True):
+                    review_store.moderate(review["id"], "rejected", user_id)
                     st.rerun()

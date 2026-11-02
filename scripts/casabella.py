@@ -13,7 +13,7 @@ dados = json_data["dados"]
 imoveis = []
 for im in IMOVEIS_ACEITOS :
     url = f"https://www.casabellaimoveispinda.com.br/busca-de-imoveis/?location=pindamonhangaba&type={im}&status=aluguel"
-    html = requests.get(url).content
+    html = requests.get(url, timeout=(5, 20)).content
     soup = BeautifulSoup(html, "html.parser")
 
     numeros = []
@@ -32,7 +32,7 @@ for im in IMOVEIS_ACEITOS :
             "Accept-Language": "pt-BR,pt;q=0.9",
         }
 
-        resp = requests.get(url, headers=headers)
+        resp = requests.get(url, headers=headers, timeout=(5, 20))
         soup = BeautifulSoup(resp.text, "html.parser")
 
         divs = soup.find_all("article", class_="rh_list_card")

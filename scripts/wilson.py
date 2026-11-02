@@ -12,7 +12,7 @@ ids = json_data["ids"]
 dados = json_data["dados"]
 
 url = f"https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/apartamento_casa/valor-{int(PRECO_MIN)}_{int(PRECO_MAX)}/ordem-valor/resultado-crescente/quantidade-12/"
-html = requests.get(url).content
+html = requests.get(url, timeout=(5, 20)).content
 soup = BeautifulSoup(html, "html.parser")
 imoveis = []
 

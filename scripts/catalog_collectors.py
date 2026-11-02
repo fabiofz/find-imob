@@ -2,6 +2,8 @@
 
 import hashlib
 import re
+import time
+from pathlib import Path
 from urllib.parse import urljoin, urlparse, parse_qs
 
 import requests
@@ -87,6 +89,27 @@ PORTAIS_LOCAIS = {
     "Aloisio Imóveis": "aloisioimoveis",
     "Félix Imóveis Especiais": "feliximoveisespeciais",
     "Impera Imóveis": "imperaimoveis",
+    "Sales Imóveis": "salesimoveis",
+    "Euro Imóveis": "euroimoveis",
+    "Imobiliária Danelli": "danelli",
+    "ATOM Inteligência Imobiliária": "atomimobiliaria",
+    "City Taubaté Imobiliária": "citytaubate",
+    "Solar Imóveis Taubaté": "solarimoveistaubate",
+    "Salzano Imóveis": "salzanoimoveis",
+    "Teomi Imóveis": "teomiimoveis",
+    "Go Home Soluções Imobiliárias": "gohomebrasil",
+    "BS Negócios Imobiliários": "bsimoveistaubate",
+    "Vilella Imóveis": "vilellaimoveis",
+    "Universo Ello Imóveis": "universoello",
+    "Carla Maria Imóveis": "carlamariaimoveis",
+    "Imobiliária Apolo": "apolo",
+    "Imobiliária Guerrero": "imobiliariaguerrero",
+    "Saframa Imóveis": "saframa",
+    "Imobiliária Aliança": "alianca",
+}
+
+MARCADORES_LINK_PORTAL = {
+    "Sales Imóveis": ("/imoveis/locacao-",),
 }
 
 SLUG_CIDADE = {
@@ -103,6 +126,23 @@ CIDADE_FIXA_PORTAL = {
     "Vista Bela Imóveis": "taubate",
     "Aloisio Imóveis": "taubate",
     "Félix Imóveis Especiais": "taubate",
+    "Sales Imóveis": "taubate",
+    "Euro Imóveis": "taubate",
+    "Imobiliária Danelli": "taubate",
+    "ATOM Inteligência Imobiliária": "taubate",
+    "City Taubaté Imobiliária": "taubate",
+    "Solar Imóveis Taubaté": "taubate",
+    "Salzano Imóveis": "taubate",
+    "Teomi Imóveis": "taubate",
+    "Go Home Soluções Imobiliárias": "taubate",
+    "BS Negócios Imobiliários": "taubate",
+    "Vilella Imóveis": "pindamonhangaba",
+    "Universo Ello Imóveis": "pindamonhangaba",
+    "Carla Maria Imóveis": "pindamonhangaba",
+    "Imobiliária Apolo": "pindamonhangaba",
+    "Imobiliária Guerrero": "pindamonhangaba",
+    "Saframa Imóveis": "pindamonhangaba",
+    "Imobiliária Aliança": "pindamonhangaba",
 }
 
 
@@ -196,6 +236,36 @@ def urls_portal_local(nome):
             urls.append("https://www.aloisioimoveis.com.br/imoveis/para-alugar/taubate")
         elif nome == "Félix Imóveis Especiais" and cidade == "taubate":
             urls.append("https://www.feliximoveisespeciais.com/imoveis/para-alugar")
+        elif nome == "Sales Imóveis" and cidade == "taubate":
+            urls.append("https://www.salesimoveis.imb.br/")
+        elif nome == "Euro Imóveis" and cidade == "taubate":
+            urls.append("https://www.euroimoveis.cim.br/imoveis?finalidade=aluguel")
+        elif nome == "Imobiliária Danelli" and cidade == "taubate":
+            urls.append("https://www.danelli.com.br/imoveis/aluguel/Todos/1/codigocidade=1/")
+        elif nome == "ATOM Inteligência Imobiliária" and cidade == "taubate":
+            urls.append("https://www.atomimobiliaria.com.br/")
+        elif nome == "City Taubaté Imobiliária" and cidade == "taubate":
+            urls.append("https://www.citytaubate.com.br/")
+        elif nome == "Solar Imóveis Taubaté" and cidade == "taubate":
+            urls.append("https://www.solarimoveistaubate.com.br/imoveis/para-alugar")
+        elif nome == "Salzano Imóveis" and cidade == "taubate":
+            urls.append("https://www.salzanoimoveis.com.br/")
+        elif nome == "Teomi Imóveis" and cidade == "taubate":
+            urls.append("https://www.teomiimoveis.com.br/")
+        elif nome == "Go Home Soluções Imobiliárias" and cidade == "taubate":
+            urls.append("https://gohomebrasil.com.br/busca")
+        elif nome == "BS Negócios Imobiliários" and cidade == "taubate":
+            urls.append("https://bsimoveistaubate.com.br/")
+        elif nome == "Vilella Imóveis" and cidade == "pindamonhangaba":
+            urls.append("https://www.vilellaimoveis.com.br/aluguel/")
+        elif nome == "Universo Ello Imóveis" and cidade == "pindamonhangaba":
+            urls.append("https://universoello.com.br/")
+        elif nome == "Carla Maria Imóveis" and cidade == "pindamonhangaba":
+            urls.append("https://www.carlamariaimoveis.com.br/")
+        elif nome == "Imobiliária Guerrero" and cidade == "pindamonhangaba":
+            urls.append("https://www.imobiliariaguerrero.com.br/")
+        elif nome == "Saframa Imóveis" and cidade == "pindamonhangaba":
+            urls.append("https://www.saframa.com.br/")
     return list(dict.fromkeys(urls))
 
 
@@ -225,6 +295,7 @@ def coletar_portal_local(session, nome, ids):
     novos = []
     paginas = 0
     urls = urls_portal_local(nome)
+    marcadores_link = MARCADORES_LINK_PORTAL.get(nome, ("/imovel/",))
     for url in urls:
         urls_pagina = [url]
         if nome == "Jeremias Rodrigues":
@@ -257,11 +328,11 @@ def coletar_portal_local(session, nome, ids):
                 raise
             paginas += 1
             encontrados = 0
-            marcador_link = "/imoveis-locacao/" if nome == "Gomes Nova Opção" else "/imovel/"
+            marcadores_pagina = ("/imoveis-locacao/",) if nome == "Gomes Nova Opção" else marcadores_link
             links_da_pagina = {
                 urljoin(pagina_url, ancora.get("href", ""))
                 for ancora in soup.select("a[href]")
-                if marcador_link in ancora.get("href", "").casefold()
+                if any(marcador in ancora.get("href", "").casefold() for marcador in marcadores_pagina)
             }
             if nome == "Personal Consultoria" and links_da_pagina == links_pagina_anterior:
                 break
@@ -270,8 +341,8 @@ def coletar_portal_local(session, nome, ids):
                 break
             for ancora in soup.select("a[href]"):
                 href = ancora.get("href", "")
-                marcador_link = "/imoveis-locacao/" if nome == "Gomes Nova Opção" else "/imovel/"
-                if marcador_link not in href.casefold():
+                marcadores_ancora = ("/imoveis-locacao/",) if nome == "Gomes Nova Opção" else marcadores_link
+                if not any(marcador in href.casefold() for marcador in marcadores_ancora):
                     continue
                 link = urljoin(pagina_url, href)
                 if link in vistos_na_url:
@@ -483,7 +554,17 @@ def main(portais=None):
     if novos_total:
         salvar_json(dados, GERAL_JSON)
     if falhas:
-        raise RuntimeError(f"Falharam {len(falhas)} portal(is) do coletor genérico.")
+        detalhe = f"{len(falhas)} de {len(selecionados)} portal(is) falharam; os demais foram coletados."
+        print(f"Aviso: coleta parcial. {detalhe}")
+        try:
+            with (Path(__file__).resolve().parents[1] / "logs_erros.txt").open("a", encoding="utf-8") as arquivo:
+                arquivo.write(f"\n{'=' * 78}\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] Coleta parcial: {detalhe}\n")
+                for nome, erro in falhas:
+                    arquivo.write(f"- {nome}: {erro}\n")
+        except OSError as erro_log:
+            print(f"Nao foi possivel registrar as falhas parciais: {erro_log}")
+        if len(falhas) >= len(selecionados):
+            raise RuntimeError(f"Nenhum dos {len(selecionados)} portais selecionados respondeu.")
 
 
 if __name__ == "__main__":

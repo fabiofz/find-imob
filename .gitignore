@@ -16,3 +16,5 @@ logs_erros.txt
 .tls/
 
 .streamlit/secrets.toml
+
+.reviews.sqlite3*

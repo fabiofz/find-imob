@@ -1,12 +1,14 @@
-"""Executa todos os coletores e resume eventuais falhas."""
+"""Run configured collectors with live progress and bounded execution time."""
 
+import os
+import signal
 import subprocess
 import sys
-import os
+import threading
 import time
 from collections import deque
 from pathlib import Path
-
+from queue import Empty, Queue
 
 ROOT = Path(__file__).resolve().parent
 SCRIPTS_DIR = ROOT / "scripts"
@@ -15,15 +17,140 @@ COLETORES_PINDAMONHANGABA = {
     "hamilton", "moraes_pereira", "palacete", "pindense", "rodrigoderrico",
     "spaco", "visao", "wilson",
 }
+SCRIPT_TIMEOUT_SECONDS = max(30, int(os.environ.get("FINDIMOB_COLLECTOR_TIMEOUT", "90")))
+HEARTBEAT_SECONDS = 10
+
+
+def _stop_process(process):
+    if process.poll() is not None:
+        return
+    try:
+        if os.name == "nt":
+            process.terminate()
+        else:
+            os.killpg(process.pid, signal.SIGTERM)
+    except OSError:
+        pass
+    try:
+        process.wait(timeout=4)
+        return
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        if os.name == "nt":
+            process.kill()
+        else:
+            os.killpg(process.pid, signal.SIGKILL)
+    except OSError:
+        pass
+    try:
+        process.wait(timeout=4)
+    except subprocess.TimeoutExpired:
+        pass
+
+
+def _run_collector(module, environment, falhas):
+    command = [sys.executable, "-m", f"scripts.{module}"]
+    started = time.monotonic()
+    output = deque(maxlen=500)
+    lines = Queue()
+    process = None
+    timed_out = False
+
+    print(f"\n=== Iniciando scripts.{module} ===", flush=True)
+    try:
+        process = subprocess.Popen(
+            command,
+            cwd=ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            bufsize=1,
+            env=environment,
+            start_new_session=(os.name != "nt"),
+        )
+
+        def forward_output():
+            try:
+                for line in process.stdout:
+                    lines.put(line)
+            finally:
+                lines.put(None)
+
+        reader = threading.Thread(target=forward_output, daemon=True)
+        reader.start()
+        reader_done = False
+        next_heartbeat = started + HEARTBEAT_SECONDS
+
+        while not reader_done:
+            try:
+                line = lines.get(timeout=1)
+            except Empty:
+                line = ""
+
+            if line is None:
+                reader_done = True
+            elif line:
+                clean_line = line.rstrip()
+                output.append(clean_line)
+                print(line, end="", flush=True)
+
+            now = time.monotonic()
+            elapsed = now - started
+            if process.poll() is None and elapsed >= SCRIPT_TIMEOUT_SECONDS:
+                timed_out = True
+                print(
+                    f"[TIMEOUT] scripts.{module} excedeu {SCRIPT_TIMEOUT_SECONDS}s; "
+                    "encerrando este coletor e continuando os demais.",
+                    flush=True,
+                )
+                _stop_process(process)
+                break
+
+            if process.poll() is None and now >= next_heartbeat:
+                print(
+                    f"[AGUARDANDO] scripts.{module} continua executando "
+                    f"ha {int(elapsed)}s.",
+                    flush=True,
+                )
+                next_heartbeat = now + HEARTBEAT_SECONDS
+
+        code = process.wait()
+        if timed_out:
+            code = 124
+    except Exception as error:
+        code = 1
+        detail = f"Erro ao executar scripts.{module}: {error}"
+        output.append(detail)
+        print(detail, flush=True)
+        if process is not None:
+            _stop_process(process)
+
+    duration = time.monotonic() - started
+    if code:
+        falhas.append((module, code))
+        detail = f"Falha em scripts.{module} (codigo {code}, {duration:.1f}s)."
+        print(detail, flush=True)
+        try:
+            with (ROOT / "logs_erros.txt").open("a", encoding="utf-8") as log:
+                log.write(f"\n{'=' * 78}\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] {detail}\n")
+                log.write("\n".join(output))
+                log.write("\n")
+        except OSError as error:
+            print(f"Nao foi possivel registrar logs_erros.txt: {error}", flush=True)
+    else:
+        print(f"Concluido scripts.{module} em {duration:.1f}s.", flush=True)
 
 
 def main():
-    cidades = {
-        cidade.strip().casefold()
-        for cidade in os.environ.get(
+    cities = {
+        city.strip().casefold()
+        for city in os.environ.get(
             "FINDIMOB_CIDADES", "pindamonhangaba,tremembe,taubate"
         ).split(",")
-        if cidade.strip()
+        if city.strip()
     }
     scripts = sorted(
         path.stem
@@ -34,68 +161,21 @@ def main():
         print("Nenhum coletor encontrado em scripts/.")
         return 1
 
-    falhas = []
+    environment = os.environ.copy()
+    environment["PYTHONUNBUFFERED"] = "1"
+    failures = []
     for script in scripts:
-        if script in COLETORES_PINDAMONHANGABA and "pindamonhangaba" not in cidades:
-            print(f"Ignorando {script}: Pindamonhangaba não está selecionada.", flush=True)
+        if script in COLETORES_PINDAMONHANGABA and "pindamonhangaba" not in cities:
+            print(f"Ignorando scripts.{script}: Pindamonhangaba nao esta selecionada.", flush=True)
             continue
-        modulo = f"scripts.{script}"
-        comando = [sys.executable, "-m", modulo]
-        inicio = time.monotonic()
-        saida = deque(maxlen=500)
-        processo = None
-        print(f"\n=== Iniciando {modulo} ===", flush=True)
-        try:
-            ambiente = os.environ.copy()
-            ambiente["PYTHONUNBUFFERED"] = "1"
-            processo = subprocess.Popen(
-                comando,
-                cwd=ROOT,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                bufsize=1,
-                env=ambiente,
-            )
-            for linha in processo.stdout:
-                saida.append(linha.rstrip())
-                print(linha, end="", flush=True)
-            codigo = processo.wait()
-        except Exception as erro:
-            codigo = 1
-            detalhe_execucao = f"Erro ao executar {modulo}: {erro}"
-            saida.append(detalhe_execucao)
-            print(detalhe_execucao, flush=True)
-            if processo is not None and processo.poll() is None:
-                try:
-                    processo.kill()
-                    processo.wait()
-                except OSError as erro_parada:
-                    print(f"Não foi possível encerrar {modulo}: {erro_parada}", flush=True)
+        _run_collector(script, environment, failures)
 
-        duracao = time.monotonic() - inicio
-        if codigo:
-            falhas.append((modulo, codigo))
-            detalhe = f"Falha em {modulo} (código {codigo}, {duracao:.1f}s)."
-            print(detalhe, flush=True)
-            try:
-                with (ROOT / "logs_erros.txt").open("a", encoding="utf-8") as arquivo:
-                    arquivo.write(f"\n{'=' * 78}\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] {detalhe}\n")
-                    arquivo.write("\n".join(saida))
-                    arquivo.write("\n")
-            except OSError as erro_log:
-                print(f"Não foi possível registrar logs_erros.txt: {erro_log}", flush=True)
-        else:
-            print(f"Concluído {modulo} em {duracao:.1f}s.", flush=True)
-
-    if falhas:
+    if failures:
         print("\nColetores com falha:")
-        for modulo, codigo in falhas:
-            print(f"- {modulo}: código {codigo}")
+        for module, code in failures:
+            print(f"- scripts.{module}: codigo {code}")
         return 1
-    print(f"\nColeta concluída: {len(scripts)} coletores executados.")
+    print(f"\nColeta concluida: {len(scripts)} coletores executados.")
     return 0
 
 

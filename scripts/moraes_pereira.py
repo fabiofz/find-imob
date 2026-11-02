@@ -12,7 +12,7 @@ ids = json_data["ids"]
 dados = json_data["dados"]
 
 url = f"https://www.moraesepereiraimoveis.com.br/imoveis/para-alugar/apartamento+casa+sobrado/pindamonhangaba?preco-de-locacao={int(PRECO_MIN)}~{int(PRECO_MAX)}"
-html = requests.get(url).content
+html = requests.get(url, timeout=(5, 20)).content
 soup = BeautifulSoup(html, "html.parser")
 imoveis = []
 

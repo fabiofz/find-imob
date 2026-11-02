@@ -22,7 +22,7 @@ for url in urls :
     "Accept-Language": "pt-BR,pt;q=0.9",
     }
 
-    resp = requests.get(url, headers=headers)
+    resp = requests.get(url, headers=headers, timeout=(5, 20))
     soup = BeautifulSoup(resp.text, "html.parser")
     imoveis = []
 

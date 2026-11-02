@@ -12,7 +12,7 @@ dados = json_data["dados"]
 
 imoveis = []
 url = f"https://www.hnegocios.com/imoveis/alugar/pindamonhangaba/pag-1"
-html = requests.get(url).content
+html = requests.get(url, timeout=(5, 20)).content
 soup = BeautifulSoup(html, "html.parser")
 
 numeros = []
@@ -31,7 +31,7 @@ for pg in range(1, int(max(numeros)) + 1):
         "Accept-Language": "pt-BR,pt;q=0.9",
     }
 
-    resp = requests.get(url, headers=headers)
+    resp = requests.get(url, headers=headers, timeout=(5, 20))
     soup = BeautifulSoup(resp.text, "html.parser")
 
     divs = soup.find_all("div", class_="box")
