@@ -61,7 +61,11 @@ def migrate(source):
                  '.tema.json', '.resultados_notificacao.json'):
         path = source / name
         if path.exists():
-            cloud_store.write_json(name, json.loads(path.read_text()))
+            value = json.loads(path.read_text())
+            if name == '.execucoes.json':
+                value = [{key: item for key, item in execution.items() if key != 'log'}
+                         for execution in value]
+            cloud_store.write_json(name, value)
     cloud_store.write_json('migration-v1', {'complete': True, 'counts': counts})
     print('Migração concluída:', counts)
 
