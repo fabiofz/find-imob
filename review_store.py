@@ -1,31 +1,35 @@
 import os
 import sqlite3
+import database
+from contextlib import contextmanager
 import time
 from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parent / ".reviews.sqlite3"
 
 
+@contextmanager
 def _connect():
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    db = sqlite3.connect(DB_PATH, timeout=15)
-    db.row_factory = sqlite3.Row
-    db.execute("PRAGMA busy_timeout=15000")
-    db.execute("""CREATE TABLE IF NOT EXISTS reviews (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, property_key TEXT NOT NULL,
-        property_title TEXT NOT NULL, user_id INTEGER NOT NULL,
-        author_name TEXT NOT NULL, stars INTEGER NOT NULL CHECK(stars BETWEEN 0 AND 5),
-        lived_here INTEGER NOT NULL DEFAULT 0, pros TEXT NOT NULL DEFAULT '',
-        cons TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'pending'
-        CHECK(status IN ('pending','approved','rejected')), created_at INTEGER NOT NULL,
-        reviewed_at INTEGER, reviewed_by INTEGER, UNIQUE(property_key, user_id)
-    )""")
-    db.commit()
-    return db
+    if not database.is_cloud():
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with database.connect(DB_PATH) as db:
+        schema = """CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, property_key TEXT NOT NULL,
+            property_title TEXT NOT NULL, user_id INTEGER NOT NULL,
+            author_name TEXT NOT NULL, stars INTEGER NOT NULL CHECK(stars BETWEEN 0 AND 5),
+            lived_here INTEGER NOT NULL DEFAULT 0, pros TEXT NOT NULL DEFAULT '',
+            cons TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'pending'
+            CHECK(status IN ('pending','approved','rejected')), created_at INTEGER NOT NULL,
+            reviewed_at INTEGER, reviewed_by INTEGER, UNIQUE(property_key, user_id)
+        )"""
+        if database.is_cloud():
+            schema = schema.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
+        db.execute(schema)
+        yield db
 
 
 def _secure_file():
-    if os.name == "posix" and DB_PATH.exists():
+    if not database.is_cloud() and os.name == "posix" and DB_PATH.exists():
         os.chmod(DB_PATH, 0o600)
 
 
