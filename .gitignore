@@ -18,3 +18,9 @@ logs_erros.txt
 .streamlit/secrets.toml
 
 .reviews.sqlite3*
+
+.env
+.env.*
+.streamlit/*secrets*.toml
+cloud-secrets.toml
+.execucao_ativa*
