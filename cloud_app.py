@@ -3,6 +3,7 @@ from pathlib import Path
 
 import streamlit as st
 from dashboard_runtime import run_dashboard
+import ui_feedback  # Keep the navigation component in the entrypoint dependency graph.
 
 st.set_page_config(
     page_title='Find Imob | Central de coleta',
