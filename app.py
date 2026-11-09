@@ -22,6 +22,8 @@ import streamlit as st
 from bs4 import BeautifulSoup
 import auth_ui
 import review_store
+import cloud_store
+import database
 from utils.funcs import preco_para_float
 
 
@@ -117,8 +119,55 @@ AGENCIES = [
     ("Aloisio Imóveis", "catalog", "Aloisio Imóveis"),
     ("Félix Imóveis Especiais", "catalog", "Félix Imóveis Especiais"),
     ("Impera Imóveis", "catalog", "Impera Imóveis"),
+    ('Pinda Prime', "catalog", 'Pinda Prime'),
+    ('Berith Imóveis', "catalog", 'Berith Imóveis'),
+    ('Ricardo Monteiro Imóveis', "catalog", 'Ricardo Monteiro Imóveis'),
+    ('Batista Imóveis', "catalog", 'Batista Imóveis'),
+    ('Grothe & Lima', "catalog", 'Grothe & Lima'),
+    ('Meta Negócios Imobiliários', "catalog", 'Meta Negócios Imobiliários'),
+    ('Max Gold', "catalog", 'Max Gold'),
 ]
+AGENCY_CITY_GROUPS = {
+    "Pindamonhangaba": {
+        'Pinda Prime', 'Berith Imóveis', 'Ricardo Monteiro Imóveis', 'Batista Imóveis',
+        "Casa Bella", "Castor Imóveis", "Imobiliária Confiança", "Delta Imóveis",
+        "D'Errico Imóveis", "Domus Imóveis", "Edifficatho", "Erida Vieira",
+        "Hamilton Imóveis", "Júlio Estefano", "Moraes & Pereira",
+        "Palacete Imobiliária", "Palazzo Reale", "Imobiliária Pindense",
+        "Rodrigo D'Errico", "Simob", "Spaco Imóveis", "Visão Consultoria",
+        "Wilson Imóveis", "Imobiliária São Paulo", "Vilella Imóveis",
+        "Universo Ello Imóveis", "Carla Maria Imóveis", "Imobiliária Apolo",
+        "Imobiliária Guerrero", "Saframa Imóveis", "Imobiliária Aliança",
+    },
+    "Taubaté": {
+        'Grothe & Lima', 'Meta Negócios Imobiliários', 'Max Gold',
+        "Taubaté Imóveis", "Jeremias Rodrigues", "Única Imóveis", "Unidas Imóveis",
+        "Personal Consultoria", "Sales Imóveis", "Euro Imóveis", "Imobiliária Danelli",
+        "ATOM Inteligência Imobiliária", "City Taubaté Imobiliária",
+        "Solar Imóveis Taubaté", "Salzano Imóveis", "Teomi Imóveis",
+        "Go Home Soluções Imobiliárias", "BS Negócios Imobiliários",
+        "Rio Center Imóveis", "Vista Bela Imóveis", "Aloisio Imóveis",
+        "Félix Imóveis Especiais",
+    },
+    "Tremembé": {"D'Casa Imóveis"},
+    "Várias cidades": {
+        "012 Imóveis", "Nova Cabana", "Imóveis DNA", "Márcio Santos",
+        "Imobiliária Inovare", "Gomes Nova Opção", "Impera Imóveis",
+    },
+}
+AGENCY_CITY_BY_NAME = {
+    nome: cidade
+    for cidade, nomes in AGENCY_CITY_GROUPS.items()
+    for nome in nomes
+}
 AGENCY_DOMAINS = {
+    'Pinda Prime': ('pindaprime.com.br',),
+    'Berith Imóveis': ('berithimoveis.com.br',),
+    'Ricardo Monteiro Imóveis': ('ricardomonteiroimoveis.com.br',),
+    'Batista Imóveis': ('batistaimoveispinda.com.br',),
+    'Grothe & Lima': ('grothelimaimoveis.com.br',),
+    'Meta Negócios Imobiliários': ('metanegociosimobiliarios.com.br',),
+    'Max Gold': ('maxgold.imb.br',),
     "012 Imóveis": ("012imoveis.com.br",),
     "Casa Bella": ("casabellaimoveispinda.com.br",),
     "Castor Imóveis": ("castorimoveis.com.br",),
@@ -204,7 +253,7 @@ def chave_tema(tema):
 
 def carregar_tema():
     try:
-        dados = json.loads(THEME_FILE.read_text(encoding="utf-8"))
+        dados = cloud_store.read_json(THEME_FILE, {})
         tema = dados.get("tema") if isinstance(dados, dict) else None
     except (OSError, json.JSONDecodeError):
         tema = None
@@ -214,7 +263,7 @@ def carregar_tema():
 def salvar_tema():
     tema = st.session_state.get("tema_app", "Escuro")
     if tema in TEMAS:
-        THEME_FILE.write_text(json.dumps({"tema": tema}, ensure_ascii=False, indent=2), encoding="utf-8")
+        cloud_store.write_json(THEME_FILE, {"tema": tema})
 
 
 def selecionar_tema(tema):
@@ -495,7 +544,7 @@ st.markdown(
         --bg:{cores_tema['bg']}; --panel:{cores_tema['panel']}; --line:{cores_tema['line']};
         --muted:{cores_tema['muted']}; --text:{cores_tema['text']}; --sidebar:{cores_tema['sidebar']};
         --panel-hover:{cores_tema['hover']}; --band:{cores_tema['band']}; --field:{cores_tema['field']};
-        --field-border:#353333;
+        --field-border:#DDDDDD;
         --field-focus-border:{'#777777' if st.session_state.tema_app == 'Escuro' else '#32cb79'};
         --orange:#32cb79; --green:#32cb79; --green-hover:#51d891; --green-dark:#207b4c;
       }}
@@ -589,17 +638,12 @@ st.markdown(
 
 
 def ler_historico():
-    try:
-        conteudo = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
-        return conteudo if isinstance(conteudo, list) else []
-    except (OSError, json.JSONDecodeError):
-        return []
+    conteudo = cloud_store.read_json(HISTORY_FILE, [])
+    return conteudo if isinstance(conteudo, list) else []
 
 
 def salvar_historico(historico):
-    HISTORY_FILE.write_text(
-        json.dumps(historico[-300:], ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    cloud_store.write_json(HISTORY_FILE, historico[-300:])
 
 
 def registrar_log_erro(rotulo, codigo, duracao, linhas):
@@ -611,36 +655,25 @@ def registrar_log_erro(rotulo, codigo, duracao, linhas):
         *linhas[-500:],
         "",
     ]
-    with ERROR_LOG_FILE.open("a", encoding="utf-8") as arquivo:
-        arquivo.write("\n".join(bloco))
+    if database.is_cloud():
+        cloud_store.update_json(ERROR_LOG_FILE, "", lambda atual: (atual + "\n".join(bloco))[-200000:])
+    else:
+        with ERROR_LOG_FILE.open("a", encoding="utf-8") as arquivo:
+            arquivo.write("\n".join(bloco))
 
 
 def listar_anuncios():
-    caminho = ROOT / "geral.json"
-    if not caminho.exists():
-        return []
-    try:
-        dados = json.loads(caminho.read_text(encoding="utf-8"))
-        return dados if isinstance(dados, list) else []
-    except (OSError, json.JSONDecodeError):
-        return []
+    dados = cloud_store.read_catalogue(ROOT / "geral.json")
+    return dados if isinstance(dados, list) else []
 
 
 def carregar_notificacao_resultados():
-    try:
-        dados = json.loads(RESULTS_NOTIFICATION_FILE.read_text(encoding="utf-8"))
-        return bool(dados.get("pendente")) if isinstance(dados, dict) else False
-    except (OSError, json.JSONDecodeError):
-        return False
+    dados = cloud_store.read_json(RESULTS_NOTIFICATION_FILE, {})
+    return bool(dados.get("pendente")) if isinstance(dados, dict) else False
 
 
 def salvar_notificacao_resultados(pendente):
-    try:
-        RESULTS_NOTIFICATION_FILE.write_text(
-            json.dumps({"pendente": bool(pendente)}, ensure_ascii=False), encoding="utf-8"
-        )
-    except OSError:
-        pass
+    cloud_store.write_json(RESULTS_NOTIFICATION_FILE, {"pendente": bool(pendente)})
 
 
 def chave_anuncio(anuncio):
@@ -663,7 +696,7 @@ def chave_anuncio(anuncio):
 
 def carregar_estado_anuncios():
     try:
-        estado = json.loads(ADVERTISEMENT_STATE_FILE.read_text(encoding="utf-8"))
+        estado = cloud_store.read_json(ADVERTISEMENT_STATE_FILE, {})
         if not isinstance(estado, dict):
             return {
                 "favoritos": set(), "excluidos": set(),
@@ -687,28 +720,33 @@ def salvar_estado_anuncios(estado):
         "novos": sorted(estado.get("novos", set())),
         "coletado_em": estado.get("coletado_em", {}),
     }
-    temporario = ADVERTISEMENT_STATE_FILE.with_suffix(".tmp")
-    temporario.write_text(
-        json.dumps(conteudo, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    temporario.replace(ADVERTISEMENT_STATE_FILE)
+    if database.is_cloud():
+        cloud_store.update_json(ADVERTISEMENT_STATE_FILE, {}, lambda atual: {
+            **atual, "novos": conteudo["novos"], "coletado_em": conteudo["coletado_em"],
+        })
+    else:
+        cloud_store.write_json(ADVERTISEMENT_STATE_FILE, conteudo)
 
 
 def definir_favorito(chave, favorito):
-    estado = carregar_estado_anuncios()
-    if favorito:
-        estado["favoritos"].add(chave)
-        estado["excluidos"].discard(chave)
-    else:
-        estado["favoritos"].discard(chave)
-    salvar_estado_anuncios(estado)
+    def atualizar(estado):
+        favoritos = set(estado.get("favoritos", []))
+        excluidos = set(estado.get("excluidos", []))
+        if favorito:
+            favoritos.add(chave)
+            excluidos.discard(chave)
+        else:
+            favoritos.discard(chave)
+        return {**estado, "favoritos": sorted(favoritos), "excluidos": sorted(excluidos)}
+    cloud_store.update_json(ADVERTISEMENT_STATE_FILE, {}, atualizar)
 
 
 def excluir_anuncio(chave):
-    estado = carregar_estado_anuncios()
-    estado["favoritos"].discard(chave)
-    estado["excluidos"].add(chave)
-    salvar_estado_anuncios(estado)
+    def atualizar(estado):
+        favoritos = set(estado.get("favoritos", [])) - {chave}
+        excluidos = set(estado.get("excluidos", [])) | {chave}
+        return {**estado, "favoritos": sorted(favoritos), "excluidos": sorted(excluidos)}
+    cloud_store.update_json(ADVERTISEMENT_STATE_FILE, {}, atualizar)
 
 
 def carregar_cache_previews():
@@ -724,7 +762,7 @@ def carregar_parametros_busca():
         "cidades": list(CIDADES_BUSCA),
     }
     try:
-        dados = json.loads(BUSCA_CONFIG_FILE.read_text(encoding="utf-8"))
+        dados = cloud_store.read_json(BUSCA_CONFIG_FILE, {})
         if not isinstance(dados, dict):
             return padrao
         minimo = max(0, float(dados.get("preco_min", padrao["preco_min"])))
@@ -739,9 +777,7 @@ def carregar_parametros_busca():
 
 
 def salvar_parametros_busca(parametros):
-    BUSCA_CONFIG_FILE.write_text(
-        json.dumps(parametros, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    cloud_store.write_json(BUSCA_CONFIG_FILE, parametros)
 
 
 def salvar_cache_previews(cache):
@@ -953,10 +989,7 @@ def enriquecer_anuncios_da_coleta(tipo, identificador, anuncios_antes, log, link
             if indice == len(selecionados) or indice % 5 == 0:
                 log.append(f"[FOTOS] Consultados {indice} de {len(selecionados)} anúncio(s); {imagens_validas} foto(s) válida(s).")
 
-    caminho = ROOT / "geral.json"
-    temporario = ROOT / ".geral.json.tmp"
-    temporario.write_text(json.dumps(catalogo, ensure_ascii=False, indent=2), encoding="utf-8")
-    temporario.replace(caminho)
+    cloud_store.save_catalogue(catalogo, ROOT / "geral.json")
     return len(selecionados), sum(bool(item.get("imagem_validada")) for item in selecionados)
 
 def agrupar_por_imobiliaria(anuncios):
@@ -1345,6 +1378,14 @@ def renderizar_resultados_por_faixa(
 
 
 def executar(rotulo, tipo, identificador):
+    with cloud_store.collection_lock() as acquired:
+        if not acquired:
+            st.warning("Já existe uma coleta em andamento. Aguarde sua conclusão.")
+            return
+        _executar_coleta(rotulo, tipo, identificador)
+
+
+def _executar_coleta(rotulo, tipo, identificador):
     if st.session_state.get("coletando", False):
         st.warning("Já existe uma coleta em andamento nesta sessão.")
         return
@@ -1505,7 +1546,7 @@ def executar(rotulo, tipo, identificador):
             "log": log[-120:],
         }
     )
-    salvar_historico(historico)
+    cloud_store.update_json(HISTORY_FILE, [], lambda atual: (atual + [historico[-1]])[-300:])
     st.session_state.ultimo_resultado = resultado
 
 
@@ -2040,7 +2081,7 @@ st.markdown(
     else (
         '<p class="subtle">Anúncios salvos como favoritos.</p>'
         if pagina == "Favoritos"
-        else '<p class="subtle">Acompanhe os portais, execute coletas e consulte o histórico mensal.</p>'
+        else '<p class="subtle">Acompanhe as imobiliárias, execute coletas e consulte o histórico mensal.</p>'
     ),
     unsafe_allow_html=True,
 )
@@ -2065,39 +2106,49 @@ if pagina == "Imobiliárias":
     st.write("")
     busca = st.text_input(
         "Buscar imobiliária",
-        placeholder="Digite o nome do portal…",
+        placeholder="Digite o nome da imobiliária…",
         label_visibility="collapsed",
         key="busca_imobiliaria",
     )
     agencias_visiveis = [item for item in AGENCIES if busca.casefold() in item[0].casefold()]
-    st.markdown(f'<p class="subtle">{len(agencias_visiveis)} portal(is) disponíveis</p>', unsafe_allow_html=True)
-    for inicio_grade in range(0, len(agencias_visiveis), 5):
-        grade = st.columns(5, gap="small")
-        for coluna, agencia in zip(grade, agencias_visiveis[inicio_grade:inicio_grade + 5]):
-            nome, tipo, identificador = agencia
-            with coluna:
-                quantidade_execucoes = execucoes_por_imobiliaria.get(nome, 0)
-                rotulo_execucoes = (
-                    f"{quantidade_execucoes} execução individual"
-                    if quantidade_execucoes == 1
-                    else f"{quantidade_execucoes} execuções individuais"
-                )
-                with st.container(key=f"agency_entry_{identificador}"):
-                    coluna_dados, coluna_acao = st.columns([5, 1], gap="small", vertical_alignment="center")
-                    with coluna_dados:
-                        st.markdown(
-                            f'<div class="agency-card"><div class="agency-name">{nome}</div>'
-                            f'<div class="agency-type">{rotulo_execucoes}</div></div>',
-                            unsafe_allow_html=True,
-                        )
-                    with coluna_acao:
-                        if st.button(
-                            "▶",
-                            key=f"run_agency_{identificador}",
-                            help=f"Executar {nome}",
-                        ):
-                            execucao_id = str(time.time_ns())
-                            visualizar_execucao(nome, tipo, identificador, execucao_id)
+    st.markdown(f'<p class="subtle">{len(agencias_visiveis)} imobiliárias disponíveis</p>', unsafe_allow_html=True)
+    grupos_cidade = {}
+    for agencia in agencias_visiveis:
+        cidade = AGENCY_CITY_BY_NAME.get(agencia[0], "Várias cidades")
+        grupos_cidade.setdefault(cidade, []).append(agencia)
+    ordem_cidades = ("Pindamonhangaba", "Taubaté", "Tremembé", "Várias cidades")
+    for cidade in ordem_cidades:
+        imobiliarias_cidade = grupos_cidade.get(cidade, [])
+        if not imobiliarias_cidade:
+            continue
+        st.subheader(f"{cidade} · {len(imobiliarias_cidade)}")
+        for inicio_grade in range(0, len(imobiliarias_cidade), 5):
+            grade = st.columns(5, gap="small")
+            for coluna, agencia in zip(grade, imobiliarias_cidade[inicio_grade:inicio_grade + 5]):
+                nome, tipo, identificador = agencia
+                with coluna:
+                    quantidade_execucoes = execucoes_por_imobiliaria.get(nome, 0)
+                    rotulo_execucoes = (
+                        f"{quantidade_execucoes} execução individual"
+                        if quantidade_execucoes == 1
+                        else f"{quantidade_execucoes} execuções individuais"
+                    )
+                    with st.container(key=f"agency_entry_{identificador}"):
+                        coluna_dados, coluna_acao = st.columns([5, 1], gap="small", vertical_alignment="center")
+                        with coluna_dados:
+                            st.markdown(
+                                f'<div class="agency-card"><div class="agency-name">{nome}</div>'
+                                f'<div class="agency-type">{rotulo_execucoes}</div></div>',
+                                unsafe_allow_html=True,
+                            )
+                        with coluna_acao:
+                            if st.button(
+                                "▶",
+                                key=f"run_agency_{identificador}",
+                                help=f"Executar {nome}",
+                            ):
+                                execucao_id = str(time.time_ns())
+                                visualizar_execucao(nome, tipo, identificador, execucao_id)
 
 elif pagina in {"Resultados das buscas", "Favoritos"}:
     renderizar_pagina_anuncios(pagina)
@@ -2130,8 +2181,9 @@ elif pagina == "Meu perfil":
 elif pagina == "Log de erros":
     st.subheader("🚨  Log de erros")
     st.markdown("🚨  As falhas de coleta são registradas em `logs_erros.txt` e permanecem disponíveis entre execuções.")
-    if ERROR_LOG_FILE.exists():
-        texto_erros = ERROR_LOG_FILE.read_text(encoding="utf-8", errors="replace")
+    if database.is_cloud() or ERROR_LOG_FILE.exists():
+        texto_erros = (cloud_store.read_json(ERROR_LOG_FILE, "") if database.is_cloud()
+                       else ERROR_LOG_FILE.read_text(encoding="utf-8", errors="replace"))
         st.download_button(
             "Baixar logs_erros.txt",
             texto_erros,
