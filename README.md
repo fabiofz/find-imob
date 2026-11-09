@@ -102,3 +102,19 @@ O redirect_uri precisa apontar para HTTPS em um domínio público que você cont
 ## Hospedagem gratuita
 
 A versão online usa `cloud_app.py` com PostgreSQL persistente. Consulte [DEPLOY.md](DEPLOY.md) para publicação no Streamlit Community Cloud, migração e configuração dos secrets. A execução local continua disponível com `bash start_app.sh`.
+
+### São José dos Campos
+
+A cidade está disponível nos parâmetros de busca e tem quatro fontes próprias:
+[Domus Imóveis SJC](https://www.domusimoveissjc.com.br/),
+[Prime Imóveis SJC](https://www.primeimoveissjc.com.br/),
+[Unike Imóveis](https://www.unikeimoveis.com.br/) e
+[AZV Imóveis](https://azvimoveis.com.br/).
+Os filtros salvos são preservados: selecione São José dos Campos e salve os
+parâmetros antes de executar esses coletores. A AZV usa cartões Praedium;
+as outras três fontes usam cartões Kenlo, com paginação e filtro de aluguel.
+
+Os menus de perfil e tema ficam juntos no topo centralizado. A navegação mostra
+um indicador de carregamento até a página de destino terminar de renderizar.
+Para incluir os testes JavaScript desse indicador, instale `quickjs` no ambiente
+de desenvolvimento; ele não é necessário na hospedagem.
