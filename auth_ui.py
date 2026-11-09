@@ -13,6 +13,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 import auth_store as store
 import review_store
 import cloud_store
+from dashboard_runtime import home_page
 
 SESSION_TIMEOUT = 30 * 60
 _AUTH_TOKEN_PENDING = "__findimob_auth_pending__"
@@ -1138,7 +1139,7 @@ def render_auth_gate():
         return False
     with st.container(key="auth_shell"):
         with st.container(key="auth_back"):
-            st.page_link("app.py", label="Voltar")
+            st.page_link(home_page(), label="Voltar")
         _render_auth_brand()
         st.caption("Entre para acessar o painel ou solicite a criação da sua conta.")
         if timed_out:
