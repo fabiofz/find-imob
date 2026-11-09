@@ -5,6 +5,8 @@ import runpy
 
 import streamlit as st
 
+DASHBOARD_RELEASE = "2026-11-09-sjc-centered-header"
+
 
 def home_page():
     return 'cloud_app.py' if os.environ.get('FINDIMOB_CLOUD') == '1' else 'app.py'
@@ -35,6 +37,7 @@ def run_dashboard(*, require_cloud=False):
             st.error('A conexão com o banco de dados ainda não foi configurada.')
             st.stop()
         initialize_cloud()
+    st.html(f'<span data-findimob-release="{DASHBOARD_RELEASE}" style="display:none"></span>')
     # A fresh script namespace per rerun avoids the shared sys.modules['app']
     # identity and import-spec errors encountered by importlib.reload().
     runpy.run_path(str(Path(__file__).with_name('app.py')), run_name='_findimob_dashboard')
