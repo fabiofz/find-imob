@@ -120,6 +120,8 @@ async def main():
     process = await asyncio.create_subprocess_exec(
         sys.executable, "-m", "streamlit", "run", "app.py",
         "--server.address", APP_HOST, "--server.port", str(APP_PORT),
+        "--server.sslCertFile", ".tls/server.crt", "--server.sslKeyFile", ".tls/server.key",
+        "--browser.serverAddress", ROOT, "--browser.serverPort", str(PUBLIC_PORT),
     )
     try:
         for _ in range(100):
