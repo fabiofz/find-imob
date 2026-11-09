@@ -24,6 +24,7 @@ import auth_ui
 import review_store
 import cloud_store
 import database
+from ui_feedback import TOP_CONTROLS_CSS, render_navigation_feedback
 from utils.funcs import preco_para_float
 
 
@@ -61,6 +62,7 @@ CIDADES_BUSCA = {
     "pindamonhangaba": "Pindamonhangaba",
     "tremembe": "Tremembé",
     "taubate": "Taubaté",
+    "sao-jose-dos-campos": "São José dos Campos",
 }
 
 # Coletores que têm HTML próprio. Os nomes das chaves genéricas vêm do catálogo.
@@ -126,8 +128,13 @@ AGENCIES = [
     ('Grothe & Lima', "catalog", 'Grothe & Lima'),
     ('Meta Negócios Imobiliários', "catalog", 'Meta Negócios Imobiliários'),
     ('Max Gold', "catalog", 'Max Gold'),
+    ('Domus Imóveis SJC', "catalog", 'Domus Imóveis SJC'),
+    ('Prime Imóveis SJC', "catalog", 'Prime Imóveis SJC'),
+    ('Unike Imóveis', "catalog", 'Unike Imóveis'),
+    ('AZV Imóveis', "catalog", 'AZV Imóveis'),
 ]
 AGENCY_CITY_GROUPS = {
+    "São José dos Campos": {'Domus Imóveis SJC', 'Prime Imóveis SJC', 'Unike Imóveis', 'AZV Imóveis'},
     "Pindamonhangaba": {
         'Pinda Prime', 'Berith Imóveis', 'Ricardo Monteiro Imóveis', 'Batista Imóveis',
         "Casa Bella", "Castor Imóveis", "Imobiliária Confiança", "Delta Imóveis",
@@ -161,6 +168,11 @@ AGENCY_CITY_BY_NAME = {
     for nome in nomes
 }
 AGENCY_DOMAINS = {
+    'Domus Imóveis SJC': ('domusimoveissjc.com.br',),
+    'Prime Imóveis SJC': ('primeimoveissjc.com.br',),
+    'Unike Imóveis': ('unikeimoveis.com.br',),
+    'AZV Imóveis': ('azvimoveis.com.br',),
+
     'Pinda Prime': ('pindaprime.com.br',),
     'Berith Imóveis': ('berithimoveis.com.br',),
     'Ricardo Monteiro Imóveis': ('ricardomonteiroimoveis.com.br',),
@@ -308,6 +320,7 @@ if __name__ == "__main__":
     )
 
 if not auth_ui.render_auth_gate():
+    render_navigation_feedback()
     st.stop()
 
 if "tema_app" not in st.session_state:
@@ -350,7 +363,7 @@ st.markdown(
       .st-key-tema_mobile_escuro [data-testid="stButton"] button, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button { position:relative; width:50px !important; min-width:50px !important; min-height:46px !important; padding:0 !important; border:0 !important; border-radius:8px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; font-size:1.55rem; opacity:.82; transition:opacity .16s ease,transform .16s ease; }
       .st-key-tema_desktop_escuro [data-testid="stButton"] button:hover, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button:hover
       .st-key-tema_mobile_escuro [data-testid="stButton"] button:hover, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button:hover:hover { background:transparent !important; opacity:1; transform:scale(1.08) !important; }
-      .block-container { padding-top:1.5rem; padding-bottom:3rem; max-width:1500px; }
+      .block-container { padding-top:100px; padding-bottom:3rem; max-width:1500px; }
       h1,h2,h3,p,span,label { font-family:'DM Sans',sans-serif; }
       h1 { letter-spacing:-.04em; }
       .eyebrow { text-transform:uppercase; letter-spacing:.16em; color:var(--orange); font-size:.72rem; font-weight:700; }
@@ -439,9 +452,7 @@ st.markdown(
       div[class*="st-key-favorite-on_"] [data-testid="stButton"] button { color:#f3c969 !important; border-color:#8a7131 !important; }
       [data-testid="stExpander"] { border:1px solid var(--line); border-radius:12px; }
       .st-key-pagina_mobile { display:none; }
-      div[data-testid="stElementContainer"].st-key-account_menu,
-      div[data-testid="stElementContainer"]:has(.st-key-account_menu),
-      .st-key-account_menu { position:fixed !important; top:12px !important; right:18px !important; left:auto !important; bottom:auto !important; z-index:11000; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; }
+      .st-key-account_menu { position:relative !important; top:auto !important; right:auto !important; left:auto !important; bottom:auto !important; width:max-content !important; margin:0 !important; padding:0 !important; }
       .st-key-account_menu button[aria-haspopup="dialog"],
       .st-key-account_menu [data-testid="stPopoverButton"],
       .st-key-account_menu [data-testid="stPopoverButton"] button,
@@ -460,8 +471,7 @@ st.markdown(
       .st-key-account_menu_actions [data-testid="stButton"] button { width:40px !important; min-width:40px !important; height:40px !important; min-height:40px !important; padding:0 !important; border:0 !important; border-radius:12px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; }
       .st-key-account_menu_actions [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; color:var(--text) !important; transform:none !important; }
       .st-key-account_menu_actions [data-testid="stButton"] button svg { width:18px !important; height:18px !important; }
-      div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { position:fixed !important; z-index:10002; top:12px; right:88px; bottom:auto; left:auto; flex:none !important; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; align-self:auto !important; }
-      .st-key-tema_flutuante { opacity:70%; position:fixed !important; z-index:10003; top:12px !important; right:88px !important; bottom:auto !important; left:auto !important; width:max-content; max-width:calc(100vw - 24px); padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid color-mix(in srgb,var(--line) 90%,transparent); border-radius:18px; box-shadow:0 8px 24px #0005; backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); }
+      .st-key-tema_flutuante { position:relative !important; opacity:1; width:max-content; padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid var(--line); border-radius:18px; box-shadow:0 8px 24px #0003; backdrop-filter:blur(16px); }
       .st-key-tema_flutuante [data-testid="stHorizontalBlock"] { width:max-content; max-width:100%; flex-wrap:nowrap !important; gap:2px; }
       .st-key-tema_flutuante [data-testid="stColumn"] { flex:0 0 42px !important; width:42px !important; min-width:42px !important; }
       .st-key-tema_flutuante [data-testid="stVerticalBlock"] { align-items:center; }
@@ -493,10 +503,8 @@ st.markdown(
         [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"], [data-testid="stSidebarCollapseButton"], [data-testid="stExpandSidebarButton"] { display:none !important; }
         [data-testid="stHeader"] { display:none !important; }
         [data-testid="stAppViewContainer"] { overflow-x:hidden; }
-        .block-container, [data-testid="stMainBlockContainer"] { padding-top:0 !important; padding-left:.9rem; padding-right:.9rem; padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
-        div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { top:calc(12px + env(safe-area-inset-top)); right:80px; }
-        div[data-testid="stElementContainer"].st-key-account_menu, div[data-testid="stElementContainer"]:has(.st-key-account_menu), .st-key-account_menu { top:calc(12px + env(safe-area-inset-top)) !important; right:12px !important; left:auto !important; }
-        .st-key-tema_flutuante { top:calc(12px + env(safe-area-inset-top)) !important; right:80px !important; padding:6px; border-radius:16px; }
+        .block-container, [data-testid="stMainBlockContainer"] { padding-top:100px !important; padding-left:.9rem; padding-right:.9rem; padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
+        .st-key-tema_flutuante { padding:6px; border-radius:16px; }
         .st-key-pagina_mobile { display:block; position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important; top:auto !important; z-index:9999; width:100vw !important; box-sizing:border-box; margin:0 !important; padding:8px 8px calc(8px + env(safe-area-inset-bottom)) !important; background:#202124 !important; border-top:1px solid #35373b !important; box-shadow:0 -6px 20px #0005; }
         .st-key-pagina_mobile [data-testid="stHorizontalBlock"] { flex-wrap:nowrap !important; gap:4px; }
         .st-key-pagina_mobile [data-testid="stColumn"] { flex:1 1 0 !important; width:20% !important; min-width:0 !important; }
@@ -2067,7 +2075,13 @@ st.markdown(
     </style>""",
     unsafe_allow_html=True,
 )
-auth_ui.render_top_account_menu()
+st.markdown(TOP_CONTROLS_CSS, unsafe_allow_html=True)
+with st.container(key="top_controls"):
+    theme_column, account_column = st.columns([3, 1], gap="small", vertical_alignment="center")
+    with theme_column:
+        renderizar_menu_tema_flutuante()
+    with account_column:
+        auth_ui.render_top_account_menu()
 with st.container(key="pagina_mobile"):
     renderizar_botoes_pagina_mobile()
 
@@ -2116,7 +2130,7 @@ if pagina == "Imobiliárias":
     for agencia in agencias_visiveis:
         cidade = AGENCY_CITY_BY_NAME.get(agencia[0], "Várias cidades")
         grupos_cidade.setdefault(cidade, []).append(agencia)
-    ordem_cidades = ("Pindamonhangaba", "Taubaté", "Tremembé", "Várias cidades")
+    ordem_cidades = ("Pindamonhangaba", "Taubaté", "Tremembé", "São José dos Campos", "Várias cidades")
     for cidade in ordem_cidades:
         imobiliarias_cidade = grupos_cidade.get(cidade, [])
         if not imobiliarias_cidade:
@@ -2195,5 +2209,5 @@ elif pagina == "Log de erros":
     else:
         st.success("Nenhum erro foi registrado até agora.")
 
-# Renderizado ao fim para que o contêiner flutuante não crie espaço antes do conteúdo.
-renderizar_menu_tema_flutuante()
+# Finaliza o carregamento somente após renderizar o conteúdo da página.
+render_navigation_feedback()
