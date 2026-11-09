@@ -148,7 +148,7 @@ def main():
     cities = {
         city.strip().casefold()
         for city in os.environ.get(
-            "FINDIMOB_CIDADES", "pindamonhangaba,tremembe,taubate"
+            "FINDIMOB_CIDADES", "pindamonhangaba,tremembe,taubate,sao-jose-dos-campos"
         ).split(",")
         if city.strip()
     }
