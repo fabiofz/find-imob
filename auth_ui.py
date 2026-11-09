@@ -12,6 +12,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 
 import auth_store as store
 import review_store
+import cloud_store
 
 SESSION_TIMEOUT = 30 * 60
 _AUTH_TOKEN_PENDING = "__findimob_auth_pending__"
@@ -54,17 +55,14 @@ THEMES = {
 
 def _current_theme():
     try:
-        value = json.loads(THEME_FILE.read_text(encoding="utf-8")).get("tema")
+        value = cloud_store.read_json(THEME_FILE, {}).get("tema")
     except (OSError, json.JSONDecodeError, AttributeError):
         value = None
     return value if value in THEMES else "Escuro"
 
 
 def _save_theme(theme):
-    THEME_FILE.write_text(
-        json.dumps({"tema": theme}, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    cloud_store.write_json(THEME_FILE, {"tema": theme})
 
 
 def _render_auth_styles():
@@ -81,7 +79,7 @@ def _render_auth_styles():
           --bg:{theme['bg']}; --panel:{theme['panel']}; --line:{theme['line']};
           --text:{theme['text']}; --muted:{theme['muted']};
           --field-bg:{'#181818' if selected == 'escuro' else '#ffffff'};
-          --field-border:#353333;
+          --field-border:#DDDDDD;
           --field-focus-border:{'#777777' if selected == 'escuro' else '#32cb79'};
           --eye-color:{'#32cb79' if selected == 'escuro' else theme['muted']};
           --green:#32cb79; --green-hover:#51d891;
