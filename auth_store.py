@@ -6,6 +6,7 @@ import os
 import re
 import secrets
 import sqlite3
+import database
 import time
 from pathlib import Path
 
@@ -16,19 +17,17 @@ SCRYPT_P = 1
 SCRYPT_MAXMEM = 64 * 1024 * 1024
 LOCK_SECONDS = 15 * 60
 MAX_FAILURES = 5
+_INITIALIZED_DATABASE = None
 
 
 def _connect():
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(DB_PATH, timeout=15, isolation_level=None)
-    connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA foreign_keys=ON")
-    connection.execute("PRAGMA busy_timeout=15000")
-    return connection
+    if not database.is_cloud():
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    return database.connect(DB_PATH, autocommit=True)
 
 
 def _secure_file():
-    if os.name == "posix" and DB_PATH.exists():
+    if not database.is_cloud() and os.name == "posix" and DB_PATH.exists():
         os.chmod(DB_PATH, 0o600)
         for suffix in ("-wal", "-shm"):
             sidecar = Path(str(DB_PATH) + suffix)
@@ -65,8 +64,11 @@ def _verify_password(password, encoded):
 
 
 def initialize():
+    global _INITIALIZED_DATABASE
+    if database.is_cloud() and _INITIALIZED_DATABASE == database.database_url():
+        return
     with _connect() as db:
-        db.execute("""
+        schema = """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -82,11 +84,19 @@ def initialize():
                 google_sub TEXT UNIQUE,
                 created_at INTEGER NOT NULL
             )
-        """)
-        columns = {row[1] for row in db.execute("PRAGMA table_info(users)")}
-        if "google_sub" not in columns:
-            db.execute("ALTER TABLE users ADD COLUMN google_sub TEXT")
-            db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub)")
+        """
+        if database.is_cloud():
+            schema = schema.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
+            schema = schema.replace(" COLLATE NOCASE", "").replace("BLOB", "BYTEA")
+        db.execute(schema)
+        if database.is_cloud():
+            db.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_username_lower ON users(lower(username))")
+            db.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower ON users(lower(email))")
+        else:
+            columns = {row[1] for row in db.execute("PRAGMA table_info(users)")}
+            if "google_sub" not in columns:
+                db.execute("ALTER TABLE users ADD COLUMN google_sub TEXT")
+                db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub)")
         db.execute("""
             CREATE TABLE IF NOT EXISTS login_limits (
                 identifier TEXT PRIMARY KEY,
@@ -106,15 +116,20 @@ def initialize():
             "SELECT id FROM users WHERE username = ?", ("admin",)
         ).fetchone()
         if admin is None:
+            initial_password = os.environ.get("FINDIMOB_ADMIN_PASSWORD", "")
+            if database.is_cloud() and not valid_password(initial_password):
+                raise RuntimeError("Configure FINDIMOB_ADMIN_PASSWORD com uma senha forte antes do primeiro acesso.")
             db.execute(
                 """INSERT INTO users
                    (username,full_name,display_name,email,phone,password_hash,
                     role,active,must_change_password,created_at)
                    VALUES (?,?,?,?,?,?, 'admin',1,1,?)""",
                 ("admin", "Administrador", "Admin", "admin@localhost", "",
-                 _hash_password("admin"), int(time.time())),
+                 _hash_password(initial_password or "admin"), int(time.time())),
             )
     _secure_file()
+    if database.is_cloud():
+        _INITIALIZED_DATABASE = database.database_url()
 
 
 def _login_limit(identifier):
@@ -155,7 +170,7 @@ def authenticate(identifier, password):
     lookup = identifier.strip().casefold()
     with _connect() as db:
         user = db.execute(
-            "SELECT * FROM users WHERE username=? OR email=?", (lookup, lookup)
+            "SELECT * FROM users WHERE lower(username)=? OR lower(email)=?", (lookup, lookup)
         ).fetchone()
     if user is None:
         _hash_password(password or "")
@@ -235,7 +250,7 @@ def create_user(full_name, display_name, email, phone, password, avatar):
                 (username, full_name.strip(), display_name.strip(), email,
                  phone.strip(), _hash_password(password), avatar, int(time.time())),
             )
-    except sqlite3.IntegrityError:
+    except database.integrity_errors():
         return False
     _secure_file()
     return True
@@ -266,7 +281,7 @@ def authenticate_google(subject, email, full_name, email_verified):
                         (email, name, name[:80], email, "", subject, int(time.time())),
                     )
                     user = db.execute("SELECT * FROM users WHERE google_sub=?", (subject,)).fetchone()
-                except sqlite3.IntegrityError:
+                except database.integrity_errors():
                     return None, "conflict"
         if user is None:
             user = db.execute("SELECT * FROM users WHERE google_sub=?", (subject,)).fetchone()
@@ -301,7 +316,7 @@ def update_profile(user_id, full_name, display_name, email, phone, avatar=None,
     try:
         with _connect() as db:
             db.execute(f"UPDATE users SET {fields} WHERE id=?", values)
-    except sqlite3.IntegrityError:
+    except database.integrity_errors():
         return False
     _secure_file()
     return True
