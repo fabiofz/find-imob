@@ -1,7 +1,6 @@
 """Rota direta para cadastrar no Find Imob."""
 
-import importlib
-import sys
+from dashboard_runtime import run_dashboard
 from pathlib import Path
 
 import streamlit as st
@@ -14,7 +13,4 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 st.session_state._auth_route_mode = "register"
-if "app" in sys.modules:
-    importlib.reload(sys.modules["app"])
-else:
-    import app  # noqa: F401
+run_dashboard()
