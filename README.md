@@ -69,6 +69,18 @@ O serviço MySQL84 está instalado no Windows, mas parado. A autenticação usa 
 - `utils/variables.py`: filtros e configuração dos caminhos.
 - `script_teste/` e `teste.py`: experimento separado, não incluído na execução normal.
 
+### Novas fontes de locação
+
+O painel também inclui Pinda Prime, Berith Imóveis, Ricardo Monteiro Imóveis,
+Batista Imóveis, Grothe & Lima, Meta Negócios Imobiliários e Max Gold.
+Essas integrações ficam em `PORTAIS_LOCACAO`, em `scripts/catalog_collectors.py`,
+e participam tanto da execução individual quanto da coleta geral.
+Os coletores percorrem a paginação (até 30 páginas por fonte), leem o preço de
+aluguel separado do preço de venda e aplicam os filtros de cidade, tipo e valor.
+Uma listagem sem imóveis elegíveis não gera anúncios; falhas de acesso ou de
+formato são registradas como erro. Os testes podem ser executados com
+`./.venv/bin/python -m unittest discover -s tests -v`.
+
 ### Adicionar uma imobiliária
 
 Se o site usar os cartões `.imovelcard` ou o layout de cartões Tailwind, adicione uma configuração em `PORTAIS_CARD` ou `PORTAIS_TAILWIND` dentro de `scripts/catalog_collectors.py`. Para um HTML diferente, crie um adaptador próprio em `scripts/`; o runner o encontra automaticamente.
@@ -86,3 +98,7 @@ O app exige um endereço público HTTPS com certificado válido. O endereço loc
 O app inclui autenticação Google por OIDC do Streamlit. Copie o modelo em .streamlit/secrets.toml.example para .streamlit/secrets.toml, gere um cookie_secret aleatório e preencha client_id e client_secret do cliente Web no Google Cloud. Cadastros Google novos também aguardam aprovação administrativa.
 
 O redirect_uri precisa apontar para HTTPS em um domínio público que você controla e deve ser cadastrado exatamente no Google Cloud Console. findimob.local não serve como endereço de retorno Google: domínios .local não têm um TLD público válido para OAuth Web. Para autenticação Google a partir do celular, publique um hostname HTTPS válido e acessível pelo celular; o fluxo local permanece disponível por senha.
+
+## Hospedagem gratuita
+
+A versão online usa `cloud_app.py` com PostgreSQL persistente. Consulte [DEPLOY.md](DEPLOY.md) para publicação no Streamlit Community Cloud, migração e configuração dos secrets. A execução local continua disponível com `bash start_app.sh`.
