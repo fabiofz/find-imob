@@ -4,7 +4,7 @@ import hashlib
 import re
 import time
 from pathlib import Path
-from urllib.parse import urljoin, urlparse, parse_qs
+from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -72,8 +72,20 @@ PORTAIS_TAILWIND = {
     },
 }
 
+# Catálogos de locação com cartões Kenlo ou Voa (Pinda Prime).
+PORTAIS_LOCACAO = {
+    'Pinda Prime': "https://www.pindaprime.com.br/imoveis/?disponibilidade=para-alugar",
+    'Berith Imóveis': "https://www.berithimoveis.com.br/imoveis/para-alugar",
+    'Ricardo Monteiro Imóveis': "https://www.ricardomonteiroimoveis.com.br/imoveis/para-alugar",
+    'Batista Imóveis': "https://www.batistaimoveispinda.com.br/imoveis/para-alugar",
+    'Grothe & Lima': "https://www.grothelimaimoveis.com.br/imoveis/para-alugar",
+    'Meta Negócios Imobiliários': "https://www.metanegociosimobiliarios.com.br/imoveis/para-alugar",
+    'Max Gold': "https://www.maxgold.imb.br/imoveis/para-alugar",
+}
+
 # Portais com estruturas próprias; a extração tolera variações de markup entre cards.
 PORTAIS_LOCAIS = {
+    **PORTAIS_LOCACAO,
     "Taubaté Imóveis": "taubateimoveis",
     "Jeremias Rodrigues": "jeremiasrodrigues",
     "Única Imóveis": "unicaimoveistaubate",
@@ -148,6 +160,11 @@ CIDADE_FIXA_PORTAL = {
 
 def urls_portal_local(nome):
     """Monta consultas por cidade e tipo a partir dos filtros atuais."""
+    if nome in PORTAIS_LOCACAO:
+        url = PORTAIS_LOCACAO[nome]
+        if nome != "Pinda Prime":
+            url += f"?preco-de-locacao={int(PRECO_MIN)}~{int(PRECO_MAX)}"
+        return [url]
     urls = []
     for cidade in CIDADES_BUSCA:
         slug = SLUG_CIDADE.get(cidade)
@@ -292,6 +309,8 @@ def _preco_card(texto):
 
 
 def coletar_portal_local(session, nome, ids):
+    if nome in PORTAIS_LOCACAO:
+        return coletar_catalogo_locacao(session, nome, ids)
     novos = []
     paginas = 0
     urls = urls_portal_local(nome)
@@ -384,6 +403,91 @@ def coletar_portal_local(session, nome, ids):
             if nome == "Jeremias Rodrigues" and "page=" in pagina_url and encontrados == 0:
                 break
     return novos, paginas
+
+
+
+def extrair_cartao_locacao(card, pagina_url):
+    """Lê apenas o valor de aluguel do cartão, separado de venda e taxas."""
+    link = urljoin(pagina_url, card.get("href", ""))
+    if urlparse(link).netloc != urlparse(pagina_url).netloc:
+        return None
+    texto = card.get_text(" ", strip=True)
+    preco = None
+    # Os dois layouts Kenlo mantêm finalidade e preço no mesmo contêiner.
+    for container in card.select('[class$="__value-container"]'):
+        label = container.select_one('[class$="__value-title"]')
+        valor = container.select_one('[class$="__value"]')
+        if label and valor and normalizar_filtro(label.get_text()) == "aluguel":
+            if re.search(r"/\s*(dia|diaria|semana)", valor.get_text(), re.I):
+                return None
+            preco = _preco_card(valor.get_text(" ", strip=True))
+            break
+    tipo = card.select_one('.card-with-buttons__title, .card_split_vertically__type')
+    local = card.select_one('h2')
+    if tipo and local:
+        titulo = f"{tipo.get_text(' ', strip=True)} - {local.get_text(' ', strip=True)}"
+    else:
+        # A listagem Voa separa o título e o preço nos campos h3 e .price.
+        titulo_tag = card.select_one('h3')
+        valor = card.select_one('.price')
+        if not titulo_tag or not valor:
+            return None
+        titulo = titulo_tag.get_text(" ", strip=True)
+        if "para alugar" not in normalizar_filtro(titulo):
+            return None
+        if re.search(r"\b(alugado|vendido)\b", normalizar_filtro(texto)):
+            return None
+        preco = _preco_card(valor.get_text(" ", strip=True))
+    cidade = _cidade_no_texto(titulo)
+    if not cidade or not imovel_atende_filtros(titulo, preco, link, cidade):
+        return None
+    return titulo, preco, link
+
+
+def coletar_catalogo_locacao(session, nome, ids):
+    novos = []
+    url = urls_portal_local(nome)[0]
+    url_inicial = url
+    visitadas, links_vistos = set(), set()
+    for pagina in range(1, 31):
+        if not url or url in visitadas:
+            break
+        visitadas.add(url)
+        soup = buscar(session, url)
+        cards = soup.select('a.card-with-buttons, a.card_split_vertically')
+        if nome == "Pinda Prime":
+            cards = soup.select('a[href*="/imovel/"]:has(.price)')
+        if not cards and not re.search(
+            r"nenhum im[oó]vel|n[aã]o encontr|0 im[oó]veis", soup.get_text(" ", strip=True), re.I
+        ):
+            raise ValueError(f"{nome}: formato da listagem não reconhecido em {url}")
+        links_pagina = {urljoin(url, c.get("href", "")) for c in cards}
+        if cards and links_pagina.issubset(links_vistos):
+            break
+        links_vistos.update(links_pagina)
+        for card in cards:
+            campos = extrair_cartao_locacao(card, url)
+            if campos:
+                registro = criar_registro(*campos, pagina, ids)
+                if registro:
+                    novos.append(registro)
+        proxima = None
+        for ancora in soup.select('a[href]'):
+            candidata = urljoin(url, ancora["href"])
+            partes = urlparse(candidata)
+            if (
+                partes.netloc == urlparse(url).netloc
+                and partes.path.rstrip("/") == urlparse(url).path.rstrip("/")
+                and parse_qs(partes.query).get("pagina") == [str(pagina + 1)]
+            ):
+                # Mantém os filtros da consulta, mesmo se o link os omitir.
+                parametros = {**parse_qs(urlparse(url_inicial).query), **parse_qs(partes.query)}
+                proxima = urlunparse(partes._replace(query=urlencode(parametros, doseq=True)))
+                break
+        url = proxima
+    if url and len(visitadas) == 30:
+        print(f"[WARN] {nome}: limite de 30 páginas atingido; resultados parciais.", flush=True)
+    return novos, len(visitadas)
 
 
 def buscar(session, url, timeout=30, retries=0):
