@@ -318,13 +318,8 @@ def _render_auth_styles():
           background:conic-gradient(from -45deg,#4285f4 0 25%,#34a853 25% 48%,#fbbc05 48% 68%,#ea4335 68% 83%,#4285f4 83%);
           -webkit-background-clip:text; background-clip:text; color:transparent;
         }}
-        div[data-testid="stElementContainer"].st-key-auth_theme_float,
-        div[data-testid="stElementContainer"]:has(.st-key-auth_theme_float) {{
-          position:fixed !important; top:16px; right:18px; z-index:9999;
-          width:max-content !important; height:auto !important; margin:0 !important;
-        }}
         .st-key-auth_theme_float {{
-          position:fixed !important; top:16px; right:18px; z-index:10000;
+          position:fixed !important; top:16px; left:50%; right:auto; transform:translateX(-50%); z-index:10000;
           width:max-content; padding:4px 7px; border:1px solid var(--line);
           border-radius:18px; background:color-mix(in srgb,var(--panel) 90%,transparent);
           backdrop-filter:blur(12px); box-shadow:0 8px 28px #0003;
@@ -479,7 +474,7 @@ def _render_auth_styles():
             border-radius:18px;
           }}
           .st-key-auth_shell [data-testid="stForm"] {{ padding:.6rem .65rem; }}
-          .st-key-auth_theme_float {{ top:calc(env(safe-area-inset-top, 0px) + 10px); right:10px; }}
+          .st-key-auth_theme_float {{ top:calc(env(safe-area-inset-top, 0px) + 10px); left:50%; right:auto; }}
           .auth-brand {{ gap:10px; margin-bottom:12px; }}
           .auth-brand img {{ width:48px; height:48px; }}
           .st-key-auth_landing_header [data-testid="stHorizontalBlock"] {{ flex-direction:column; align-items:stretch; gap:12px; }}
