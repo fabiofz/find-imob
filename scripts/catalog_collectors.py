@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from utils.funcs import pegar_json, preco_para_float, salvar_json, limpar_preco
 from utils.variables import (
     CIDADES_BUSCA, GERAL_JSON, PRECO_MAX, PRECO_MIN,
-    TIPOS_BUSCA, imovel_atende_filtros, normalizar_filtro,
+    TIPOS_BUSCA, imovel_atende_filtros, normalizar_filtro, cidade_selecionada,
 )
 
 
@@ -73,7 +73,15 @@ PORTAIS_TAILWIND = {
 }
 
 # Catálogos de locação com cartões Kenlo ou Voa (Pinda Prime).
+PORTAIS_SJC = {
+    'Domus Imóveis SJC': "https://www.domusimoveissjc.com.br/imoveis/para-alugar/sao-jose-dos-campos",
+    'Prime Imóveis SJC': "https://www.primeimoveissjc.com.br/imoveis/para-alugar/sao-jose-dos-campos",
+    'Unike Imóveis': "https://www.unikeimoveis.com.br/imoveis/para-alugar/sao-jose-dos-campos",
+    'AZV Imóveis': "https://azvimoveis.com.br/imoveis/para-alugar",
+}
+
 PORTAIS_LOCACAO = {
+    **PORTAIS_SJC,
     'Pinda Prime': "https://www.pindaprime.com.br/imoveis/?disponibilidade=para-alugar",
     'Berith Imóveis': "https://www.berithimoveis.com.br/imoveis/para-alugar",
     'Ricardo Monteiro Imóveis': "https://www.ricardomonteiroimoveis.com.br/imoveis/para-alugar",
@@ -128,6 +136,7 @@ SLUG_CIDADE = {
     "pindamonhangaba": "pindamonhangaba",
     "tremembe": "tremembe",
     "taubate": "taubate",
+    "sao-jose-dos-campos": "sao-jose-dos-campos",
 }
 CIDADE_FIXA_PORTAL = {
     "Imobiliária São Paulo": "pindamonhangaba",
@@ -161,8 +170,10 @@ CIDADE_FIXA_PORTAL = {
 def urls_portal_local(nome):
     """Monta consultas por cidade e tipo a partir dos filtros atuais."""
     if nome in PORTAIS_LOCACAO:
+        if nome in PORTAIS_SJC and not cidade_selecionada("sao-jose-dos-campos"):
+            return []
         url = PORTAIS_LOCACAO[nome]
-        if nome != "Pinda Prime":
+        if nome not in {"Pinda Prime", "AZV Imóveis"}:
             url += f"?preco-de-locacao={int(PRECO_MIN)}~{int(PRECO_MAX)}"
         return [url]
     urls = []
@@ -288,7 +299,7 @@ def urls_portal_local(nome):
 
 def _cidade_no_texto(texto):
     normalizado = normalizar_filtro(texto)
-    for slug, nome in (("pindamonhangaba", "Pindamonhangaba"), ("tremembe", "Tremembé"), ("taubate", "Taubaté")):
+    for slug, nome in (("pindamonhangaba", "Pindamonhangaba"), ("tremembe", "Tremembé"), ("taubate", "Taubaté"), ("sao-jose-dos-campos", "São José dos Campos")):
         if normalizar_filtro(nome) in normalizado or slug in normalizado:
             return slug
     return None
@@ -411,6 +422,8 @@ def extrair_cartao_locacao(card, pagina_url):
     link = urljoin(pagina_url, card.get("href", ""))
     if urlparse(link).netloc != urlparse(pagina_url).netloc:
         return None
+    if "property-card-link" in card.get("class", []):
+        card = card.find_parent(class_="thumbnail_one") or card
     texto = card.get_text(" ", strip=True)
     preco = None
     # Os dois layouts Kenlo mantêm finalidade e preço no mesmo contêiner.
@@ -426,6 +439,20 @@ def extrair_cartao_locacao(card, pagina_url):
     local = card.select_one('h2')
     if tipo and local:
         titulo = f"{tipo.get_text(' ', strip=True)} - {local.get_text(' ', strip=True)}"
+    elif card.select_one('.property_pricing'):
+        finalidade = card.select_one('.Featured')
+        titulo_tag = card.select_one('.property_card_heading')
+        valor = card.select_one('.property_pricing')
+        if not titulo_tag:
+            return None
+        if finalidade and normalizar_filtro(finalidade.get_text()) != "para alugar":
+            return None
+        if "para alugar" not in normalizar_filtro(titulo_tag.get_text()):
+            return None
+        if re.search(r"/\s*(dia|diaria|semana)", valor.get_text(), re.I):
+            return None
+        titulo = titulo_tag.get_text(" ", strip=True)
+        preco = _preco_card(valor.get_text(" ", strip=True))
     else:
         # A listagem Voa separa o título e o preço nos campos h3 e .price.
         titulo_tag = card.select_one('h3')
@@ -446,7 +473,11 @@ def extrair_cartao_locacao(card, pagina_url):
 
 def coletar_catalogo_locacao(session, nome, ids):
     novos = []
-    url = urls_portal_local(nome)[0]
+    urls = urls_portal_local(nome)
+    if not urls:
+        print(f"{nome}: São José dos Campos não está selecionada nos parâmetros.", flush=True)
+        return [], 0
+    url = urls[0]
     url_inicial = url
     visitadas, links_vistos = set(), set()
     for pagina in range(1, 31):
@@ -455,7 +486,9 @@ def coletar_catalogo_locacao(session, nome, ids):
         visitadas.add(url)
         soup = buscar(session, url)
         cards = soup.select('a.card-with-buttons, a.card_split_vertically')
-        if nome == "Pinda Prime":
+        if nome == "AZV Imóveis":
+            cards = soup.select('a.property-card-link')
+        elif nome == "Pinda Prime":
             cards = soup.select('a[href*="/imovel/"]:has(.price)')
         if not cards and not re.search(
             r"nenhum im[oó]vel|n[aã]o encontr|0 im[oó]veis", soup.get_text(" ", strip=True), re.I
