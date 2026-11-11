@@ -1,4 +1,4 @@
-"""Streamlit Community Cloud entrypoint."""
+"""Entrypoint for the hosted dashboard with durable collector checkpoints."""
 from pathlib import Path
 
 import streamlit as st

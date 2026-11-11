@@ -24,3 +24,6 @@ logs_erros.txt
 .streamlit/*secrets*.toml
 cloud-secrets.toml
 .execucao_ativa*
+
+# Backups privados das limpezas de catálogo
+exports/backups/

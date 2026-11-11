@@ -9,6 +9,7 @@ import time
 from collections import deque
 from pathlib import Path
 from queue import Empty, Queue
+from utils.funcs import registrar_erro_coleta
 
 ROOT = Path(__file__).resolve().parent
 SCRIPTS_DIR = ROOT / "scripts"
@@ -49,15 +50,18 @@ def _stop_process(process):
         pass
 
 
-def _run_collector(module, environment, falhas):
+def _run_collector(module, environment, falhas, portal=None):
     command = [sys.executable, "-m", f"scripts.{module}"]
+    label = f"scripts.{module}" + (f" [{portal}]" if portal else "")
+    if portal:
+        command.extend(["--portal", portal])
     started = time.monotonic()
     output = deque(maxlen=500)
     lines = Queue()
     process = None
     timed_out = False
 
-    print(f"\n=== Iniciando scripts.{module} ===", flush=True)
+    print(f"\n=== Iniciando {label} ===", flush=True)
     try:
         process = subprocess.Popen(
             command,
@@ -102,7 +106,7 @@ def _run_collector(module, environment, falhas):
             if process.poll() is None and elapsed >= SCRIPT_TIMEOUT_SECONDS:
                 timed_out = True
                 print(
-                    f"[TIMEOUT] scripts.{module} excedeu {SCRIPT_TIMEOUT_SECONDS}s; "
+                    f"[TIMEOUT] {label} excedeu {SCRIPT_TIMEOUT_SECONDS}s; "
                     "encerrando este coletor e continuando os demais.",
                     flush=True,
                 )
@@ -111,7 +115,7 @@ def _run_collector(module, environment, falhas):
 
             if process.poll() is None and now >= next_heartbeat:
                 print(
-                    f"[AGUARDANDO] scripts.{module} continua executando "
+                    f"[AGUARDANDO] {label} continua executando "
                     f"ha {int(elapsed)}s.",
                     flush=True,
                 )
@@ -122,7 +126,7 @@ def _run_collector(module, environment, falhas):
             code = 124
     except Exception as error:
         code = 1
-        detail = f"Erro ao executar scripts.{module}: {error}"
+        detail = f"Erro ao executar {label}: {error}"
         output.append(detail)
         print(detail, flush=True)
         if process is not None:
@@ -130,18 +134,15 @@ def _run_collector(module, environment, falhas):
 
     duration = time.monotonic() - started
     if code:
-        falhas.append((module, code))
-        detail = f"Falha em scripts.{module} (codigo {code}, {duration:.1f}s)."
+        falhas.append((label, code))
+        detail = f"Falha em {label} (codigo {code}, {duration:.1f}s)."
         print(detail, flush=True)
         try:
-            with (ROOT / "logs_erros.txt").open("a", encoding="utf-8") as log:
-                log.write(f"\n{'=' * 78}\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] {detail}\n")
-                log.write("\n".join(output))
-                log.write("\n")
-        except OSError as error:
-            print(f"Nao foi possivel registrar logs_erros.txt: {error}", flush=True)
+            registrar_erro_coleta(detail, "\n".join(output))
+        except Exception as error:
+            print(f"Nao foi possivel registrar o erro da coleta: {error}", flush=True)
     else:
-        print(f"Concluido scripts.{module} em {duration:.1f}s.", flush=True)
+        print(f"Concluido {label} em {duration:.1f}s.", flush=True)
 
 
 def main():
@@ -168,14 +169,26 @@ def main():
         if script in COLETORES_PINDAMONHANGABA and "pindamonhangaba" not in cities:
             print(f"Ignorando scripts.{script}: Pindamonhangaba nao esta selecionada.", flush=True)
             continue
-        _run_collector(script, environment, failures)
+        if script == "catalog_collectors":
+            from scripts.catalog_collectors import (
+                PORTAIS_CARD, PORTAIS_TAILWIND, PORTAIS_LOCAIS, PORTAIS_INDISPONIVEIS,
+            )
+            # Each agency has its own time budget. The old shared 90-second
+            # budget killed the whole catalogue before reaching later agencies.
+            for portal in (*PORTAIS_CARD, *PORTAIS_TAILWIND, *PORTAIS_LOCAIS):
+                if portal in PORTAIS_INDISPONIVEIS:
+                    print(f"[INDISPONÍVEL] {portal}: {PORTAIS_INDISPONIVEIS[portal]}", flush=True)
+                    continue
+                _run_collector(script, environment, failures, portal=portal)
+        else:
+            _run_collector(script, environment, failures)
 
     if failures:
         print("\nColetores com falha:")
         for module, code in failures:
-            print(f"- scripts.{module}: codigo {code}")
+            print(f"- {module}: codigo {code}")
         return 1
-    print(f"\nColeta concluida: {len(scripts)} coletores executados.")
+    print("\nColeta concluída: todos os coletores selecionados foram executados.")
     return 0
 
 

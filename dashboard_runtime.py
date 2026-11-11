@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-09-sjc-centered-header"
+DASHBOARD_RELEASE = "2026-11-11-collector-recovery"
 
 
 def home_page():

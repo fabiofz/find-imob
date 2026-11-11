@@ -118,3 +118,22 @@ Os menus de perfil e tema ficam juntos no topo centralizado. A navegação mostr
 um indicador de carregamento até a página de destino terminar de renderizar.
 Para incluir os testes JavaScript desse indicador, instale `quickjs` no ambiente
 de desenvolvimento; ele não é necessário na hospedagem.
+
+### Recuperação de falhas de coleta
+
+A execução geral abre um processo separado para cada imobiliária do catálogo,
+com limite individual controlado por `FINDIMOB_COLLECTOR_TIMEOUT` (90 segundos por
+padrão). Uma imobiliária lenta não consome o tempo das demais. Os coletores do
+catálogo e da Casa Bella salvam os anúncios ao concluir cada página, preservando
+resultados anteriores quando uma página posterior falha.
+
+A Danelli usa a busca JSON pública do site atual. A Batista recebe apenas filtros
+compatíveis com suas rotas; valor e cidade continuam sendo conferidos localmente.
+A Casa Bella distingue aluguel de IPTU, taxas e condomínio e repete consultas em
+falhas transitórias de conexão. A fonte Guerrero está sinalizada como indisponível:
+o domínio cadastrado passou a atender Vitória (ES), e não deve ser usado como
+fonte de Pindamonhangaba.
+
+Os logs online registram também as falhas individuais de cada coletor. Ao zerar o
+catálogo, contas, configurações, avaliações e histórico podem ser preservados;
+backups privados ficam em `exports/backups/`, fora do Git.

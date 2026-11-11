@@ -3,13 +3,15 @@
 import hashlib
 import re
 import time
+import database
+import cloud_store
 from pathlib import Path
-from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
+from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse, quote
 
 import requests
 from bs4 import BeautifulSoup
 
-from utils.funcs import pegar_json, preco_para_float, salvar_json, limpar_preco
+from utils.funcs import pegar_json, preco_para_float, salvar_json, limpar_preco, registrar_erro_coleta
 from utils.variables import (
     CIDADES_BUSCA, GERAL_JSON, PRECO_MAX, PRECO_MIN,
     TIPOS_BUSCA, imovel_atende_filtros, normalizar_filtro, cidade_selecionada,
@@ -92,6 +94,10 @@ PORTAIS_LOCACAO = {
 }
 
 # Portais com estruturas próprias; a extração tolera variações de markup entre cards.
+PORTAIS_INDISPONIVEIS = {
+    "Imobiliária Guerrero": "O domínio cadastrado agora atende Vitória (ES). Aguardando um endereço confirmado de Pindamonhangaba.",
+}
+
 PORTAIS_LOCAIS = {
     **PORTAIS_LOCACAO,
     "Taubaté Imóveis": "taubateimoveis",
@@ -173,7 +179,7 @@ def urls_portal_local(nome):
         if nome in PORTAIS_SJC and not cidade_selecionada("sao-jose-dos-campos"):
             return []
         url = PORTAIS_LOCACAO[nome]
-        if nome not in {"Pinda Prime", "AZV Imóveis"}:
+        if nome not in {"Pinda Prime", "AZV Imóveis", "Batista Imóveis"}:
             url += f"?preco-de-locacao={int(PRECO_MIN)}~{int(PRECO_MAX)}"
         return [url]
     urls = []
@@ -269,7 +275,7 @@ def urls_portal_local(nome):
         elif nome == "Euro Imóveis" and cidade == "taubate":
             urls.append("https://www.euroimoveis.cim.br/imoveis?finalidade=aluguel")
         elif nome == "Imobiliária Danelli" and cidade == "taubate":
-            urls.append("https://www.danelli.com.br/imoveis/aluguel/Todos/1/codigocidade=1/")
+            urls.append("https://www.danelli.com.br/aluguel/")
         elif nome == "ATOM Inteligência Imobiliária" and cidade == "taubate":
             urls.append("https://www.atomimobiliaria.com.br/")
         elif nome == "City Taubaté Imobiliária" and cidade == "taubate":
@@ -319,9 +325,13 @@ def _preco_card(texto):
     return limpar_preco(candidatos[0].group())
 
 
-def coletar_portal_local(session, nome, ids):
+def coletar_portal_local(session, nome, ids, on_records=None):
+    if nome in PORTAIS_INDISPONIVEIS:
+        raise ValueError(PORTAIS_INDISPONIVEIS[nome])
+    if nome == "Imobiliária Danelli":
+        return coletar_danelli(session, ids, on_records=on_records)
     if nome in PORTAIS_LOCACAO:
-        return coletar_catalogo_locacao(session, nome, ids)
+        return coletar_catalogo_locacao(session, nome, ids, on_records=on_records)
     novos = []
     paginas = 0
     urls = urls_portal_local(nome)
@@ -410,11 +420,64 @@ def coletar_portal_local(session, nome, ids):
                 if registro:
                     novos.append(registro)
                     encontrados += 1
-            # Nas páginas paginadas da Jeremias, termina no primeiro resultado vazio.
-            if nome == "Jeremias Rodrigues" and "page=" in pagina_url and encontrados == 0:
+            if on_records:
+                on_records(novos)
+            # Duplicate IDs must not terminate pagination: there may be new
+            # properties on later pages. Stop only when no property links exist.
+            if nome == "Jeremias Rodrigues" and "page=" in pagina_url and not links_da_pagina:
                 break
     return novos, paginas
 
+
+
+def coletar_danelli(session, ids, on_records=None):
+    """Use the public JSON search that replaced Danelli's old HTML routes."""
+    base = "https://www.danelli.com.br/"
+    buscar(session, base + "aluguel/")
+    novos, vistos = [], set()
+    paginas = 0
+    for pagina in range(1, 31):
+        response = session.post(
+            base + "retornar-imoveis-disponiveis", headers={**HEADERS, "Referer": base + "aluguel/"},
+            data={"finalidade": "aluguel", "numeropagina": pagina, "numeroregistros": 20,
+                  "valorde": f"{PRECO_MIN:.2f}".replace(".", ","),
+                  "valorate": f"{PRECO_MAX:.2f}".replace(".", ","), "opcaoimovel": 0},
+            timeout=(5, 20),
+        )
+        response.raise_for_status()
+        data = response.json()
+        if not isinstance(data, dict) or not isinstance(data.get("lista"), list):
+            raise ValueError("Danelli retornou um formato de catálogo não reconhecido.")
+        paginas += 1
+        items = data["lista"]
+        if not items:
+            break
+        codigos = {str(item.get("codigo")) for item in items}
+        if codigos.issubset(vistos):
+            break
+        vistos.update(codigos)
+        for item in items:
+            if str(item.get("codigofinalidade")) != "1":
+                continue
+            cidade = _cidade_no_texto(item.get("cidade", ""))
+            if not cidade:
+                continue
+            titulo = str(item.get("titulo") or f"{item.get('tipo', '')} - {item.get('bairro', '')} - {item.get('cidade', '')}")
+            preco = _preco_card(str(item.get("valor", "")))
+            slug, codigo = item.get("url_amigavel"), item.get("codigo")
+            if not slug or not codigo:
+                continue
+            link = base + "imovel/" + quote(str(slug), safe="-") + "/" + quote(str(codigo), safe="")
+            if not imovel_atende_filtros(f"{item.get('tipo', '')} {titulo}", preco, link, cidade):
+                continue
+            registro = criar_registro(titulo, preco, link, pagina, ids)
+            if registro:
+                novos.append(registro)
+        if on_records:
+            on_records(novos)
+        if pagina * 20 >= int(data.get("quantidade", 0)):
+            break
+    return novos, paginas
 
 
 def extrair_cartao_locacao(card, pagina_url):
@@ -471,7 +534,7 @@ def extrair_cartao_locacao(card, pagina_url):
     return titulo, preco, link
 
 
-def coletar_catalogo_locacao(session, nome, ids):
+def coletar_catalogo_locacao(session, nome, ids, on_records=None):
     novos = []
     urls = urls_portal_local(nome)
     if not urls:
@@ -504,6 +567,8 @@ def coletar_catalogo_locacao(session, nome, ids):
                 registro = criar_registro(*campos, pagina, ids)
                 if registro:
                     novos.append(registro)
+        if on_records:
+            on_records(novos)
         proxima = None
         for ancora in soup.select('a[href]'):
             candidata = urljoin(url, ancora["href"])
@@ -523,28 +588,23 @@ def coletar_catalogo_locacao(session, nome, ids):
     return novos, len(visitadas)
 
 
-def buscar(session, url, timeout=30, retries=0):
+def buscar(session, url, timeout=(5, 20), retries=1):
     print(f"[HTTP] GET {url}", flush=True)
-    resposta = None
     for tentativa in range(retries + 1):
         try:
             resposta = session.get(url, headers=HEADERS, timeout=timeout)
-            break
-        except requests.Timeout:
-            if tentativa >= retries:
-                raise
-            print(
-                f"[HTTP] Timeout em {url}; tentando novamente ({tentativa + 1}/{retries})",
-                flush=True,
+            resposta.raise_for_status()
+            print(f"[HTTP] {resposta.status_code} · {len(resposta.content)} bytes recebidos", flush=True)
+            return BeautifulSoup(resposta.text, "html.parser")
+        except requests.RequestException as erro:
+            response = getattr(erro, "response", None)
+            transitorio = isinstance(erro, (requests.Timeout, requests.ConnectionError)) or (
+                response is not None and response.status_code in {408, 429, 500, 502, 503, 504}
             )
-    if resposta is None:
-        raise requests.RequestException(f"Não foi possível obter resposta de {url}")
-    resposta.raise_for_status()
-    print(
-        f"[HTTP] {resposta.status_code} · {len(resposta.content)} bytes recebidos",
-        flush=True,
-    )
-    return BeautifulSoup(resposta.text, "html.parser")
+            if not transitorio or tentativa >= retries:
+                raise
+            print(f"[HTTP] Falha temporária em {url}; nova tentativa {tentativa + 1}/{retries}.", flush=True)
+            time.sleep(min(.5 * (2 ** tentativa), 2))
 
 
 def criar_registro(titulo, preco, link, pagina, ids):
@@ -563,7 +623,7 @@ def criar_registro(titulo, preco, link, pagina, ids):
     }
 
 
-def coletar_card_portal(session, config, ids):
+def coletar_card_portal(session, config, ids, on_records=None):
     novos = []
     paginas_verificadas = 0
     paginado = config.get("paginado", False)
@@ -607,10 +667,12 @@ def coletar_card_portal(session, config, ids):
                 registro = criar_registro(titulo, preco, link, pagina, ids)
                 if registro:
                     novos.append(registro)
+            if on_records:
+                on_records(novos)
     return novos, paginas_verificadas
 
 
-def coletar_tailwind(session, config, ids):
+def coletar_tailwind(session, config, ids, on_records=None):
     url = re.sub(r"([?&])min=[^&]*", rf"\g<1>min={PRECO_MIN:.2f}", config["url"])
     url = re.sub(r"([?&])max=[^&]*", rf"\g<1>max={PRECO_MAX:.2f}", url)
     soup = buscar(session, url)
@@ -640,6 +702,8 @@ def coletar_tailwind(session, config, ids):
         )
         if registro:
             novos.append(registro)
+    if on_records:
+        on_records(novos)
     return novos, 1
 
 
@@ -649,14 +713,27 @@ def main(portais=None):
     novos_total = []
     falhas = []
     selecionados = set(portais or [*PORTAIS_CARD, *PORTAIS_TAILWIND, *PORTAIS_LOCAIS])
+    persistidos = {item["id"] for item in dados}
+
+    def persistir(registros):
+        pendentes = [item for item in registros if item["id"] not in persistidos]
+        if not pendentes:
+            return
+        for item in pendentes:
+            dados.append(item)
+        if database.is_cloud():
+            cloud_store.save_catalogue(pendentes)
+        else:
+            salvar_json(dados, GERAL_JSON)
+        persistidos.update(item["id"] for item in pendentes)
+        print(f"[SALVO] {len(pendentes)} anúncio(s) preservado(s).", flush=True)
     with requests.Session() as session:
         for nome, config in PORTAIS_CARD.items():
             if nome not in selecionados:
                 continue
             try:
-                novos, paginas = coletar_card_portal(session, config, ids)
-                for item in novos:
-                    dados.append(item)
+                novos, paginas = coletar_card_portal(session, config, ids, on_records=persistir)
+                persistir(novos)
                 novos_total.extend(novos)
                 print(f"{nome}: {len(novos)} novo(s), {paginas} página(s).")
             except Exception as erro:
@@ -667,9 +744,8 @@ def main(portais=None):
             if nome not in selecionados:
                 continue
             try:
-                novos, paginas = coletar_tailwind(session, config, ids)
-                for item in novos:
-                    dados.append(item)
+                novos, paginas = coletar_tailwind(session, config, ids, on_records=persistir)
+                persistir(novos)
                 novos_total.extend(novos)
                 print(f"{nome}: {len(novos)} novo(s), {paginas} página(s).")
             except Exception as erro:
@@ -677,31 +753,29 @@ def main(portais=None):
                 print(f"{nome}: falha na consulta: {erro}")
 
         for nome in PORTAIS_LOCAIS:
+            if nome in PORTAIS_INDISPONIVEIS:
+                if nome in selecionados:
+                    print(f"[INDISPONÍVEL] {nome}: {PORTAIS_INDISPONIVEIS[nome]}", flush=True)
+                continue
             if nome not in selecionados:
                 continue
             try:
-                novos, paginas = coletar_portal_local(session, nome, ids)
-                dados.extend(novos)
+                novos, paginas = coletar_portal_local(session, nome, ids, on_records=persistir)
+                persistir(novos)
                 novos_total.extend(novos)
                 print(f"{nome}: {len(novos)} novo(s), {paginas} página(s).")
             except Exception as erro:
                 falhas.append((nome, erro))
                 print(f"{nome}: falha na consulta: {erro}")
 
-    if novos_total:
-        salvar_json(dados, GERAL_JSON)
     if falhas:
         detalhe = f"{len(falhas)} de {len(selecionados)} portal(is) falharam; os demais foram coletados."
         print(f"Aviso: coleta parcial. {detalhe}")
         try:
-            with (Path(__file__).resolve().parents[1] / "logs_erros.txt").open("a", encoding="utf-8") as arquivo:
-                arquivo.write(f"\n{'=' * 78}\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] Coleta parcial: {detalhe}\n")
-                for nome, erro in falhas:
-                    arquivo.write(f"- {nome}: {erro}\n")
-        except OSError as erro_log:
+            registrar_erro_coleta("Coleta parcial", "\n".join([detalhe, *(f"- {nome}: {erro}" for nome, erro in falhas)]))
+        except Exception as erro_log:
             print(f"Nao foi possivel registrar as falhas parciais: {erro_log}")
-        if len(falhas) >= len(selecionados):
-            raise RuntimeError(f"Nenhum dos {len(selecionados)} portais selecionados respondeu.")
+    return 1 if falhas else 0
 
 
 if __name__ == "__main__":
@@ -713,4 +787,4 @@ if __name__ == "__main__":
         "--portal", action="append", choices=portais_disponiveis,
         help="Executa somente o portal informado; pode ser repetido.",
     )
-    main(parser.parse_args().portal)
+    raise SystemExit(main(parser.parse_args().portal))

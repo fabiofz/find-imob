@@ -22,6 +22,7 @@ import streamlit as st
 from bs4 import BeautifulSoup
 import auth_ui
 import review_store
+from scripts.catalog_collectors import PORTAIS_INDISPONIVEIS
 import cloud_store
 import database
 from ui_feedback import TOP_CONTROLS_CSS, render_navigation_feedback
@@ -1397,6 +1398,9 @@ def _executar_coleta(rotulo, tipo, identificador):
     if st.session_state.get("coletando", False):
         st.warning("Já existe uma coleta em andamento nesta sessão.")
         return
+    if tipo == "catalog" and identificador in PORTAIS_INDISPONIVEIS:
+        st.warning(PORTAIS_INDISPONIVEIS[identificador])
+        return
     parametros_execucao = carregar_parametros_busca()
     anuncios_antes = {
         chave_anuncio(anuncio)
@@ -1486,8 +1490,9 @@ def _executar_coleta(rotulo, tipo, identificador):
         except (OSError, json.JSONDecodeError):
             pass
 
-    if codigo == 0:
-        status.update(label="Captura concluída · buscando fotos e descrições…", state="running", expanded=False)
+    tem_novos = any(chave_anuncio(item) not in anuncios_antes for item in listar_anuncios())
+    if codigo == 0 or tem_novos:
+        status.update(label="Buscando fotos e descrições dos anúncios capturados…", state="running", expanded=False)
         try:
             enriquecer_anuncios_da_coleta(tipo, identificador, anuncios_antes, log)
         except Exception as erro_enriquecimento:
@@ -2142,6 +2147,7 @@ if pagina == "Imobiliárias":
                 nome, tipo, identificador = agencia
                 with coluna:
                     quantidade_execucoes = execucoes_por_imobiliaria.get(nome, 0)
+                    motivo_indisponivel = PORTAIS_INDISPONIVEIS.get(identificador)
                     rotulo_execucoes = (
                         f"{quantidade_execucoes} execução individual"
                         if quantidade_execucoes == 1
@@ -2152,14 +2158,15 @@ if pagina == "Imobiliárias":
                         with coluna_dados:
                             st.markdown(
                                 f'<div class="agency-card"><div class="agency-name">{nome}</div>'
-                                f'<div class="agency-type">{rotulo_execucoes}</div></div>',
+                                f'<div class="agency-type">{escape(motivo_indisponivel or rotulo_execucoes)}</div></div>',
                                 unsafe_allow_html=True,
                             )
                         with coluna_acao:
                             if st.button(
                                 "▶",
                                 key=f"run_agency_{identificador}",
-                                help=f"Executar {nome}",
+                                help=motivo_indisponivel or f"Executar {nome}",
+                                disabled=bool(motivo_indisponivel),
                             ):
                                 execucao_id = str(time.time_ns())
                                 visualizar_execucao(nome, tipo, identificador, execucao_id)
