@@ -32,7 +32,9 @@ RESULTS_CSS = '''
 [class*="st-key-property_card_"] [class*="st-key-delete_"] button:hover,
 [class*="st-key-agency_tools_"] button:hover { color:#e05260 !important; border-color:#e05260 !important; }
 [class*="st-key-agency_tools_"] { padding:0 0 12px; }
+[class*="st-key-agency_tools_"] [class*="st-key-delete_agency_"] { margin-left:auto !important; align-self:flex-end !important; }
 [class*="st-key-agency_tools_"] [data-testid="stHorizontalBlock"] { align-items:center; }
+[class*="st-key-agency_tools_"] [data-testid="stColumn"]:last-child [data-testid="stButton"] { display:flex; justify-content:flex-end; width:100% !important; }
 [class*="st-key-agency_confirmation_"] { padding:14px 16px; border:1px solid var(--line); border-left:3px solid var(--green); border-radius:10px; background:var(--panel); margin-bottom:16px; }
 .agency-confirm-title { color:var(--text); font-size:.9rem; font-weight:600; line-height:1.4; }
 .agency-confirm-description { color:var(--muted); font-size:.8rem; line-height:1.5; margin:4px 0 10px; }

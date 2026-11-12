@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-11-compact-confirmation"
+DASHBOARD_RELEASE = "2026-11-11-clean-button-right"
 
 
 def home_page():
