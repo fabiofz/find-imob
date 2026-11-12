@@ -12,7 +12,8 @@ class AgencyDeletionUITests(unittest.TestCase):
         tree = ast.parse(source)
         functions = '\n\n'.join(ast.get_source_segment(source, node) for node in tree.body
             if isinstance(node, ast.FunctionDef) and node.name in {
-                'excluir_resultados_imobiliaria', 'renderizar_exclusao_imobiliaria'})
+                'excluir_resultados_imobiliaria', 'renderizar_exclusao_imobiliaria',
+                'solicitar_exclusao_imobiliaria', 'cancelar_exclusao_imobiliaria'})
         script = '''
 import hashlib
 import streamlit as st
@@ -35,7 +36,9 @@ feedback = st.session_state.pop('_delete_agency_feedback', None)
 if feedback:
     st.success(feedback)
 st.text_input('Buscar anúncio', key='busca_anuncio')
-renderizar_exclusao_imobiliaria('Agência A', 2)
+expanded = st.session_state.pop('_expand_agencia_apos_acao', None)
+with st.expander('Agência A', expanded=expanded == 'Agência A' or st.session_state.get('_delete_agency_pending') == 'Agência A'):
+    renderizar_exclusao_imobiliaria('Agência A', 2)
 '''
         app = AppTest.from_string(script).run()
         key = hashlib.sha256('Agência A'.encode()).hexdigest()[:16]
@@ -46,6 +49,7 @@ renderizar_exclusao_imobiliaria('Agência A', 2)
         app.button(key=f'cancel_delete_agency_{key}').click().run()
         self.assertEqual(app.session_state.excluded, [])
         self.assertEqual(len(app.warning), 0)
+        self.assertTrue(app.expander[0].proto.expanded)
         app.button(key=f'delete_agency_{key}').click().run()
         app.button(key=f'confirm_delete_agency_{key}').click().run()
         self.assertEqual(len(app.exception), 0)

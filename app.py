@@ -764,19 +764,29 @@ def excluir_resultados_imobiliaria(nome):
     )
 
 
+def solicitar_exclusao_imobiliaria(nome):
+    st.session_state._delete_agency_pending = nome
+    st.session_state._expand_agencia_apos_acao = nome
+
+
+def cancelar_exclusao_imobiliaria(nome):
+    st.session_state.pop("_delete_agency_pending", None)
+    st.session_state._expand_agencia_apos_acao = nome
+
+
 def renderizar_exclusao_imobiliaria(nome, total):
     identificador = hashlib.sha256(nome.encode()).hexdigest()[:16]
     with st.container(key=f"agency_tools_{identificador}"):
         resumo, acao = st.columns([3, 2], gap="small")
         with resumo:
-            st.caption(f"{total} resultados · Favoritos preservados")
+            st.caption(f"{total} imóveis nesta imobiliária")
         with acao:
-            if st.button(
-                "Excluir todos desta imobiliária", icon=":material/delete_sweep:",
+            st.button(
+                "Limpar resultados", icon=":material/delete_sweep:",
                 key=f"delete_agency_{identificador}",
                 help=f"Excluir os {total} resultados de {nome}, mantendo os favoritos.",
-            ):
-                st.session_state._delete_agency_pending = nome
+                on_click=solicitar_exclusao_imobiliaria, args=(nome,),
+            )
     if st.session_state.get("_delete_agency_pending") != nome:
         return
     with st.container(key=f"agency_confirmation_{identificador}"):
@@ -792,9 +802,11 @@ def renderizar_exclusao_imobiliaria(nome, total):
                 )
                 st.rerun()
         with cancelar:
-            if st.button("Cancelar", key=f"cancel_delete_agency_{identificador}"):
-                st.session_state.pop("_delete_agency_pending", None)
-                st.rerun()
+            st.button(
+                "Cancelar", key=f"cancel_delete_agency_{identificador}",
+                on_click=cancelar_exclusao_imobiliaria, args=(nome,),
+                use_container_width=True,
+            )
 
 
 def carregar_cache_previews():
@@ -1114,7 +1126,7 @@ def html_preview_anuncio(imobiliaria, anuncio, cache, novo=False):
         url_html = (
             f'<a class="wa-preview-url" href="{escape(link, quote=True)}" '
             f'title="{escape(link, quote=True)}" target="_blank" '
-            f'rel="noopener noreferrer">{escape(rotulo_link)} ↗</a>'
+            f'rel="noopener noreferrer">Ver imóvel ↗</a>'
         )
     else:
         url_html = '<div class="wa-preview-url-placeholder">Link indisponível</div>'
@@ -1319,7 +1331,8 @@ def renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos):
             if total_avaliacoes else 0
         )
         if st.button(
-            f"★ {media_avaliacoes:.1f} · Avaliações ({len(total_avaliacoes)})",
+            (f"★ {media_avaliacoes:.1f} · {len(total_avaliacoes)} avaliações"
+             if total_avaliacoes else "Avaliar imóvel"),
             key=f"reviews_{hash_anuncio}",
             use_container_width=True,
         ):
@@ -2045,7 +2058,7 @@ def renderizar_pagina_anuncios(pagina):
             indicador_imobiliaria = "🔴 " if possui_novidades else ""
             with st.expander(
                 f"{indicador_imobiliaria}{nome} · {len(resultados)} anúncio(s)",
-                expanded=nome == expandir_agencia,
+                expanded=(nome == expandir_agencia or st.session_state.get("_delete_agency_pending") == nome),
             ):
                 if pagina == "Resultados das buscas":
                     renderizar_exclusao_imobiliaria(nome, len(grupos[nome]))
