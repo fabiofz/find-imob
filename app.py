@@ -26,6 +26,7 @@ from scripts.catalog_collectors import PORTAIS_INDISPONIVEIS
 import cloud_store
 import database
 from advertisement_actions import exclude_advertisements
+from results_layout import render_results_styles
 from ui_feedback import TOP_CONTROLS_CSS, render_navigation_feedback
 from utils.funcs import preco_para_float
 
@@ -765,29 +766,35 @@ def excluir_resultados_imobiliaria(nome):
 
 def renderizar_exclusao_imobiliaria(nome, total):
     identificador = hashlib.sha256(nome.encode()).hexdigest()[:16]
-    if st.button(
-        "Excluir todos desta imobiliária", icon=":material/delete_sweep:",
-        key=f"delete_agency_{identificador}",
-        help=f"Excluir os {total} resultados de {nome}, mantendo os favoritos.",
-    ):
-        st.session_state._delete_agency_pending = nome
+    with st.container(key=f"agency_tools_{identificador}"):
+        resumo, acao = st.columns([3, 2], gap="small")
+        with resumo:
+            st.caption(f"{total} resultados · Favoritos preservados")
+        with acao:
+            if st.button(
+                "Excluir todos desta imobiliária", icon=":material/delete_sweep:",
+                key=f"delete_agency_{identificador}",
+                help=f"Excluir os {total} resultados de {nome}, mantendo os favoritos.",
+            ):
+                st.session_state._delete_agency_pending = nome
     if st.session_state.get("_delete_agency_pending") != nome:
         return
-    st.warning(f"Excluir todos os {total} resultados de {nome}? Os favoritos serão mantidos.")
-    st.caption("A ação inclui os resultados desta imobiliária fora da busca de texto atual.")
-    confirmar, cancelar = st.columns(2, gap="small")
-    with confirmar:
-        if st.button("Confirmar exclusão", key=f"confirm_delete_agency_{identificador}", type="primary"):
-            quantidade = excluir_resultados_imobiliaria(nome)
-            st.session_state.pop("_delete_agency_pending", None)
-            st.session_state._delete_agency_feedback = (
-                f"{quantidade} anúncio(s) de {nome} removido(s) da lista."
-            )
-            st.rerun()
-    with cancelar:
-        if st.button("Cancelar", key=f"cancel_delete_agency_{identificador}"):
-            st.session_state.pop("_delete_agency_pending", None)
-            st.rerun()
+    with st.container(key=f"agency_confirmation_{identificador}"):
+        st.warning(f"Excluir todos os {total} resultados de {nome}? Os favoritos serão mantidos.")
+        st.caption("A ação inclui os resultados desta imobiliária fora da busca de texto atual.")
+        confirmar, cancelar = st.columns(2, gap="small")
+        with confirmar:
+            if st.button("Confirmar exclusão", key=f"confirm_delete_agency_{identificador}", type="primary"):
+                quantidade = excluir_resultados_imobiliaria(nome)
+                st.session_state.pop("_delete_agency_pending", None)
+                st.session_state._delete_agency_feedback = (
+                    f"{quantidade} anúncio(s) de {nome} removido(s) da lista."
+                )
+                st.rerun()
+        with cancelar:
+            if st.button("Cancelar", key=f"cancel_delete_agency_{identificador}"):
+                st.session_state.pop("_delete_agency_pending", None)
+                st.rerun()
 
 
 def carregar_cache_previews():
@@ -1299,52 +1306,56 @@ def renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos):
     ):
         return
 
-    st.markdown(
-        html_preview_anuncio(imobiliaria, anuncio, cache, novo=chave in novos),
-        unsafe_allow_html=True,
-    )
-    hash_anuncio = hashlib.sha256(chave.encode()).hexdigest()[:16]
-    total_avaliacoes = review_store.list_approved(hash_anuncio)
-    media_avaliacoes = (
-        sum(item["stars"] for item in total_avaliacoes) / len(total_avaliacoes)
-        if total_avaliacoes else 0
-    )
-    if st.button(
-        f"★ {media_avaliacoes:.1f} · Avaliações ({len(total_avaliacoes)})",
-        key=f"reviews_{hash_anuncio}",
-        use_container_width=True,
-    ):
-        titulo = str(anuncio.get("titulo") or anuncio.get("title") or imobiliaria)
-        dialogo_avaliacoes_imovel(hash_anuncio, titulo)
-    acao_coluna, excluir_coluna = st.columns(2, gap="small")
-    with acao_coluna:
+    card_id = hashlib.sha256(chave.encode()).hexdigest()[:16]
+    with st.container(key=f"property_card_{card_id}"):
+        st.markdown(
+            html_preview_anuncio(imobiliaria, anuncio, cache, novo=chave in novos),
+            unsafe_allow_html=True,
+        )
+        hash_anuncio = hashlib.sha256(chave.encode()).hexdigest()[:16]
+        total_avaliacoes = review_store.list_approved(hash_anuncio)
+        media_avaliacoes = (
+            sum(item["stars"] for item in total_avaliacoes) / len(total_avaliacoes)
+            if total_avaliacoes else 0
+        )
         if st.button(
-            "★" if favorito_atual else "☆",
-            help="Remover dos favoritos" if favorito_atual else "Favoritar anúncio",
-            key=f"favorite-on_{hash_anuncio}" if favorito_atual else f"favorite_{hash_anuncio}",
+            f"★ {media_avaliacoes:.1f} · Avaliações ({len(total_avaliacoes)})",
+            key=f"reviews_{hash_anuncio}",
             use_container_width=True,
         ):
-            definir_favorito(chave, not favorito_atual)
-            st.session_state["_expand_agencia_apos_acao"] = imobiliaria
-            st.rerun(scope="fragment")
-            return
-    with excluir_coluna:
-        if st.button(
-            "🗑",
-            help="Excluir anúncio",
-            key=f"delete_{hash_anuncio}",
-            use_container_width=True,
-        ):
-            excluir_anuncio(chave)
-            st.session_state["_expand_agencia_apos_acao"] = imobiliaria
-            st.rerun(scope="fragment")
-            return
+            titulo = str(anuncio.get("titulo") or anuncio.get("title") or imobiliaria)
+            dialogo_avaliacoes_imovel(hash_anuncio, titulo)
+        acao_coluna, excluir_coluna = st.columns(2, gap="small")
+        with acao_coluna:
+            if st.button(
+                "Salvo" if favorito_atual else "Favoritar",
+                icon=":material/favorite:" if favorito_atual else ":material/favorite_border:",
+                help="Remover dos favoritos" if favorito_atual else "Favoritar anúncio",
+                key=f"favorite-on_{hash_anuncio}" if favorito_atual else f"favorite_{hash_anuncio}",
+                use_container_width=True,
+            ):
+                definir_favorito(chave, not favorito_atual)
+                st.session_state["_expand_agencia_apos_acao"] = imobiliaria
+                st.rerun(scope="fragment")
+                return
+        with excluir_coluna:
+            if st.button(
+                "Excluir",
+                icon=":material/delete_outline:",
+                help="Excluir anúncio",
+                key=f"delete_{hash_anuncio}",
+                use_container_width=True,
+            ):
+                excluir_anuncio(chave)
+                st.session_state["_expand_agencia_apos_acao"] = imobiliaria
+                st.rerun(scope="fragment")
+                return
 
 
 def renderizar_previews(imobiliaria, resultados, cache, pagina_favoritos, novos):
-    for inicio in range(0, len(resultados), 4):
+    for inicio in range(0, len(resultados), 3):
         colunas = st.columns(3, gap="small")
-        for coluna, anuncio in zip(colunas, resultados[inicio:inicio + 4]):
+        for coluna, anuncio in zip(colunas, resultados[inicio:inicio + 3]):
             with coluna:
                 renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos)
 
@@ -1834,6 +1845,7 @@ def renderizar_botoes_pagina_mobile():
 
 @st.fragment
 def renderizar_pagina_anuncios(pagina):
+    render_results_styles()
     feedback = st.session_state.pop("_delete_agency_feedback", None)
     if feedback:
         st.success(feedback)
@@ -1871,6 +1883,12 @@ def renderizar_pagina_anuncios(pagina):
         )
         return
 
+    st.markdown(
+        '<div class="results-summary">'
+        f'<span><strong>{len(anuncios_da_pagina)}</strong> imóveis na lista</span>'
+        f'<span><strong>{len(grupos)}</strong> imobiliárias</span>'
+        '</div>', unsafe_allow_html=True,
+    )
     filtro_coluna, busca_coluna = st.columns([1, 2])
     chave_filtro = "filtro_favoritos_imobiliaria" if pagina == "Favoritos" else "filtro_imobiliaria"
     chave_busca = "busca_favoritos" if pagina == "Favoritos" else "busca_anuncio"
