@@ -340,8 +340,6 @@ def coletar_portal_local(session, nome, ids, on_records=None):
         urls_pagina = [url]
         if nome == "Jeremias Rodrigues":
             urls_pagina = [url, *(f"{url}?page={n}" for n in range(2, 11))]
-        elif nome == "Imobiliária Inovare":
-            urls_pagina = [url, f"{url}/?pag=2"]
         elif nome == "Personal Consultoria":
             urls_pagina = [url, *(f"{url}?start={n}" for n in range(40, 561, 40))]
         vistos_na_url = set()
@@ -366,6 +364,18 @@ def coletar_portal_local(session, nome, ids, on_records=None):
                     )
                     break
                 raise
+            if nome == "Imobiliária Inovare" and pagina_url == url:
+                # Follow the pagination advertised by the site, rather than
+                # requesting a second page even when it no longer exists.
+                for anchor in soup.select("a[href]"):
+                    next_url = urljoin(url, anchor["href"])
+                    parsed = urlparse(next_url)
+                    page = parse_qs(parsed.query).get("pag", [""])[0]
+                    if (parsed.netloc == urlparse(url).netloc
+                            and parsed.path.rstrip("/") == urlparse(url).path.rstrip("/")
+                            and page.isdigit() and 2 <= int(page) <= 10
+                            and next_url not in urls_pagina):
+                        urls_pagina.append(next_url)
             paginas += 1
             encontrados = 0
             marcadores_pagina = ("/imoveis-locacao/",) if nome == "Gomes Nova Opção" else marcadores_link
@@ -599,7 +609,7 @@ def buscar(session, url, timeout=(5, 20), retries=1):
         except requests.RequestException as erro:
             response = getattr(erro, "response", None)
             transitorio = isinstance(erro, (requests.Timeout, requests.ConnectionError)) or (
-                response is not None and response.status_code in {408, 429, 500, 502, 503, 504}
+                response is not None and response.status_code in {408, 429, 500, 502, 503, 504, 520, 521, 522, 523, 524}
             )
             if not transitorio or tentativa >= retries:
                 raise

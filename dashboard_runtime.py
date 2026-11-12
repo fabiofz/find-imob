@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-11-clean-button-right"
+DASHBOARD_RELEASE = "2026-11-12-collector-error-fixes"
 
 
 def home_page():
