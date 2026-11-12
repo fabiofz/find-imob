@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-11-collector-recovery"
+DASHBOARD_RELEASE = "2026-11-11-agency-delete"
 
 
 def home_page():

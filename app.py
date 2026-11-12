@@ -25,6 +25,7 @@ import review_store
 from scripts.catalog_collectors import PORTAIS_INDISPONIVEIS
 import cloud_store
 import database
+from advertisement_actions import exclude_advertisements
 from ui_feedback import TOP_CONTROLS_CSS, render_navigation_feedback
 from utils.funcs import preco_para_float
 
@@ -751,11 +752,42 @@ def definir_favorito(chave, favorito):
 
 
 def excluir_anuncio(chave):
-    def atualizar(estado):
-        favoritos = set(estado.get("favoritos", [])) - {chave}
-        excluidos = set(estado.get("excluidos", [])) | {chave}
-        return {**estado, "favoritos": sorted(favoritos), "excluidos": sorted(excluidos)}
-    cloud_store.update_json(ADVERTISEMENT_STATE_FILE, {}, atualizar)
+    return exclude_advertisements(ADVERTISEMENT_STATE_FILE, [chave])
+
+
+def excluir_resultados_imobiliaria(nome):
+    anuncios = agrupar_por_imobiliaria(listar_anuncios()).get(nome, [])
+    return exclude_advertisements(
+        ADVERTISEMENT_STATE_FILE, (chave_anuncio(item) for item in anuncios),
+        preserve_favorites=True,
+    )
+
+
+def renderizar_exclusao_imobiliaria(nome, total):
+    identificador = hashlib.sha256(nome.encode()).hexdigest()[:16]
+    if st.button(
+        "Excluir todos desta imobiliária", icon=":material/delete_sweep:",
+        key=f"delete_agency_{identificador}",
+        help=f"Excluir os {total} resultados de {nome}, mantendo os favoritos.",
+    ):
+        st.session_state._delete_agency_pending = nome
+    if st.session_state.get("_delete_agency_pending") != nome:
+        return
+    st.warning(f"Excluir todos os {total} resultados de {nome}? Os favoritos serão mantidos.")
+    st.caption("A ação inclui os resultados desta imobiliária fora da busca de texto atual.")
+    confirmar, cancelar = st.columns(2, gap="small")
+    with confirmar:
+        if st.button("Confirmar exclusão", key=f"confirm_delete_agency_{identificador}", type="primary"):
+            quantidade = excluir_resultados_imobiliaria(nome)
+            st.session_state.pop("_delete_agency_pending", None)
+            st.session_state._delete_agency_feedback = (
+                f"{quantidade} anúncio(s) de {nome} removido(s) da lista."
+            )
+            st.rerun()
+    with cancelar:
+        if st.button("Cancelar", key=f"cancel_delete_agency_{identificador}"):
+            st.session_state.pop("_delete_agency_pending", None)
+            st.rerun()
 
 
 def carregar_cache_previews():
@@ -1802,6 +1834,9 @@ def renderizar_botoes_pagina_mobile():
 
 @st.fragment
 def renderizar_pagina_anuncios(pagina):
+    feedback = st.session_state.pop("_delete_agency_feedback", None)
+    if feedback:
+        st.success(feedback)
     expandir_agencia = st.session_state.pop("_expand_agencia_apos_acao", None)
     anuncios = listar_anuncios()
     cache_previews = carregar_cache_previews()
@@ -1962,10 +1997,10 @@ def renderizar_pagina_anuncios(pagina):
                         st.rerun(scope="fragment")
     if (
         imobiliaria_selecionada != "Todas"
-        and imobiliaria_selecionada in resultados_por_imobiliaria
+        and imobiliaria_selecionada in grupos
     ):
         nome = imobiliaria_selecionada
-        resultados = resultados_por_imobiliaria[nome]
+        resultados = resultados_por_imobiliaria.get(nome, [])
         possui_novidades = pagina == "Resultados das buscas" and any(
             chave_anuncio(anuncio) in novos for anuncio in resultados
         )
@@ -1979,6 +2014,8 @@ def renderizar_pagina_anuncios(pagina):
             f'<span>{len(resultados)} anúncio(s)</span></div>',
             unsafe_allow_html=True,
         )
+        if pagina == "Resultados das buscas":
+            renderizar_exclusao_imobiliaria(nome, len(grupos[nome]))
         renderizar_resultados_por_faixa(
             nome, resultados, cache_previews, pagina == "Favoritos", datas_coleta, novos
         )
@@ -1992,6 +2029,8 @@ def renderizar_pagina_anuncios(pagina):
                 f"{indicador_imobiliaria}{nome} · {len(resultados)} anúncio(s)",
                 expanded=nome == expandir_agencia,
             ):
+                if pagina == "Resultados das buscas":
+                    renderizar_exclusao_imobiliaria(nome, len(grupos[nome]))
                 renderizar_resultados_por_faixa(
                     nome, resultados, cache_previews, pagina == "Favoritos", datas_coleta, novos
                 )

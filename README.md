@@ -137,3 +137,5 @@ fonte de Pindamonhangaba.
 Os logs online registram também as falhas individuais de cada coletor. Ao zerar o
 catálogo, contas, configurações, avaliações e histórico podem ser preservados;
 backups privados ficam em `exports/backups/`, fora do Git.
+
+Na lista de resultados, use **Excluir todos desta imobiliária** para remover em lote os anúncios de uma imobiliária. A ação pede confirmação, inclui os resultados fora da busca de texto atual e preserva os favoritos.
