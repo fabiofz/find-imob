@@ -16,6 +16,7 @@ class AgencyDeletionUITests(unittest.TestCase):
                 'solicitar_exclusao_imobiliaria', 'cancelar_exclusao_imobiliaria'})
         script = '''
 import hashlib
+from html import escape
 import streamlit as st
 if 'excluded' not in st.session_state:
     st.session_state.excluded = []
@@ -44,7 +45,7 @@ with st.expander('Agência A', expanded=expanded == 'Agência A' or st.session_s
         key = hashlib.sha256('Agência A'.encode()).hexdigest()[:16]
         app.text_input(key='busca_anuncio').input('a-one').run()
         app.button(key=f'delete_agency_{key}').click().run()
-        self.assertIn('2 resultados', app.warning[0].value)
+        self.assertTrue(any('Limpar 2 resultados' in item.value for item in app.markdown))
         self.assertEqual(app.session_state.excluded, [])
         app.button(key=f'cancel_delete_agency_{key}').click().run()
         self.assertEqual(app.session_state.excluded, [])

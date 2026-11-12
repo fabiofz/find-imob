@@ -28,13 +28,21 @@ RESULTS_CSS = '''
 [class*="st-key-property_card_"] [class*="st-key-favorite"] button { background:color-mix(in srgb,var(--green) 10%,var(--panel)) !important; color:var(--text) !important; border:1px solid color-mix(in srgb,var(--green) 25%,var(--line)) !important; }
 [class*="st-key-property_card_"] [class*="st-key-delete_"] button,
 [class*="st-key-agency_tools_"] button,
-[class*="st-key-cancel_delete_agency_"] button { background:transparent !important; color:var(--muted) !important; border:1px solid var(--line) !important; transform:none !important; }
+[class*="st-key-agency_confirmation_"] [class*="st-key-cancel_delete_agency_"] button { background:transparent !important; color:var(--muted) !important; border:1px solid var(--line) !important; transform:none !important; }
 [class*="st-key-property_card_"] [class*="st-key-delete_"] button:hover,
 [class*="st-key-agency_tools_"] button:hover { color:#e05260 !important; border-color:#e05260 !important; }
 [class*="st-key-agency_tools_"] { padding:0 0 12px; }
 [class*="st-key-agency_tools_"] [data-testid="stHorizontalBlock"] { align-items:center; }
-[class*="st-key-agency_confirmation_"] { padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--panel); margin-bottom:16px; }
-[class*="st-key-confirm_delete_agency_"] button { background:#c83d4c !important; color:white !important; }
+[class*="st-key-agency_confirmation_"] { padding:14px 16px; border:1px solid var(--line); border-left:3px solid var(--green); border-radius:10px; background:var(--panel); margin-bottom:16px; }
+.agency-confirm-title { color:var(--text); font-size:.9rem; font-weight:600; line-height:1.4; }
+.agency-confirm-description { color:var(--muted); font-size:.8rem; line-height:1.5; margin:4px 0 10px; }
+[class*="st-key-agency_confirmation_"] [data-testid="stHorizontalBlock"] { gap:8px !important; flex-wrap:nowrap !important; justify-content:flex-start; }
+[class*="st-key-agency_confirmation_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] { flex:0 0 auto !important; width:auto !important; min-width:0 !important; }
+[class*="st-key-agency_confirmation_"] button { width:auto !important; min-height:32px !important; height:32px !important; padding:4px 12px !important; border-radius:8px !important; box-shadow:none !important; transform:none !important; }
+[class*="st-key-agency_confirmation_"] button p { font-size:.8rem !important; }
+[class*="st-key-agency_confirmation_"] [class*="st-key-confirm_delete_agency_"] button { background:var(--green) !important; color:#102419 !important; border:1px solid var(--green) !important; }
+[class*="st-key-agency_confirmation_"] [class*="st-key-confirm_delete_agency_"] button:hover { background:var(--green-hover) !important; }
+[class*="st-key-agency_confirmation_"] [class*="st-key-cancel_delete_agency_"] button:hover { background:var(--panel-hover,var(--bg)) !important; color:var(--text) !important; }
 .selected-agency-header { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:10px 0; background:transparent; border:0; margin:8px 0; font-size:1.2rem; }
 .selected-agency-header > span:not(.agency-new-dot) { margin-left:auto; color:var(--muted); }
 .date-time-label { border:0; background:transparent; color:var(--muted); font-size:.78rem; font-weight:400; padding:8px 0; margin:8px 0 0; }

@@ -790,8 +790,12 @@ def renderizar_exclusao_imobiliaria(nome, total):
     if st.session_state.get("_delete_agency_pending") != nome:
         return
     with st.container(key=f"agency_confirmation_{identificador}"):
-        st.warning(f"Excluir todos os {total} resultados de {nome}? Os favoritos serão mantidos.")
-        st.caption("A ação inclui os resultados desta imobiliária fora da busca de texto atual.")
+        st.markdown(
+            f'<div class="agency-confirm-title">Limpar {total} resultados de {escape(nome)}?</div>'
+            '<div class="agency-confirm-description">Seus favoritos serão mantidos. '
+            'Inclui os imóveis fora da busca de texto atual.</div>',
+            unsafe_allow_html=True,
+        )
         confirmar, cancelar = st.columns(2, gap="small")
         with confirmar:
             if st.button("Confirmar exclusão", key=f"confirm_delete_agency_{identificador}", type="primary"):
@@ -805,7 +809,6 @@ def renderizar_exclusao_imobiliaria(nome, total):
             st.button(
                 "Cancelar", key=f"cancel_delete_agency_{identificador}",
                 on_click=cancelar_exclusao_imobiliaria, args=(nome,),
-                use_container_width=True,
             )
 
 
