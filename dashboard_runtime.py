@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-12-background-collection"
+DASHBOARD_RELEASE = "2026-11-12-follow-button"
 
 
 def home_page():

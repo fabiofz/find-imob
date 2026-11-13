@@ -490,13 +490,18 @@ st.markdown(
       .stApp[data-test-script-state="stopRequested"] div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante),
       .stApp[data-test-script-state="stopRequested"] .st-key-tema_flutuante { visibility:hidden !important; opacity:0 !important; pointer-events:none !important; transition:none !important; }
       @keyframes findimob-spin { to { transform:rotate(360deg); } }
-      div[data-testid="stElementContainer"]:has(.st-key-progresso_ativo) { width:max-content !important; max-width:calc(100vw - 28px) !important; margin:12px auto 18px !important; }
-      .st-key-progresso_ativo { display:inline-flex !important; width:max-content !important; max-width:100% !important; padding:5px; border:1px solid color-mix(in srgb,#ef3344 30%,var(--line)); border-radius:15px; background:color-mix(in srgb,#ef3344 6%,var(--panel)); box-shadow:0 4px 14px #0003; }
-      .st-key-progresso_ativo [data-testid="stButton"] { width:max-content !important; }
-      .st-key-progresso_ativo [data-testid="stButton"] button { width:164px !important; min-width:164px !important; min-height:40px !important; padding:0 15px !important; border-radius:11px !important; background:#d92732 !important; border:1px solid #ff4b55 !important; color:#fff !important; box-shadow:none !important; font-weight:650 !important; }
-      .st-key-progresso_ativo [data-testid="stButton"] button::before { content:"⟳"; display:inline-block; margin-right:9px; color:#fff; font-size:1.12rem; line-height:1; vertical-align:-1px; animation:findimob-spin .9s linear infinite; }
-      .st-key-progresso_ativo [data-testid="stButton"] button:hover { background:#ed343f !important; box-shadow:0 3px 10px #ef334433 !important; transform:translateY(-1px); }
-      @media (max-width:520px) { .st-key-progresso_ativo [data-testid="stButton"] button { width:150px !important; min-width:150px !important; } }
+      .st-key-progresso_ativo { width:100% !important; box-sizing:border-box; padding:14px 18px; margin:8px 0 20px; border:1px solid var(--line); border-radius:14px; background:var(--panel); }
+      .st-key-progresso_ativo [data-testid="stHorizontalBlock"] { align-items:center; gap:12px; flex-wrap:nowrap !important; }
+      .st-key-progresso_ativo [data-testid="stColumn"] { min-width:0 !important; }
+      .collection-follow-label { color:var(--text); font-size:.9rem; font-weight:600; line-height:1.4; }
+      .collection-follow-status { color:var(--muted); font-size:.78rem; margin-top:3px; }
+      .collection-follow-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); margin-right:7px; }
+      .st-key-ver_progresso_ativo { margin-left:auto !important; align-self:flex-end !important; }
+      .st-key-progresso_ativo .st-key-ver_progresso_ativo button { width:auto !important; min-width:0 !important; min-height:36px !important; padding:6px 14px !important; border-radius:9px !important; background:color-mix(in srgb,var(--green) 12%,var(--panel)) !important; border:1px solid color-mix(in srgb,var(--green) 35%,var(--line)) !important; color:var(--text) !important; box-shadow:none !important; transform:none !important; }
+      .st-key-progresso_ativo .st-key-ver_progresso_ativo button p { font-size:.82rem !important; }
+      .st-key-progresso_ativo .st-key-ver_progresso_ativo button:hover { border-color:var(--green) !important; background:color-mix(in srgb,var(--green) 20%,var(--panel)) !important; }
+      @media(max-width:520px) { .st-key-progresso_ativo { padding:12px; } .st-key-progresso_ativo .st-key-ver_progresso_ativo button { padding:6px 10px !important; } }
+
       .st-key-tema_float_close [data-testid="stButton"] button { color:var(--muted) !important; font-size:1.5rem !important; }
       @media (min-width: 769px) and (max-width: 1100px) {
         [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(4)) { flex-wrap:wrap; }
@@ -1367,10 +1372,19 @@ def renderizar_progresso_ativo():
     if not dados or dados.get("status") not in collection_jobs.RUNNING | {"interrupted", "failed"}:
         return
     with st.container(key="progresso_ativo"):
-        st.caption(f"{dados.get('rotulo', 'Coleta')} · " + (
-            "Execução interrompida" if dados.get("status") in {"interrupted", "failed"} else "Em segundo plano"))
-        if st.button("Ver progresso", key="ver_progresso_ativo"):
-            visualizar_execucao_ativa()
+        resumo, acao = st.columns([3, 2], gap="small", vertical_alignment="center")
+        with resumo:
+            interrompida = dados.get("status") in {"interrupted", "failed"}
+            status = "Execução interrompida" if interrompida else "Coleta em segundo plano"
+            indicador = '' if interrompida else '<span class="collection-follow-dot"></span>'
+            st.markdown(
+                f'<div class="collection-follow-label">{escape(dados.get("rotulo", "Coleta"))}</div>'
+                f'<div class="collection-follow-status">{indicador}{status}</div>',
+                unsafe_allow_html=True,
+            )
+        with acao:
+            if st.button("Acompanhar", icon=":material/monitoring:", key="ver_progresso_ativo"):
+                visualizar_execucao_ativa()
 
 
 @st.dialog("Progresso da coleta", width="large")
