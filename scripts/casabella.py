@@ -1,4 +1,5 @@
 """Casa Bella: bounded requests, rental price and per-page persistence."""
+from utils.collection_errors import continue_on_error
 import re
 from urllib.parse import urlencode, urljoin
 
@@ -37,29 +38,32 @@ def executar():
     count = 0
     with requests.Session() as session:
         for property_type in TIPOS_BUSCA:
-            query = urlencode({'location': 'pindamonhangaba', 'type': property_type, 'status': 'aluguel'})
-            initial_url = BASE + 'busca-de-imoveis/?' + query
-            soup = buscar(session, initial_url)
-            labels = [int(a.get_text(strip=True)) for a in soup.select('.rh_pagination a.rh_pagination__btn')
-                      if a.get_text(strip=True).isdigit()]
-            pages = min(max(labels, default=1), 30)
-            for page in range(1, pages + 1):
-                url = initial_url if page == 1 else BASE + f'busca-de-imoveis/page/{page}/?' + query
-                if page > 1:
-                    soup = buscar(session, url)
-                added = 0
-                for card in soup.select('article.rh_list_card'):
-                    fields = extrair_card(card, url)
-                    if not fields:
-                        continue
-                    record = criar_registro(*fields, page, ids)
-                    if record:
-                        records.append(record)
-                        added += 1
-                if added:
-                    salvar_json(records, GERAL_JSON)
-                    count += added
-                    print(f'[SALVO] Casa Bella: {added} anúncio(s) na página {page}.', flush=True)
+            with continue_on_error('casabella: página ou categoria'):
+                query = urlencode({'location': 'pindamonhangaba', 'type': property_type, 'status': 'aluguel'})
+                initial_url = BASE + 'busca-de-imoveis/?' + query
+                soup = buscar(session, initial_url)
+                labels = [int(a.get_text(strip=True)) for a in soup.select('.rh_pagination a.rh_pagination__btn')
+                          if a.get_text(strip=True).isdigit()]
+                pages = min(max(labels, default=1), 30)
+                for page in range(1, pages + 1):
+                    with continue_on_error('casabella: página ou categoria'):
+                        url = initial_url if page == 1 else BASE + f'busca-de-imoveis/page/{page}/?' + query
+                        if page > 1:
+                            soup = buscar(session, url)
+                        added = 0
+                        for card in soup.select('article.rh_list_card'):
+                            with continue_on_error('casabella: anúncio'):
+                                fields = extrair_card(card, url)
+                                if not fields:
+                                    continue
+                                record = criar_registro(*fields, page, ids)
+                                if record:
+                                    records.append(record)
+                                    added += 1
+                        if added:
+                            salvar_json(records, GERAL_JSON)
+                            count += added
+                            print(f'[SALVO] Casa Bella: {added} anúncio(s) na página {page}.', flush=True)
     print(f'Casa Bella: {count} anúncio(s) novo(s).', flush=True)
     return 0
 

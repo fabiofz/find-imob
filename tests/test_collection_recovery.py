@@ -44,10 +44,12 @@ class CollectionRecoveryTests(unittest.TestCase):
     def test_page_is_checkpointed_before_next_request_fails(self):
         first=BeautifulSoup(HTML+'<a href="?pagina=2">Ver mais</a>','html.parser')
         saved=[]
-        with patch.object(collectors,'buscar',side_effect=[first,requests.Timeout('página 2')]):
-            with self.assertRaises(requests.Timeout):
-                collectors.coletar_catalogo_locacao(None,'Berith Imóveis',set(),
-                    on_records=lambda records:saved.extend(dict(item) for item in records))
+        failures = []
+        with collectors.collect_errors(failures), patch.object(collectors,'buscar',side_effect=[first,requests.Timeout('página 2')]):
+            collectors.coletar_catalogo_locacao(None,'Berith Imóveis',set(),
+                on_records=lambda records:saved.extend(dict(item) for item in records))
+        self.assertEqual(len(failures), 1)
+        self.assertIsInstance(failures[0][1], requests.Timeout)
         self.assertEqual(len(saved),1)
         self.assertEqual(saved[0]['preco'],'R$ 2.100')
 

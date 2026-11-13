@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-12-collector-error-fixes"
+DASHBOARD_RELEASE = "2026-11-12-continue-on-errors"
 
 
 def home_page():

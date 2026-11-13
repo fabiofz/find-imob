@@ -1,5 +1,5 @@
 """Coletores configurados para portais que compartilham o mesmo HTML."""
-
+from utils.collection_errors import continue_on_error, collect_errors
 import hashlib
 import re
 import time
@@ -337,105 +337,109 @@ def coletar_portal_local(session, nome, ids, on_records=None):
     urls = urls_portal_local(nome)
     marcadores_link = MARCADORES_LINK_PORTAL.get(nome, ("/imovel/",))
     for url in urls:
-        urls_pagina = [url]
-        if nome == "Jeremias Rodrigues":
-            urls_pagina = [url, *(f"{url}?page={n}" for n in range(2, 11))]
-        elif nome == "Personal Consultoria":
-            urls_pagina = [url, *(f"{url}?start={n}" for n in range(40, 561, 40))]
-        vistos_na_url = set()
-        links_pagina_anterior = None
-        for pagina_url in urls_pagina:
-            try:
-                if nome == "Personal Consultoria":
-                    soup = buscar(session, pagina_url, timeout=45, retries=1)
-                elif nome == "Jeremias Rodrigues":
-                    # O portal pode demorar em páginas além das primeiras. Tenta
-                    # novamente e, se uma página posterior continuar indisponível,
-                    # preserva o que já foi coletado e segue para as demais imobs.
-                    soup = buscar(session, pagina_url, timeout=20, retries=1)
-                else:
-                    soup = buscar(session, pagina_url)
-            except requests.RequestException as erro:
-                if nome == "Jeremias Rodrigues" and "page=" in pagina_url:
-                    print(
-                        f"[WARN] Jeremias Rodrigues: página {pagina_url} indisponível "
-                        f"após nova tentativa ({erro}); mantendo os resultados parciais.",
-                        flush=True,
-                    )
-                    break
-                raise
-            if nome == "Imobiliária Inovare" and pagina_url == url:
-                # Follow the pagination advertised by the site, rather than
-                # requesting a second page even when it no longer exists.
-                for anchor in soup.select("a[href]"):
-                    next_url = urljoin(url, anchor["href"])
-                    parsed = urlparse(next_url)
-                    page = parse_qs(parsed.query).get("pag", [""])[0]
-                    if (parsed.netloc == urlparse(url).netloc
-                            and parsed.path.rstrip("/") == urlparse(url).path.rstrip("/")
-                            and page.isdigit() and 2 <= int(page) <= 10
-                            and next_url not in urls_pagina):
-                        urls_pagina.append(next_url)
-            paginas += 1
-            encontrados = 0
-            marcadores_pagina = ("/imoveis-locacao/",) if nome == "Gomes Nova Opção" else marcadores_link
-            links_da_pagina = {
-                urljoin(pagina_url, ancora.get("href", ""))
-                for ancora in soup.select("a[href]")
-                if any(marcador in ancora.get("href", "").casefold() for marcador in marcadores_pagina)
-            }
-            if nome == "Personal Consultoria" and links_da_pagina == links_pagina_anterior:
-                break
-            links_pagina_anterior = links_da_pagina
-            if nome == "Personal Consultoria" and not links_da_pagina:
-                break
-            for ancora in soup.select("a[href]"):
-                href = ancora.get("href", "")
-                marcadores_ancora = ("/imoveis-locacao/",) if nome == "Gomes Nova Opção" else marcadores_link
-                if not any(marcador in href.casefold() for marcador in marcadores_ancora):
-                    continue
-                link = urljoin(pagina_url, href)
-                if link in vistos_na_url:
-                    continue
-                vistos_na_url.add(link)
-                # Escolhe o menor ancestral que contenha título e preço, limitado para
-                # evitar capturar texto de toda a página como se fosse um cartão.
-                candidatos = []
-                no = ancora
-                for _ in range(7):
-                    if no is None:
+        with continue_on_error('Catálogo: página'):
+            urls_pagina = [url]
+            if nome == "Jeremias Rodrigues":
+                urls_pagina = [url, *(f"{url}?page={n}" for n in range(2, 11))]
+            elif nome == "Personal Consultoria":
+                urls_pagina = [url, *(f"{url}?start={n}" for n in range(40, 561, 40))]
+            vistos_na_url = set()
+            links_pagina_anterior = None
+            for pagina_url in urls_pagina:
+                with continue_on_error('Catálogo: página'):
+                    try:
+                        if nome == "Personal Consultoria":
+                            soup = buscar(session, pagina_url, timeout=45, retries=1)
+                        elif nome == "Jeremias Rodrigues":
+                            # O portal pode demorar em páginas além das primeiras. Tenta
+                            # novamente e, se uma página posterior continuar indisponível,
+                            # preserva o que já foi coletado e segue para as demais imobs.
+                            soup = buscar(session, pagina_url, timeout=20, retries=1)
+                        else:
+                            soup = buscar(session, pagina_url)
+                    except requests.RequestException as erro:
+                        if nome == "Jeremias Rodrigues" and "page=" in pagina_url:
+                            print(
+                                f"[WARN] Jeremias Rodrigues: página {pagina_url} indisponível "
+                                f"após nova tentativa ({erro}); mantendo os resultados parciais.",
+                                flush=True,
+                            )
+                            break
+                        raise
+                    if nome == "Imobiliária Inovare" and pagina_url == url:
+                        # Follow the pagination advertised by the site, rather than
+                        # requesting a second page even when it no longer exists.
+                        for anchor in soup.select("a[href]"):
+                            next_url = urljoin(url, anchor["href"])
+                            parsed = urlparse(next_url)
+                            page = parse_qs(parsed.query).get("pag", [""])[0]
+                            if (parsed.netloc == urlparse(url).netloc
+                                    and parsed.path.rstrip("/") == urlparse(url).path.rstrip("/")
+                                    and page.isdigit() and 2 <= int(page) <= 10
+                                    and next_url not in urls_pagina):
+                                urls_pagina.append(next_url)
+                    paginas += 1
+                    encontrados = 0
+                    marcadores_pagina = ("/imoveis-locacao/",) if nome == "Gomes Nova Opção" else marcadores_link
+                    links_da_pagina = {
+                        urljoin(pagina_url, ancora.get("href", ""))
+                        for ancora in soup.select("a[href]")
+                        if any(marcador in ancora.get("href", "").casefold() for marcador in marcadores_pagina)
+                    }
+                    if nome == "Personal Consultoria" and links_da_pagina == links_pagina_anterior:
                         break
-                    texto = no.get_text(" ", strip=True)
-                    if len(texto) >= 15 and _preco_card(texto):
-                        candidatos.append((len(texto), no, texto))
-                    no = no.parent
-                if not candidatos:
-                    continue
-                _, card, texto = min(candidatos, key=lambda item: item[0])
-                titulo_tag = card.select_one("h1, h2, h3, h4, [class*=title], [class*=titulo]")
-                titulo = (titulo_tag.get_text(" ", strip=True) if titulo_tag else ancora.get_text(" ", strip=True))
-                if not titulo or len(titulo) < 4:
-                    titulo = card.get("title", "")
-                preco = _preco_card(texto)
-                cidade = _cidade_no_texto(texto)
-                # Consultas segregadas têm cidade conhecida; os catálogos gerais
-                # precisam informar a cidade no próprio cartão.
-                path_cidade = next((slug for slug in SLUG_CIDADE if f"/{slug}" in urlparse(url).path), None)
-                cidade = cidade or path_cidade or CIDADE_FIXA_PORTAL.get(nome)
-                if nome == "Única Imóveis" and cidade is None:
-                    continue
-                if not imovel_atende_filtros(f"{titulo} {texto}", preco, link, cidade):
-                    continue
-                registro = criar_registro(titulo, preco, link, paginas, ids)
-                if registro:
-                    novos.append(registro)
-                    encontrados += 1
-            if on_records:
-                on_records(novos)
-            # Duplicate IDs must not terminate pagination: there may be new
-            # properties on later pages. Stop only when no property links exist.
-            if nome == "Jeremias Rodrigues" and "page=" in pagina_url and not links_da_pagina:
-                break
+                    links_pagina_anterior = links_da_pagina
+                    if nome == "Personal Consultoria" and not links_da_pagina:
+                        break
+                    for ancora in soup.select("a[href]"):
+                        with continue_on_error('Catálogo: anúncio'):
+                            href = ancora.get("href", "")
+                            marcadores_ancora = ("/imoveis-locacao/",) if nome == "Gomes Nova Opção" else marcadores_link
+                            if not any(marcador in href.casefold() for marcador in marcadores_ancora):
+                                continue
+                            link = urljoin(pagina_url, href)
+                            if link in vistos_na_url:
+                                continue
+                            vistos_na_url.add(link)
+                            # Escolhe o menor ancestral que contenha título e preço, limitado para
+                            # evitar capturar texto de toda a página como se fosse um cartão.
+                            candidatos = []
+                            no = ancora
+                            for _ in range(7):
+                                if no is None:
+                                    break
+                                texto = no.get_text(" ", strip=True)
+                                if len(texto) >= 15 and _preco_card(texto):
+                                    candidatos.append((len(texto), no, texto))
+                                no = no.parent
+                            if not candidatos:
+                                continue
+                            _, card, texto = min(candidatos, key=lambda item: item[0])
+                            titulo_tag = card.select_one("h1, h2, h3, h4, [class*=title], [class*=titulo]")
+                            titulo = (titulo_tag.get_text(" ", strip=True) if titulo_tag else ancora.get_text(" ", strip=True))
+                            if not titulo or len(titulo) < 4:
+                                titulo = card.get("title", "")
+                            preco = _preco_card(texto)
+                            cidade = _cidade_no_texto(texto)
+                            # Consultas segregadas têm cidade conhecida; os catálogos gerais
+                            # precisam informar a cidade no próprio cartão.
+                            path_cidade = next((slug for slug in SLUG_CIDADE if f"/{slug}" in urlparse(url).path), None)
+                            cidade = cidade or path_cidade or CIDADE_FIXA_PORTAL.get(nome)
+                            if nome == "Única Imóveis" and cidade is None:
+                                continue
+                            if not imovel_atende_filtros(f"{titulo} {texto}", preco, link, cidade):
+                                continue
+                            registro = criar_registro(titulo, preco, link, paginas, ids)
+                            if registro:
+                                novos.append(registro)
+                                encontrados += 1
+                    if on_records:
+                        with continue_on_error("Salvar página do catálogo"):
+                            on_records(novos)
+                    # Duplicate IDs must not terminate pagination: there may be new
+                    # properties on later pages. Stop only when no property links exist.
+                    if nome == "Jeremias Rodrigues" and "page=" in pagina_url and not links_da_pagina:
+                        break
     return novos, paginas
 
 
@@ -447,46 +451,49 @@ def coletar_danelli(session, ids, on_records=None):
     novos, vistos = [], set()
     paginas = 0
     for pagina in range(1, 31):
-        response = session.post(
-            base + "retornar-imoveis-disponiveis", headers={**HEADERS, "Referer": base + "aluguel/"},
-            data={"finalidade": "aluguel", "numeropagina": pagina, "numeroregistros": 20,
-                  "valorde": f"{PRECO_MIN:.2f}".replace(".", ","),
-                  "valorate": f"{PRECO_MAX:.2f}".replace(".", ","), "opcaoimovel": 0},
-            timeout=(5, 20),
-        )
-        response.raise_for_status()
-        data = response.json()
-        if not isinstance(data, dict) or not isinstance(data.get("lista"), list):
-            raise ValueError("Danelli retornou um formato de catálogo não reconhecido.")
-        paginas += 1
-        items = data["lista"]
-        if not items:
-            break
-        codigos = {str(item.get("codigo")) for item in items}
-        if codigos.issubset(vistos):
-            break
-        vistos.update(codigos)
-        for item in items:
-            if str(item.get("codigofinalidade")) != "1":
-                continue
-            cidade = _cidade_no_texto(item.get("cidade", ""))
-            if not cidade:
-                continue
-            titulo = str(item.get("titulo") or f"{item.get('tipo', '')} - {item.get('bairro', '')} - {item.get('cidade', '')}")
-            preco = _preco_card(str(item.get("valor", "")))
-            slug, codigo = item.get("url_amigavel"), item.get("codigo")
-            if not slug or not codigo:
-                continue
-            link = base + "imovel/" + quote(str(slug), safe="-") + "/" + quote(str(codigo), safe="")
-            if not imovel_atende_filtros(f"{item.get('tipo', '')} {titulo}", preco, link, cidade):
-                continue
-            registro = criar_registro(titulo, preco, link, pagina, ids)
-            if registro:
-                novos.append(registro)
-        if on_records:
-            on_records(novos)
-        if pagina * 20 >= int(data.get("quantidade", 0)):
-            break
+        with continue_on_error('Catálogo: página'):
+            response = session.post(
+                base + "retornar-imoveis-disponiveis", headers={**HEADERS, "Referer": base + "aluguel/"},
+                data={"finalidade": "aluguel", "numeropagina": pagina, "numeroregistros": 20,
+                      "valorde": f"{PRECO_MIN:.2f}".replace(".", ","),
+                      "valorate": f"{PRECO_MAX:.2f}".replace(".", ","), "opcaoimovel": 0},
+                timeout=(5, 20),
+            )
+            response.raise_for_status()
+            data = response.json()
+            if not isinstance(data, dict) or not isinstance(data.get("lista"), list):
+                raise ValueError("Danelli retornou um formato de catálogo não reconhecido.")
+            paginas += 1
+            items = data["lista"]
+            if not items:
+                break
+            codigos = {str(item.get("codigo")) for item in items}
+            if codigos.issubset(vistos):
+                break
+            vistos.update(codigos)
+            for item in items:
+                with continue_on_error('Catálogo: anúncio'):
+                    if str(item.get("codigofinalidade")) != "1":
+                        continue
+                    cidade = _cidade_no_texto(item.get("cidade", ""))
+                    if not cidade:
+                        continue
+                    titulo = str(item.get("titulo") or f"{item.get('tipo', '')} - {item.get('bairro', '')} - {item.get('cidade', '')}")
+                    preco = _preco_card(str(item.get("valor", "")))
+                    slug, codigo = item.get("url_amigavel"), item.get("codigo")
+                    if not slug or not codigo:
+                        continue
+                    link = base + "imovel/" + quote(str(slug), safe="-") + "/" + quote(str(codigo), safe="")
+                    if not imovel_atende_filtros(f"{item.get('tipo', '')} {titulo}", preco, link, cidade):
+                        continue
+                    registro = criar_registro(titulo, preco, link, pagina, ids)
+                    if registro:
+                        novos.append(registro)
+            if on_records:
+                with continue_on_error("Salvar página do catálogo"):
+                    on_records(novos)
+            if pagina * 20 >= int(data.get("quantidade", 0)):
+                break
     return novos, paginas
 
 
@@ -554,45 +561,48 @@ def coletar_catalogo_locacao(session, nome, ids, on_records=None):
     url_inicial = url
     visitadas, links_vistos = set(), set()
     for pagina in range(1, 31):
-        if not url or url in visitadas:
-            break
-        visitadas.add(url)
-        soup = buscar(session, url)
-        cards = soup.select('a.card-with-buttons, a.card_split_vertically')
-        if nome == "AZV Imóveis":
-            cards = soup.select('a.property-card-link')
-        elif nome == "Pinda Prime":
-            cards = soup.select('a[href*="/imovel/"]:has(.price)')
-        if not cards and not re.search(
-            r"nenhum im[oó]vel|n[aã]o encontr|0 im[oó]veis", soup.get_text(" ", strip=True), re.I
-        ):
-            raise ValueError(f"{nome}: formato da listagem não reconhecido em {url}")
-        links_pagina = {urljoin(url, c.get("href", "")) for c in cards}
-        if cards and links_pagina.issubset(links_vistos):
-            break
-        links_vistos.update(links_pagina)
-        for card in cards:
-            campos = extrair_cartao_locacao(card, url)
-            if campos:
-                registro = criar_registro(*campos, pagina, ids)
-                if registro:
-                    novos.append(registro)
-        if on_records:
-            on_records(novos)
-        proxima = None
-        for ancora in soup.select('a[href]'):
-            candidata = urljoin(url, ancora["href"])
-            partes = urlparse(candidata)
-            if (
-                partes.netloc == urlparse(url).netloc
-                and partes.path.rstrip("/") == urlparse(url).path.rstrip("/")
-                and parse_qs(partes.query).get("pagina") == [str(pagina + 1)]
-            ):
-                # Mantém os filtros da consulta, mesmo se o link os omitir.
-                parametros = {**parse_qs(urlparse(url_inicial).query), **parse_qs(partes.query)}
-                proxima = urlunparse(partes._replace(query=urlencode(parametros, doseq=True)))
+        with continue_on_error('Catálogo: página'):
+            if not url or url in visitadas:
                 break
-        url = proxima
+            visitadas.add(url)
+            soup = buscar(session, url)
+            cards = soup.select('a.card-with-buttons, a.card_split_vertically')
+            if nome == "AZV Imóveis":
+                cards = soup.select('a.property-card-link')
+            elif nome == "Pinda Prime":
+                cards = soup.select('a[href*="/imovel/"]:has(.price)')
+            if not cards and not re.search(
+                r"nenhum im[oó]vel|n[aã]o encontr|0 im[oó]veis", soup.get_text(" ", strip=True), re.I
+            ):
+                raise ValueError(f"{nome}: formato da listagem não reconhecido em {url}")
+            links_pagina = {urljoin(url, c.get("href", "")) for c in cards}
+            if cards and links_pagina.issubset(links_vistos):
+                break
+            links_vistos.update(links_pagina)
+            for card in cards:
+                with continue_on_error('Catálogo: anúncio'):
+                    campos = extrair_cartao_locacao(card, url)
+                    if campos:
+                        registro = criar_registro(*campos, pagina, ids)
+                        if registro:
+                            novos.append(registro)
+            if on_records:
+                with continue_on_error("Salvar página do catálogo"):
+                    on_records(novos)
+            proxima = None
+            for ancora in soup.select('a[href]'):
+                candidata = urljoin(url, ancora["href"])
+                partes = urlparse(candidata)
+                if (
+                    partes.netloc == urlparse(url).netloc
+                    and partes.path.rstrip("/") == urlparse(url).path.rstrip("/")
+                    and parse_qs(partes.query).get("pagina") == [str(pagina + 1)]
+                ):
+                    # Mantém os filtros da consulta, mesmo se o link os omitir.
+                    parametros = {**parse_qs(urlparse(url_inicial).query), **parse_qs(partes.query)}
+                    proxima = urlunparse(partes._replace(query=urlencode(parametros, doseq=True)))
+                    break
+            url = proxima
     if url and len(visitadas) == 30:
         print(f"[WARN] {nome}: limite de 30 páginas atingido; resultados parciais.", flush=True)
     return novos, len(visitadas)
@@ -638,47 +648,51 @@ def coletar_card_portal(session, config, ids, on_records=None):
     paginas_verificadas = 0
     paginado = config.get("paginado", False)
     for url in config["urls"]:
-        url = re.sub(r"vmi=[^&]*", f"vmi={int(PRECO_MIN)}", url)
-        url = re.sub(r"vma=[^&]*", f"vma={int(PRECO_MAX)}", url)
-        cidade_url = next(
-            (cidade for cidade in SLUG_CIDADE if f"/{cidade}/" in urlparse(url).path or f"/{cidade}?" in urlparse(url).path),
-            None,
-        )
-        if cidade_url and cidade_url not in CIDADES_BUSCA:
-            continue
-        primeira_url = f"{url}&pag=1" if paginado else url
-        soup = buscar(session, primeira_url)
-        total_paginas = 1
-        if paginado:
-            numeros = [
-                int(a.get_text(strip=True))
-                for a in soup.select(".lipagina-btn-paginacao-atual")
-                if a.get_text(strip=True).isdigit()
-            ]
-            total_paginas = max(numeros, default=1)
+        with continue_on_error('Catálogo: página'):
+            url = re.sub(r"vmi=[^&]*", f"vmi={int(PRECO_MIN)}", url)
+            url = re.sub(r"vma=[^&]*", f"vma={int(PRECO_MAX)}", url)
+            cidade_url = next(
+                (cidade for cidade in SLUG_CIDADE if f"/{cidade}/" in urlparse(url).path or f"/{cidade}?" in urlparse(url).path),
+                None,
+            )
+            if cidade_url and cidade_url not in CIDADES_BUSCA:
+                continue
+            primeira_url = f"{url}&pag=1" if paginado else url
+            soup = buscar(session, primeira_url)
+            total_paginas = 1
+            if paginado:
+                numeros = [
+                    int(a.get_text(strip=True))
+                    for a in soup.select(".lipagina-btn-paginacao-atual")
+                    if a.get_text(strip=True).isdigit()
+                ]
+                total_paginas = max(numeros, default=1)
 
-        for pagina in range(1, total_paginas + 1):
-            if pagina > 1:
-                soup = buscar(session, f"{url}&pag={pagina}")
-            paginas_verificadas += 1
-            for card in soup.select(".imovelcard"):
-                ancora = card.select_one("a.imovelcard__img")
-                preco_tag = card.select_one(".imovelcard__valor__valor")
-                if not ancora or not preco_tag:
-                    continue
-                titulo = ancora.get("title")
-                preco = limpar_preco(preco_tag.get_text(" ", strip=True))
-                link = urljoin(url, ancora.get("href", ""))
-                cidade = cidade_url or _cidade_no_texto(card.get_text(" ", strip=True))
-                if cidade is None and len(CIDADES_BUSCA) < len(SLUG_CIDADE):
-                    continue
-                if not imovel_atende_filtros(titulo, preco, link, cidade):
-                    continue
-                registro = criar_registro(titulo, preco, link, pagina, ids)
-                if registro:
-                    novos.append(registro)
-            if on_records:
-                on_records(novos)
+            for pagina in range(1, total_paginas + 1):
+                with continue_on_error('Catálogo: página'):
+                    if pagina > 1:
+                        soup = buscar(session, f"{url}&pag={pagina}")
+                    paginas_verificadas += 1
+                    for card in soup.select(".imovelcard"):
+                        with continue_on_error('Catálogo: anúncio'):
+                            ancora = card.select_one("a.imovelcard__img")
+                            preco_tag = card.select_one(".imovelcard__valor__valor")
+                            if not ancora or not preco_tag:
+                                continue
+                            titulo = ancora.get("title")
+                            preco = limpar_preco(preco_tag.get_text(" ", strip=True))
+                            link = urljoin(url, ancora.get("href", ""))
+                            cidade = cidade_url or _cidade_no_texto(card.get_text(" ", strip=True))
+                            if cidade is None and len(CIDADES_BUSCA) < len(SLUG_CIDADE):
+                                continue
+                            if not imovel_atende_filtros(titulo, preco, link, cidade):
+                                continue
+                            registro = criar_registro(titulo, preco, link, pagina, ids)
+                            if registro:
+                                novos.append(registro)
+                    if on_records:
+                        with continue_on_error("Salvar página do catálogo"):
+                            on_records(novos)
     return novos, paginas_verificadas
 
 
@@ -689,31 +703,33 @@ def coletar_tailwind(session, config, ids, on_records=None):
     novos = []
     cards = soup.select("a.flex.flex-col.bg-white.rounded-xl.h-full.relative")
     for card in cards:
-        titulo_tag = card.select_one(".line-clamp-1")
-        precos = card.select(config["preco_seletor"])
-        indice = config["preco_indice"]
-        if not titulo_tag or len(precos) <= indice:
-            continue
-        preco = limpar_preco(precos[indice].get_text(" ", strip=True))
-        valor = preco_para_float(preco)
-        if config["preco_min"] is not None and (
-            valor is None or valor < config["preco_min"] or valor > config["preco_max"]
-        ):
-            continue
-        link = urljoin(url, card.get("href", ""))
-        titulo = titulo_tag.get_text(" ", strip=True)
-        cidade = config.get("cidade") or _cidade_no_texto(card.get_text(" ", strip=True))
-        if cidade is None and len(CIDADES_BUSCA) < len(SLUG_CIDADE):
-            continue
-        if not imovel_atende_filtros(titulo, preco, link, cidade):
-            continue
-        registro = criar_registro(
-            titulo, preco, link, 1, ids
-        )
-        if registro:
-            novos.append(registro)
+        with continue_on_error('Catálogo: anúncio'):
+            titulo_tag = card.select_one(".line-clamp-1")
+            precos = card.select(config["preco_seletor"])
+            indice = config["preco_indice"]
+            if not titulo_tag or len(precos) <= indice:
+                continue
+            preco = limpar_preco(precos[indice].get_text(" ", strip=True))
+            valor = preco_para_float(preco)
+            if config["preco_min"] is not None and (
+                valor is None or valor < config["preco_min"] or valor > config["preco_max"]
+            ):
+                continue
+            link = urljoin(url, card.get("href", ""))
+            titulo = titulo_tag.get_text(" ", strip=True)
+            cidade = config.get("cidade") or _cidade_no_texto(card.get_text(" ", strip=True))
+            if cidade is None and len(CIDADES_BUSCA) < len(SLUG_CIDADE):
+                continue
+            if not imovel_atende_filtros(titulo, preco, link, cidade):
+                continue
+            registro = criar_registro(
+                titulo, preco, link, 1, ids
+            )
+            if registro:
+                novos.append(registro)
     if on_records:
-        on_records(novos)
+        with continue_on_error("Salvar página do catálogo"):
+            on_records(novos)
     return novos, 1
 
 
@@ -730,14 +746,15 @@ def main(portais=None):
         if not pendentes:
             return
         for item in pendentes:
-            dados.append(item)
+            with continue_on_error('Catálogo: anúncio'):
+                dados.append(item)
         if database.is_cloud():
             cloud_store.save_catalogue(pendentes)
         else:
             salvar_json(dados, GERAL_JSON)
         persistidos.update(item["id"] for item in pendentes)
         print(f"[SALVO] {len(pendentes)} anúncio(s) preservado(s).", flush=True)
-    with requests.Session() as session:
+    with collect_errors(falhas), requests.Session() as session:
         for nome, config in PORTAIS_CARD.items():
             if nome not in selecionados:
                 continue

@@ -63,9 +63,11 @@ class CatalogLocacaoTests(unittest.TestCase):
         self.assertIn('preco-de-locacao=', fetch.call_args.args[1])
 
     def test_unrecognized_layout_is_reported_as_failure(self):
-        with patch.object(collectors, 'buscar', return_value=soup('<h1>Falha</h1>')):
-            with self.assertRaises(ValueError):
-                collectors.coletar_catalogo_locacao(None, 'Berith Imóveis', set())
+        failures = []
+        with collectors.collect_errors(failures), patch.object(collectors, 'buscar', return_value=soup('<h1>Falha</h1>')):
+            collectors.coletar_catalogo_locacao(None, 'Berith Imóveis', set())
+        self.assertEqual(len(failures), 1)
+        self.assertIsInstance(failures[0][1], ValueError)
 
 
 if __name__ == '__main__':

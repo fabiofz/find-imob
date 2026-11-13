@@ -1,3 +1,4 @@
+from utils.collection_errors import continue_on_error
 from bs4 import BeautifulSoup
 import requests
 import hashlib
@@ -25,33 +26,34 @@ divs = soup.find_all("a", class_="card-with-buttons")
 
 pg = 1
 for div in divs:
-    link = div["href"]
-    base_url = f"https://{urlparse(url).netloc}"
-    if link :
-        link = base_url + link
+    with continue_on_error('visao: anúncio'):
+        link = div["href"]
+        base_url = f"https://{urlparse(url).netloc}"
+        if link :
+            link = base_url + link
 
-    titulo = div.select_one(".card-with-buttons__heading").get_text(strip=True)
+        titulo = div.select_one(".card-with-buttons__heading").get_text(strip=True)
 
-    preco = None
-    for bloco in div.select(".card-with-buttons__value-container"):
-        titulo_preco = bloco.select_one(".card-with-buttons__value-title").get_text(strip=True)
-        if "Aluguel" in titulo_preco:
-            preco = limpar_preco(bloco.select_one(".card-with-buttons__value").get_text(strip=True))
+        preco = None
+        for bloco in div.select(".card-with-buttons__value-container"):
+            titulo_preco = bloco.select_one(".card-with-buttons__value-title").get_text(strip=True)
+            if "Aluguel" in titulo_preco:
+                preco = limpar_preco(bloco.select_one(".card-with-buttons__value").get_text(strip=True))
 
-    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
-        continue
-    _id = titulo + preco + link
-    _id = hashlib.md5(_id.encode()).hexdigest()
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+            continue
+        _id = titulo + preco + link
+        _id = hashlib.md5(_id.encode()).hexdigest()
 
-    if _id not in ids:
-        imov = {
-            "id": _id,
-            "titulo": titulo,
-            "preco": preco,
-            "link": link,
-            "pagina": pg
-        }
-        imoveis.append(imov)
-        dados.append(imov)
+        if _id not in ids:
+            imov = {
+                "id": _id,
+                "titulo": titulo,
+                "preco": preco,
+                "link": link,
+                "pagina": pg
+            }
+            imoveis.append(imov)
+            dados.append(imov)
 
 salvar_json(dados, GERAL_JSON)

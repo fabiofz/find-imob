@@ -1,5 +1,6 @@
 """Collect Rodrigo D'Errico with retries and a checkpoint after each page."""
 from urllib.parse import urljoin
+from utils.collection_errors import continue_on_error
 
 import requests
 
@@ -19,31 +20,33 @@ def coletar(session, ids, on_records=None):
     for page, url in enumerate(URLS, 1):
         try:
             soup = buscar(session, url, timeout=(8, 15), retries=1)
-        except requests.RequestException as error:
+        except Exception as error:
             failures.append((url, error))
             print(f"Rodrigo D'Errico: falha na página {url}: {error}", flush=True)
             continue
         for card in soup.select('ul.properties_list li'):
-            fields = {}
-            for heading in card.select('h3'):
-                label, separator, value = heading.get_text(' ', strip=True).partition(':')
-                if separator:
-                    fields[label.strip().casefold()] = value.strip()
-            price = fields.get('valor')
-            neighborhood = fields.get('bairro')
-            anchor = card.select_one('a[href]')
-            if not price or not neighborhood or not anchor:
-                continue
-            kind = 'Apartamento' if 'apartamentos' in url else 'Casa'
-            title = f'{kind} - {neighborhood}'
-            link = urljoin(url, anchor['href'])
-            if not imovel_atende_filtros(title, price, link, 'pindamonhangaba'):
-                continue
-            record = criar_registro(title, price, link, page, ids)
-            if record:
-                records.append(record)
+            with continue_on_error("Rodrigo D’Errico: anúncio", failures):
+                fields = {}
+                for heading in card.select('h3'):
+                    label, separator, value = heading.get_text(' ', strip=True).partition(':')
+                    if separator:
+                        fields[label.strip().casefold()] = value.strip()
+                price = fields.get('valor')
+                neighborhood = fields.get('bairro')
+                anchor = card.select_one('a[href]')
+                if not price or not neighborhood or not anchor:
+                    continue
+                kind = 'Apartamento' if 'apartamentos' in url else 'Casa'
+                title = f'{kind} - {neighborhood}'
+                link = urljoin(url, anchor['href'])
+                if not imovel_atende_filtros(title, price, link, 'pindamonhangaba'):
+                    continue
+                record = criar_registro(title, price, link, page, ids)
+                if record:
+                    records.append(record)
         if on_records:
-            on_records(records)
+            with continue_on_error("Rodrigo D’Errico: salvar página", failures):
+                on_records(records)
     return records, failures
 
 
@@ -63,7 +66,8 @@ def main():
         records, failures = coletar(session, state['ids'], on_records=checkpoint)
     print(f"Rodrigo D'Errico: {len(records)} novo(s); {len(failures)} página(s) com falha.", flush=True)
     if failures:
-        registrar_erro_coleta("Coleta parcial · Rodrigo D'Errico", '\n'.join(
+        with continue_on_error("Rodrigo D’Errico: registrar falhas"):
+            registrar_erro_coleta("Coleta parcial · Rodrigo D'Errico", '\n'.join(
             f'{url}: {error}' for url, error in failures))
     return 1 if failures else 0
 

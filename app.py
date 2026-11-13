@@ -1557,7 +1557,11 @@ def _executar_coleta(rotulo, tipo, identificador):
         except Exception as erro_enriquecimento:
             log.append(f"[FOTOS] Falha no enriquecimento dos anúncios: {erro_enriquecimento}")
     duracao = round(time.monotonic() - inicio, 1)
-    resultado = "sucesso" if codigo == 0 else "falha"
+    parcial = any(
+        "[COLETA_PARCIAL]" in linha or "coleta parcial" in linha.casefold()
+        or "Coletores com falha:" in linha for linha in log
+    )
+    resultado = "parcial" if parcial else ("sucesso" if codigo == 0 else "falha")
     hora_fim = datetime.now(LOCAL_TZ).strftime("%H:%M:%S")
     log.append(f"[{hora_fim}] [{'OK' if codigo == 0 else 'ERRO'}] Processo terminou com código {codigo} após {duracao:.1f}s")
     corpo = "\n".join(log[-TAIL_LINES:]) or "Processo finalizado sem mensagens."
@@ -1572,11 +1576,12 @@ def _executar_coleta(rotulo, tipo, identificador):
     if codigo != 0:
         try:
             registrar_log_erro(rotulo, codigo, duracao, log)
-        except OSError as erro_log:
+        except Exception as erro_log:
             log.append(f"[{hora_fim}] [ERRO] Não foi possível gravar logs_erros.txt: {erro_log}")
     status.update(
-        label=(f"Concluído em {duracao}s" if codigo == 0 else f"🚨  Finalizado com erro ({codigo})"),
-        state=("complete" if codigo == 0 else "error"),
+        label=(f"Concluído com avisos em {duracao}s · veja o log" if parcial
+               else f"Concluído em {duracao}s" if codigo == 0 else f"🚨  Finalizado com erro ({codigo})"),
+        state=("complete" if codigo == 0 or parcial else "error"),
         expanded=False,
     )
     st.session_state.ultima_execucao_dialogo = {

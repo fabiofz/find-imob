@@ -1,3 +1,4 @@
+from utils.collection_errors import continue_on_error
 from bs4 import BeautifulSoup
 import requests
 import hashlib
@@ -20,40 +21,41 @@ divs = soup.find_all("imobzi-property-card")
 
 pg = 1
 for div in divs:
-    titulo = div.select_one(".property-title").get_text(strip=True)
+    with continue_on_error('pindense: anúncio'):
+        titulo = div.select_one(".property-title").get_text(strip=True)
 
-    aluguel = None
-    total = None
-    preco = 0
-    for h in div.select("mat-card-content h3.color-title"):
-        texto = h.get_text(" ", strip=True)
+        aluguel = None
+        total = None
+        preco = 0
+        for h in div.select("mat-card-content h3.color-title"):
+            texto = h.get_text(" ", strip=True)
         
-        if "/total" in texto:
-            preco = limpar_preco(texto.strip())
-            break
+            if "/total" in texto:
+                preco = limpar_preco(texto.strip())
+                break
 
-    a_tag = div.select_one("swiper-slide a[href]")
-    link = a_tag["href"] if a_tag else None
+        a_tag = div.select_one("swiper-slide a[href]")
+        link = a_tag["href"] if a_tag else None
 
-    base_url = f"https://{urlparse(url).netloc}"
-    if link and link.startswith("/"):
-        link = base_url + link
+        base_url = f"https://{urlparse(url).netloc}"
+        if link and link.startswith("/"):
+            link = base_url + link
 
-    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
-        continue
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+            continue
 
-    _id = f"{titulo}+{preco}+{link}"
-    _id = hashlib.md5(_id.encode()).hexdigest()
+        _id = f"{titulo}+{preco}+{link}"
+        _id = hashlib.md5(_id.encode()).hexdigest()
 
-    if _id not in ids:
-        imov = {
-            "id": _id,
-            "titulo": titulo,
-            "preco": preco,
-            "link": link,
-            "pagina": pg
-        }
-        imoveis.append(imov)
-        dados.append(imov)
+        if _id not in ids:
+            imov = {
+                "id": _id,
+                "titulo": titulo,
+                "preco": preco,
+                "link": link,
+                "pagina": pg
+            }
+            imoveis.append(imov)
+            dados.append(imov)
 
 salvar_json(dados, GERAL_JSON)

@@ -10,6 +10,7 @@ from collections import deque
 from pathlib import Path
 from queue import Empty, Queue
 from utils.funcs import registrar_erro_coleta
+from utils.collection_errors import continue_on_error
 
 ROOT = Path(__file__).resolve().parent
 SCRIPTS_DIR = ROOT / "scripts"
@@ -60,6 +61,7 @@ def _run_collector(module, environment, falhas, portal=None):
     lines = Queue()
     process = None
     timed_out = False
+    partial = False
 
     print(f"\n=== Iniciando {label} ===", flush=True)
     try:
@@ -98,6 +100,7 @@ def _run_collector(module, environment, falhas, portal=None):
                 reader_done = True
             elif line:
                 clean_line = line.rstrip()
+                partial = partial or "[COLETA_PARCIAL]" in clean_line
                 output.append(clean_line)
                 print(line, end="", flush=True)
 
@@ -124,6 +127,8 @@ def _run_collector(module, environment, falhas, portal=None):
         code = process.wait()
         if timed_out:
             code = 124
+        elif partial and code == 0:
+            code = 1
     except Exception as error:
         code = 1
         detail = f"Erro ao executar {label}: {error}"
@@ -179,9 +184,11 @@ def main():
                 if portal in PORTAIS_INDISPONIVEIS:
                     print(f"[INDISPONÍVEL] {portal}: {PORTAIS_INDISPONIVEIS[portal]}", flush=True)
                     continue
-                _run_collector(script, environment, failures, portal=portal)
+                with continue_on_error(f"Coletor {portal}", failures):
+                    _run_collector(script, environment, failures, portal=portal)
         else:
-            _run_collector(script, environment, failures)
+            with continue_on_error(f"Coletor {script}", failures):
+                _run_collector(script, environment, failures)
 
     if failures:
         print("\nColetores com falha:")

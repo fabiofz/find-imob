@@ -1,3 +1,4 @@
+from utils.collection_errors import continue_on_error
 from bs4 import BeautifulSoup
 import requests
 import hashlib
@@ -144,20 +145,21 @@ def executar():
 
     novos = []
     for card in cards:
-        item = extrair_imovel(card)
-        if not item:
-            continue
-        if not imovel_atende_filtros(item["titulo"], item["preco"], item["link"], "pindamonhangaba"):
-            continue
-        identificador = hashlib.md5(
-            f"{item['titulo']}{item['preco']}{item['link']}".encode("utf-8")
-        ).hexdigest()
-        if identificador in ids:
-            continue
-        item["id"] = identificador
-        ids.add(identificador)
-        novos.append(item)
-        dados.append(item)
+        with continue_on_error('domus: anúncio'):
+            item = extrair_imovel(card)
+            if not item:
+                continue
+            if not imovel_atende_filtros(item["titulo"], item["preco"], item["link"], "pindamonhangaba"):
+                continue
+            identificador = hashlib.md5(
+                f"{item['titulo']}{item['preco']}{item['link']}".encode("utf-8")
+            ).hexdigest()
+            if identificador in ids:
+                continue
+            item["id"] = identificador
+            ids.add(identificador)
+            novos.append(item)
+            dados.append(item)
 
     if not novos:
         print(f"Domus: {len(cards)} anúncios verificados, nenhum novo.")
