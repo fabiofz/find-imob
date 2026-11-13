@@ -3,6 +3,8 @@ from utils.collection_errors import continue_on_error, collect_errors
 import hashlib
 import re
 import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 import database
 import cloud_store
 from pathlib import Path
@@ -608,11 +610,51 @@ def coletar_catalogo_locacao(session, nome, ids, on_records=None):
     return novos, len(visitadas)
 
 
-def buscar(session, url, timeout=(5, 20), retries=1):
+def _aguardar_consulta(session, url):
+    """Leave a small interval between requests to the same site."""
+    if not isinstance(session, requests.sessions.Session):
+        return
+    host = urlparse(url).netloc
+    consultas = session.__dict__.setdefault("_findimob_consultas", {})
+    anterior = consultas.get(host)
+    if anterior is not None:
+        restante = .75 - (time.monotonic() - anterior)
+        if restante > 0:
+            time.sleep(restante)
+
+
+def _espera_retentativa(response, tentativa):
+    espera = min(2 * (2 ** tentativa), 8)
+    if response is None:
+        return espera
+    valor = response.headers.get("Retry-After", "")
+    if valor:
+        try:
+            informado = float(valor)
+        except ValueError:
+            try:
+                momento = parsedate_to_datetime(valor)
+                informado = (momento - datetime.now(timezone.utc)).total_seconds()
+            except (ValueError, TypeError, OverflowError):
+                informado = 0
+        # Do not retry sooner than requested; long waits are deferred to the
+        # next collection instead of exhausting this collector's time budget.
+        if informado > 30:
+            return None
+        espera = max(espera, informado)
+    return espera
+
+
+def buscar(session, url, timeout=(5, 20), retries=2):
     print(f"[HTTP] GET {url}", flush=True)
     for tentativa in range(retries + 1):
         try:
-            resposta = session.get(url, headers=HEADERS, timeout=timeout)
+            _aguardar_consulta(session, url)
+            try:
+                resposta = session.get(url, headers=HEADERS, timeout=timeout)
+            finally:
+                if isinstance(session, requests.sessions.Session):
+                    session.__dict__.setdefault("_findimob_consultas", {})[urlparse(url).netloc] = time.monotonic()
             resposta.raise_for_status()
             print(f"[HTTP] {resposta.status_code} · {len(resposta.content)} bytes recebidos", flush=True)
             return BeautifulSoup(resposta.text, "html.parser")
@@ -623,8 +665,12 @@ def buscar(session, url, timeout=(5, 20), retries=1):
             )
             if not transitorio or tentativa >= retries:
                 raise
-            print(f"[HTTP] Falha temporária em {url}; nova tentativa {tentativa + 1}/{retries}.", flush=True)
-            time.sleep(min(.5 * (2 ** tentativa), 2))
+            espera = _espera_retentativa(response, tentativa)
+            if espera is None:
+                print("[HTTP] O site solicitou uma pausa longa. Consulta adiada para a próxima coleta.", flush=True)
+                raise
+            print(f"[HTTP] Falha temporária; aguardando {espera:g}s antes da tentativa {tentativa + 1}/{retries}.", flush=True)
+            time.sleep(espera)
 
 
 def criar_registro(titulo, preco, link, pagina, ids):

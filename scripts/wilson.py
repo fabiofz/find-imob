@@ -6,15 +6,16 @@ import re
 import json
 from utils.funcs import *
 from utils.variables import *
-from urllib.parse import urlparse
+from urllib.parse import urljoin
+from scripts.catalog_collectors import buscar
 
 json_data = pegar_json(GERAL_JSON)
 ids = json_data["ids"]
 dados = json_data["dados"]
 
 url = f"https://wilsonimoveisvale.com.br/alugar/sp/pindamonhangaba/apartamento_casa/valor-{int(PRECO_MIN)}_{int(PRECO_MAX)}/ordem-valor/resultado-crescente/quantidade-12/"
-html = requests.get(url, timeout=(5, 20)).content
-soup = BeautifulSoup(html, "html.parser")
+with requests.Session() as session:
+    soup = buscar(session, url)
 imoveis = []
 
 divs = soup.find_all("div", class_="link_resultado")
@@ -39,9 +40,8 @@ for div in divs:
             link_tag = div.select_one("a.foto_imovel")
         link = link_tag["href"] if link_tag else None
 
-        base_url = f"https://{urlparse(url).netloc}"
-        if link :
-            link = base_url + link
+        if link:
+            link = urljoin(url, link)
 
         if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
             continue
