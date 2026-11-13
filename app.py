@@ -25,6 +25,8 @@ import review_store
 from scripts.catalog_collectors import PORTAIS_INDISPONIVEIS
 import cloud_store
 import database
+import collection_jobs
+from property_previews import chave_anuncio, validar_imagem_preview, buscar_metadados_preview
 from advertisement_actions import exclude_advertisements
 from results_layout import render_results_styles
 from favorites_export import favorites_workbook
@@ -688,22 +690,6 @@ def salvar_notificacao_resultados(pendente):
     cloud_store.write_json(RESULTS_NOTIFICATION_FILE, {"pendente": bool(pendente)})
 
 
-def chave_anuncio(anuncio):
-    link = str(anuncio.get("link") or "").strip()
-    if link:
-        try:
-            parsed = urlparse(link)
-            if parsed.hostname:
-                return parsed._replace(
-                    netloc=parsed.hostname.lower(),
-                    path=parsed.path.rstrip("/"),
-                    query="",
-                    fragment="",
-                ).geturl()
-        except (TypeError, ValueError):
-            pass
-        return link.casefold()
-    return str(anuncio.get("id") or "")
 
 
 def carregar_estado_anuncios():
@@ -849,146 +835,8 @@ def salvar_cache_previews(cache):
     return None
 
 
-def validar_imagem_preview(url, referer=None):
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            return False
-        with requests.get(
-            url,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; FindImobPreview/1.0)", "Referer": referer or ""},
-            timeout=(2, 3),
-            allow_redirects=True,
-            stream=True,
-        ) as resposta:
-            resposta.raise_for_status()
-            tipo = resposta.headers.get("Content-Type", "").split(";", 1)[0].lower()
-            cabecalho = next(resposta.iter_content(1024), b"")
-            assinaturas = (
-                cabecalho.startswith(b"\xff\xd8\xff"),
-                cabecalho.startswith(b"\x89PNG\r\n\x1a\n"),
-                cabecalho.startswith((b"GIF87a", b"GIF89a")),
-                cabecalho.startswith(b"BM"),
-                cabecalho.startswith((b"II*\x00", b"MM\x00*")),
-                cabecalho.startswith(b"RIFF") and cabecalho[8:12] == b"WEBP",
-                b"ftypavif" in cabecalho or b"ftypavis" in cabecalho,
-            )
-            svg_valido = tipo == "image/svg+xml" and b"<svg" in cabecalho.lower()
-            return any(assinaturas) or svg_valido
-    except (requests.RequestException, ValueError, TypeError):
-        return False
 
 
-def buscar_metadados_preview(url):
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            return {}
-        resposta = requests.get(
-            url,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; FindImobPreview/1.0)"},
-            timeout=(3, 6),
-            allow_redirects=True,
-        )
-        resposta.raise_for_status()
-        soup = BeautifulSoup(resposta.text, "html.parser")
-
-        def meta(*chaves):
-            for chave in chaves:
-                tag = soup.find("meta", attrs={"property": chave}) or soup.find(
-                    "meta", attrs={"name": chave}
-                )
-                conteudo = tag.get("content", "").strip() if tag else ""
-                if conteudo:
-                    return conteudo
-            return ""
-
-        titulo = meta("og:title", "twitter:title")
-        descricao = meta("og:description", "description", "twitter:description")
-        imagem = meta("og:image", "twitter:image")
-        termos_excluir_imagem = ("logo", "icon", "avatar", "placeholder", "banner")
-        if imagem and any(termo in imagem.lower() for termo in termos_excluir_imagem):
-            imagem = ""
-        candidatas = []
-        if imagem:
-            candidatas.append((10, imagem))
-        for img in soup.find_all("img"):
-            src = next((img.get(atributo, "") for atributo in (
-                    "src", "data-src", "data-lazy-src", "data-original"
-            ) if img.get(atributo)), "")
-            srcset = img.get("srcset", "")
-            if not src and srcset:
-                src = srcset.split(",", 1)[0].strip().split(" ", 1)[0]
-            alt = " ".join((img.get("alt", ""), img.get("title", ""))).lower()
-            if not src or any(termo in (src + alt).lower() for termo in termos_excluir_imagem):
-                continue
-            try:
-                largura = int(img.get("width", 0))
-                altura = int(img.get("height", 0))
-            except (TypeError, ValueError):
-                largura = altura = 0
-            if (largura and largura < 120) or (altura and altura < 90):
-                continue
-            pontuacao = (2 if largura >= 300 or altura >= 220 else 0) + (
-                1 if any(termo in alt for termo in ("imóvel", "imovel", "casa", "fachada", "sala")) else 0
-            )
-            candidatas.append((pontuacao, src))
-        # Muitos portais montam galerias com divs estilizadas em vez de
-        # elementos <img>; nesse caso a URL fica no atributo style.
-        for elemento in soup.select("[style]"):
-            estilo = elemento.get("style", "")
-            fundos = re.findall(
-                r"background(?:-image)?\s*:\s*url\([\"']?([^\"')]+)",
-                estilo,
-                flags=re.IGNORECASE,
-            )
-            for src in fundos:
-                if any(termo in src.lower() for termo in termos_excluir_imagem):
-                    continue
-                pontuacao = 4 if "/imoveis/" in src.lower() else 1
-                if "sf-item" in elemento.get("class", []):
-                    pontuacao += 2
-                candidatas.append((pontuacao, src))
-        # Alguns sites guardam as fotos em atributos de dados ou em JSON
-        # inline, sem inserir <img> nem style no HTML inicial.
-        for elemento in soup.find_all(True):
-            for atributo in ("data-bg", "data-background", "data-image", "data-src", "data-original"):
-                src = elemento.get(atributo, "")
-                if src and re.search(r"\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)", src, re.I):
-                    if not any(termo in src.lower() for termo in termos_excluir_imagem):
-                        candidatas.append((3, src))
-        for src in re.findall(
-            r"(?:https?:)?//[^\"'\s<>]+?\.(?:jpe?g|png|webp|gif|avif)(?:\?[^\"'\s<>]*)?|/[^\"'\s<>]+?\.(?:jpe?g|png|webp|gif|avif)(?:\?[^\"'\s<>]*)?",
-            resposta.text,
-            flags=re.IGNORECASE,
-        ):
-            if not any(termo in src.lower() for termo in termos_excluir_imagem):
-                candidatas.append((2 + (3 if "/imoveis/" in src.lower() else 0), src))
-        imagem_url = ""
-        imagem_validada = False
-        vistos = set()
-        for tentativa, (_, candidata) in enumerate(
-            sorted(candidatas, key=lambda item: item[0], reverse=True)
-        ):
-            if tentativa >= 4:
-                break
-            candidata_url = urljoin(resposta.url, candidata)
-            if candidata_url in vistos:
-                continue
-            vistos.add(candidata_url)
-            if validar_imagem_preview(candidata_url, resposta.url):
-                imagem_url = candidata_url
-                imagem_validada = True
-                break
-        return {
-            "titulo": titulo,
-            "descricao": descricao,
-            "imagem": imagem_url if imagem_validada else "",
-            "imagem_validada": imagem_validada,
-            "consultado": datetime.now(LOCAL_TZ).isoformat(),
-        }
-    except (requests.RequestException, ValueError, TypeError):
-        return {"consultado": datetime.now(LOCAL_TZ).isoformat()}
 
 
 
@@ -1446,268 +1294,93 @@ def renderizar_resultados_por_faixa(
             )
 
 
-def executar(rotulo, tipo, identificador):
-    with cloud_store.collection_lock() as acquired:
-        if not acquired:
-            st.warning("Já existe uma coleta em andamento. Aguarde sua conclusão.")
-            return
-        _executar_coleta(rotulo, tipo, identificador)
-
-
-def _executar_coleta(rotulo, tipo, identificador):
-    if st.session_state.get("coletando", False):
-        st.warning("Já existe uma coleta em andamento nesta sessão.")
-        return
+def executar(rotulo, tipo, identificador, parametros=None):
     if tipo == "catalog" and identificador in PORTAIS_INDISPONIVEIS:
         st.warning(PORTAIS_INDISPONIVEIS[identificador])
-        return
-    parametros_execucao = carregar_parametros_busca()
-    anuncios_antes = {
-        chave_anuncio(anuncio)
-        for anuncio in listar_anuncios()
-        if chave_anuncio(anuncio)
-    }
-    if (
-        tipo == "module"
-        and identificador in COLETORES_PINDAMONHANGABA
-        and "pindamonhangaba" not in parametros_execucao["cidades"]
-    ):
-        st.info(f"{rotulo} atende Pindamonhangaba. Inclua essa cidade nos parâmetros para executar este coletor.")
-        return
-
-    st.session_state.coletando = True
-    comando = [sys.executable]
-    if tipo == "all":
-        comando.append(str(ROOT / "runner.py"))
-    elif tipo == "module":
-        comando.extend(["-m", f"scripts.{identificador}"])
-    else:
-        comando.extend(["-m", "scripts.catalog_collectors", "--portal", identificador])
-
-    instante = datetime.now(LOCAL_TZ)
-    inicio = time.monotonic()
-    hora_inicio = instante.strftime("%H:%M:%S")
-    log = [
-        f"[{hora_inicio}] [INFO] Preparando execução para: {rotulo}",
-        f"[{hora_inicio}] [CMD] {shlex.join(comando)}",
-        f"[{hora_inicio}] [INFO] Diretório: {ROOT}",
-        f"[{hora_inicio}] [INFO] Acompanhando saída em modo tail ({TAIL_LINES} linhas)",
-    ]
-    terminal = st.empty()
-    status = st.status(f"Executando: {rotulo}", expanded=False)
-    terminal.markdown(
-        f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
-        + rotulo
-        + '</div><div class="terminal-body">'
-        + "\n".join(log).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        + "</div></div>",
-        unsafe_allow_html=True,
-    )
-
-    ambiente = os.environ.copy()
-    ambiente["PYTHONUNBUFFERED"] = "1"
-    ambiente["FINDIMOB_PRECO_MIN"] = str(parametros_execucao["preco_min"])
-    ambiente["FINDIMOB_PRECO_MAX"] = str(parametros_execucao["preco_max"])
-    ambiente["FINDIMOB_TIPOS"] = ",".join(parametros_execucao["tipos"])
-    ambiente["FINDIMOB_CIDADES"] = ",".join(parametros_execucao["cidades"])
-    processo = None
-    codigo = 1
+        return None
+    parametros = parametros or carregar_parametros_busca()
+    if (tipo == "module" and identificador in COLETORES_PINDAMONHANGABA
+            and "pindamonhangaba" not in parametros["cidades"]):
+        st.info(f"{rotulo} atende Pindamonhangaba. Inclua essa cidade nos parâmetros.")
+        return None
     try:
-        processo = subprocess.Popen(
-            comando,
-            cwd=ROOT,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            bufsize=1,
-            env=ambiente,
-        )
-        salvar_estado_execucao_ativo({"pid": processo.pid, "id": st.session_state.get("execucao_dialogo_id"), "rotulo": rotulo, "log": log[-TAIL_LINES:]})
-        for linha in processo.stdout:
-            hora = datetime.now(LOCAL_TZ).strftime("%H:%M:%S")
-            log.append(f"[{hora}] {linha.rstrip()}")
-            salvar_estado_execucao_ativo({"pid": processo.pid, "id": st.session_state.get("execucao_dialogo_id"), "rotulo": rotulo, "log": log[-TAIL_LINES:]})
-            corpo = "\n".join(log[-TAIL_LINES:]) or "Aguardando saída..."
-            terminal.markdown(
-                f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
-                + rotulo
-                + '</div><div class="terminal-body">'
-                + corpo.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-                + "</div></div>",
-                unsafe_allow_html=True,
-            )
-        codigo = processo.wait()
-    except Exception as erro:  # Mostra erros de inicialização também no terminal.
-        log.append(f"Erro ao iniciar o coletor: {erro}")
-    finally:
-        st.session_state.coletando = False
-        try:
-            estado_ativo = json.loads(ACTIVE_EXECUTION_FILE.read_text(encoding="utf-8"))
-            if estado_ativo.get("id") == st.session_state.get("execucao_dialogo_id"):
-                ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
-        except (OSError, json.JSONDecodeError):
-            pass
-
-    tem_novos = any(chave_anuncio(item) not in anuncios_antes for item in listar_anuncios())
-    if codigo == 0 or tem_novos:
-        status.update(label="Buscando fotos e descrições dos anúncios capturados…", state="running", expanded=False)
-        try:
-            enriquecer_anuncios_da_coleta(tipo, identificador, anuncios_antes, log)
-        except Exception as erro_enriquecimento:
-            log.append(f"[FOTOS] Falha no enriquecimento dos anúncios: {erro_enriquecimento}")
-    duracao = round(time.monotonic() - inicio, 1)
-    parcial = any(
-        "[COLETA_PARCIAL]" in linha or "coleta parcial" in linha.casefold()
-        or "Coletores com falha:" in linha for linha in log
-    )
-    resultado = "parcial" if parcial else ("sucesso" if codigo == 0 else "falha")
-    hora_fim = datetime.now(LOCAL_TZ).strftime("%H:%M:%S")
-    log.append(f"[{hora_fim}] [{'OK' if codigo == 0 else 'ERRO'}] Processo terminou com código {codigo} após {duracao:.1f}s")
-    corpo = "\n".join(log[-TAIL_LINES:]) or "Processo finalizado sem mensagens."
-    terminal.markdown(
-        f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
-        + rotulo
-        + '</div><div class="terminal-body">'
-        + corpo.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        + "</div></div>",
-        unsafe_allow_html=True,
-    )
-    if codigo != 0:
-        try:
-            registrar_log_erro(rotulo, codigo, duracao, log)
-        except Exception as erro_log:
-            log.append(f"[{hora_fim}] [ERRO] Não foi possível gravar logs_erros.txt: {erro_log}")
-    status.update(
-        label=(f"Concluído com avisos em {duracao}s · veja o log" if parcial
-               else f"Concluído em {duracao}s" if codigo == 0 else f"🚨  Finalizado com erro ({codigo})"),
-        state=("complete" if codigo == 0 or parcial else "error"),
-        expanded=False,
-    )
-    st.session_state.ultima_execucao_dialogo = {
-        "id": st.session_state.get("execucao_dialogo_id"),
-        "rotulo": rotulo,
-        "codigo": codigo,
-        "duracao": duracao,
-        "log": log[-TAIL_LINES:],
-    }
-    catalogo_depois = listar_anuncios()
-    anuncios_depois = {
-        chave_anuncio(anuncio)
-        for anuncio in catalogo_depois
-        if chave_anuncio(anuncio)
-    }
-    chaves_novas = anuncios_depois - anuncios_antes
-    if chaves_novas:
-        estado_anuncios = carregar_estado_anuncios()
-        chaves_novas_visiveis = chaves_novas - estado_anuncios["excluidos"]
-        hora_coleta = instante.isoformat()
-        for anuncio in catalogo_depois:
-            chave = chave_anuncio(anuncio)
-            if chave in chaves_novas_visiveis:
-                estado_anuncios["coletado_em"][chave] = hora_coleta
-        estado_anuncios["novos"].update(chaves_novas_visiveis)
-        salvar_estado_anuncios(estado_anuncios)
-    if chaves_novas - carregar_estado_anuncios()["excluidos"]:
-        st.session_state.resultados_notificacao = True
-        salvar_notificacao_resultados(True)
-    historico = ler_historico()
-    historico.append(
-        {
-            "id": st.session_state.get("execucao_dialogo_id"),
-            "inicio": instante.isoformat(),
-            "rotulo": rotulo,
-            "resultado": resultado,
-            "codigo": codigo,
-            "duracao": duracao,
-            "log": log[-120:],
-        }
-    )
-    cloud_store.update_json(HISTORY_FILE, [], lambda atual: (atual + [historico[-1]])[-300:])
-    st.session_state.ultimo_resultado = resultado
-
-
-
-def salvar_estado_execucao_ativo(dados):
-    temporario = ACTIVE_EXECUTION_FILE.with_suffix(".tmp")
-    temporario.write_text(json.dumps(dados, ensure_ascii=False), encoding="utf-8")
-    temporario.replace(ACTIVE_EXECUTION_FILE)
+        job, created = collection_jobs.start_collection(rotulo, tipo, identificador, parametros)
+    except Exception as error:
+        st.error(f"Não foi possível iniciar a coleta: {error}")
+        return None
+    if not created:
+        st.info("Já existe uma coleta em andamento. Acompanhe o progresso abaixo.")
+    return job
 
 
 def ler_estado_execucao_ativo():
-    try:
-        dados = json.loads(ACTIVE_EXECUTION_FILE.read_text(encoding="utf-8"))
-        pid = int(dados.get("pid", 0))
-        if pid <= 0:
-            return None
-        try:
-            os.kill(pid, 0)
-            stat_file = Path(f"/proc/{pid}/stat")
-            if stat_file.exists():
-                process_state = stat_file.read_text(encoding="utf-8").rsplit(")", 1)[-1].strip().split(" ", 1)[0]
-                if process_state == "Z":
-                    ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
-                    return None
-        except ProcessLookupError:
-            ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
-            return None
-        except PermissionError:
-            pass
-        return dados
-    except (OSError, json.JSONDecodeError, TypeError, ValueError):
-        return None
+    return collection_jobs.read_active()
+
+
+@st.fragment(run_every="2s")
+def renderizar_acompanhamento_coleta():
+    job_id = st.session_state.get("_follow_collection_job")
+    dados = collection_jobs.read_job(job_id) if job_id else ler_estado_execucao_ativo()
+    if not dados:
+        st.info("Não há uma coleta em andamento.")
+        return
+    estado = dados.get("status", "running")
+    st.caption(dados.get("rotulo", "Coleta"))
+    if estado in collection_jobs.RUNNING:
+        etapa = "Buscando fotos e descrições…" if estado == "enriching" else "Coleta em andamento…"
+        st.status(etapa, state="running", expanded=False)
+        st.caption("Você pode fechar esta janela ou navegar pelo site. A coleta continuará em segundo plano.")
+    elif estado == "completed":
+        parcial = dados.get("resultado") == "parcial"
+        st.success("Coleta concluída com avisos. Consulte o log abaixo." if parcial else "Coleta concluída.")
+        st.caption(f"Duração: {dados.get('duracao', 0)}s · {dados.get('novos', 0)} novo(s) anúncio(s)")
+    else:
+        st.warning(dados.get("message") or "A execução foi interrompida. Os anúncios já salvos foram preservados.")
+        if st.button("Retomar coleta", key="resume_collection_job"):
+            tipo, identificador = dados.get("tipo"), dados.get("identificador")
+            if not tipo:
+                config = next((item for item in AGENCIES if item[0] == dados.get("rotulo")), None)
+                tipo, identificador = (config[1], config[2]) if config else ("all", None)
+            job = executar(dados.get("rotulo", "Coleta"), tipo, identificador, dados.get("parametros"))
+            if job:
+                st.session_state._follow_collection_job = job.get("id") if not job.get("legacy") else None
+                st.rerun(scope="fragment")
+    corpo = "\n".join(dados.get("log", [])[-120:]) or "Preparando…"
+    st.markdown(
+        '<div class="terminal"><div class="terminal-head">PROGRESSO · ATUALIZAÇÃO AUTOMÁTICA</div>'
+        f'<div class="terminal-body">{escape(corpo)}</div></div>', unsafe_allow_html=True,
+    )
+    if st.button("Fechar", key="close_background_collection"):
+        st.rerun()
 
 
 @st.dialog("Progresso da coleta", width="large")
 def visualizar_execucao_ativa():
     dados = ler_estado_execucao_ativo()
-    if not dados:
-        st.info("Não há uma coleta em andamento.")
-        return
-    st.caption(f"Em execução · {dados.get('rotulo', 'Coleta')}")
-    st.code("\n".join(dados.get("log", [])) or "Preparando…", language="text")
-    st.button("Atualizar progresso", key="atualizar_progresso_ativo")
+    st.session_state._follow_collection_job = dados.get("id") if dados and not dados.get("legacy") else None
+    renderizar_acompanhamento_coleta()
 
 
+@st.fragment(run_every="3s")
 def renderizar_progresso_ativo():
     dados = ler_estado_execucao_ativo()
-    if not dados:
+    if not dados or dados.get("status") not in collection_jobs.RUNNING | {"interrupted", "failed"}:
         return
     with st.container(key="progresso_ativo"):
+        st.caption(f"{dados.get('rotulo', 'Coleta')} · " + (
+            "Execução interrompida" if dados.get("status") in {"interrupted", "failed"} else "Em segundo plano"))
         if st.button("Ver progresso", key="ver_progresso_ativo"):
             visualizar_execucao_ativa()
 
-@st.dialog("Visualizador de execução", width="large")
-def visualizar_execucao(rotulo, tipo, identificador, execucao_id):
-    st.caption(f"Processo selecionado · {rotulo}")
-    if iniciar_execucao_dialogo(st.session_state, execucao_id):
-        # Marca antes de iniciar: qualquer rerun do diálogo não pode relançar o coletor.
-        executar(rotulo, tipo, identificador)
-    else:
-        resultado = st.session_state.get("ultima_execucao_dialogo", {})
-        if resultado.get("id") == execucao_id:
-            codigo = resultado["codigo"]
-            log = resultado["log"]
-            corpo = "\n".join(log).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            st.markdown(
-                f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {len(log)} LINHAS &nbsp; · &nbsp; '
-                + escape(resultado["rotulo"])
-                + '</div><div class="terminal-body">'
-                + corpo
-                + "</div></div>",
-                unsafe_allow_html=True,
-            )
-            st.status(
-                f"{'Concluído' if codigo == 0 else f'🚨  Finalizado com erro ({codigo})'} · {resultado['duracao']}s",
-                state="complete" if codigo == 0 else "error",
-                expanded=codigo != 0,
-            )
-        else:
-            st.info("Esta execução já foi iniciada.")
-    if st.button("Fechar visualizador", key="close_execution_viewer", use_container_width=True):
-        st.rerun()
 
+@st.dialog("Progresso da coleta", width="large")
+def visualizar_execucao(rotulo, tipo, identificador, execucao_id):
+    if iniciar_execucao_dialogo(st.session_state, execucao_id):
+        job = executar(rotulo, tipo, identificador)
+        if not job:
+            return
+        st.session_state._follow_collection_job = job.get("id") if not job.get("legacy") else None
+    renderizar_acompanhamento_coleta()
 
 
 @st.dialog("Detalhes do processo encerrado", width="large")

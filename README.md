@@ -139,3 +139,5 @@ catálogo, contas, configurações, avaliações e histórico podem ser preserva
 backups privados ficam em `exports/backups/`, fora do Git.
 
 Na lista de resultados, use **Excluir todos desta imobiliária** para remover em lote os anúncios de uma imobiliária. A ação pede confirmação, inclui os resultados fora da busca de texto atual e preserva os favoritos.
+
+As coletas rodam em segundo plano: é possível fechar o visualizador ou o navegador e acompanhar novamente por **Ver progresso**. O acompanhamento atualiza automaticamente. Se a execução for interrompida pelo encerramento do servidor, **Retomar coleta** inicia uma nova execução com os mesmos parâmetros e preserva os anúncios já salvos.

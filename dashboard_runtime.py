@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-12-favorites-excel"
+DASHBOARD_RELEASE = "2026-11-12-background-collection"
 
 
 def home_page():

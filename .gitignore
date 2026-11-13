@@ -27,3 +27,5 @@ cloud-secrets.toml
 
 # Backups privados das limpezas de catálogo
 exports/backups/
+
+.collection_jobs/
