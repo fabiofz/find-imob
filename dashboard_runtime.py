@@ -5,7 +5,7 @@ import runpy
 
 import streamlit as st
 
-DASHBOARD_RELEASE = "2026-11-12-continue-on-errors"
+DASHBOARD_RELEASE = "2026-11-12-favorites-excel"
 
 
 def home_page():

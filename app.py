@@ -27,6 +27,7 @@ import cloud_store
 import database
 from advertisement_actions import exclude_advertisements
 from results_layout import render_results_styles
+from favorites_export import favorites_workbook
 from ui_feedback import TOP_CONTROLS_CSS, render_navigation_feedback
 from utils.funcs import preco_para_float
 
@@ -1897,6 +1898,15 @@ def renderizar_pagina_anuncios(pagina):
 
     grupos = agrupar_por_imobiliaria(anuncios_da_pagina)
     grupos = {nome: itens for nome, itens in grupos.items() if itens}
+    if pagina == "Favoritos":
+        st.download_button(
+            "Exportar Excel", icon=":material/download:",
+            data=favorites_workbook(grupos) if grupos else b"",
+            file_name=f"find-imob-favoritos-{datetime.now(LOCAL_TZ):%Y-%m-%d}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="export_favorites_excel", disabled=not bool(grupos), on_click="ignore",
+            help="Exportar todos os favoritos, independentemente dos filtros desta tela.",
+        )
     if not grupos:
         st.markdown(
             f'<div class="empty-state-message">{escape(texto_vazio)}</div>',
