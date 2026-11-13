@@ -129,7 +129,6 @@ PORTAIS_LOCAIS = {
     "BS Negócios Imobiliários": "bsimoveistaubate",
     "Vilella Imóveis": "vilellaimoveis",
     "Universo Ello Imóveis": "universoello",
-    "Carla Maria Imóveis": "carlamariaimoveis",
     "Imobiliária Apolo": "apolo",
     "Imobiliária Guerrero": "imobiliariaguerrero",
     "Saframa Imóveis": "saframa",
@@ -167,7 +166,6 @@ CIDADE_FIXA_PORTAL = {
     "BS Negócios Imobiliários": "taubate",
     "Vilella Imóveis": "pindamonhangaba",
     "Universo Ello Imóveis": "pindamonhangaba",
-    "Carla Maria Imóveis": "pindamonhangaba",
     "Imobiliária Apolo": "pindamonhangaba",
     "Imobiliária Guerrero": "pindamonhangaba",
     "Saframa Imóveis": "pindamonhangaba",
@@ -296,8 +294,6 @@ def urls_portal_local(nome):
             urls.append("https://www.vilellaimoveis.com.br/aluguel/")
         elif nome == "Universo Ello Imóveis" and cidade == "pindamonhangaba":
             urls.append("https://universoello.com.br/")
-        elif nome == "Carla Maria Imóveis" and cidade == "pindamonhangaba":
-            urls.append("https://www.carlamariaimoveis.com.br/")
         elif nome == "Imobiliária Guerrero" and cidade == "pindamonhangaba":
             urls.append("https://www.imobiliariaguerrero.com.br/")
         elif nome == "Saframa Imóveis" and cidade == "pindamonhangaba":
