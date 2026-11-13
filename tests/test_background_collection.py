@@ -100,6 +100,17 @@ print(job['id'])
             error_log.assert_called_once()
             self.assertEqual(jobs.read_json(Path(folder)/'.execucoes.json')[0]['resultado'], 'parcial')
 
+    def test_failed_collector_allows_retry_instead_of_reporting_success(self):
+        with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {'DATABASE_URL':''}):
+            path = Path(folder)/'.collection_jobs'/('c'*32+'.json')
+            jobs.write_json(path, {'id':'c'*32,'rotulo':'Teste','tipo':'all','identificador':None,'parametros':PARAMETERS})
+            with patch('utils.funcs.registrar_erro_coleta'):
+                worker.run_job(path, collector=lambda state:1, enricher=lambda *args:None)
+            state = jobs.read_json(path)
+            self.assertEqual(state['status'], 'failed')
+            self.assertEqual(state['resultado'], 'falha')
+            self.assertEqual(jobs.read_json(Path(folder)/'.execucoes.json')[0]['resultado'], 'falha')
+
     def test_legacy_zombie_does_not_block_a_new_collection(self):
         with tempfile.TemporaryDirectory() as folder:
             jobs.write_json(Path(folder)/'.execucao_ativa.json', {'id':'old','pid':0,'rotulo':'Todas as imobiliárias','log':['old']})

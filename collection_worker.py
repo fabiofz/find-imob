@@ -155,7 +155,8 @@ def run_job(path, collector=None, enricher=None):
                     except Exception as error:
                         print(f'Não foi possível salvar o log de erros: {error}')
                 print('Coleta encerrada. Os resultados já estão disponíveis.')
-                progress.save(status='completed', resultado=result, novos=total)
+                progress.save(status='failed' if result == 'falha' else 'completed', resultado=result, novos=total,
+                              message='A coleta terminou com falha. Consulte o log e tente retomar.' if result == 'falha' else '')
     except Exception as error:
         progress.write(f'Falha ao iniciar a coleta: {error}\n')
         progress.save(status='failed', codigo=1, resultado='falha', message=str(error))
