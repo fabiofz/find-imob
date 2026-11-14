@@ -1,3 +1,4 @@
+from utils.collection_errors import continue_on_error
 from bs4 import BeautifulSoup
 import requests
 import hashlib
@@ -20,32 +21,33 @@ divs = soup.find_all("div", class_="col-sm-12 col-lg-6 box-align")
 
 pg = 1
 for div in divs:
-    link = div.find("a", href=True)["href"]
-    base_url = f"https://{urlparse(url).netloc}"
-    if link and link.startswith("/"):
-        link = base_url + link
+    with continue_on_error('moraes_pereira: anúncio'):
+        link = div.find("a", href=True)["href"]
+        base_url = f"https://{urlparse(url).netloc}"
+        if link and link.startswith("/"):
+            link = base_url + link
 
-    h2 = div.find("h2", class_="card-title").get_text(strip=True)
-    h3 = div.find("h3", class_="card-text").get_text(strip=True)
-    titulo = f"{h3} - {h2}"
+        h2 = div.find("h2", class_="card-title").get_text(strip=True)
+        h3 = div.find("h3", class_="card-text").get_text(strip=True)
+        titulo = f"{h3} - {h2}"
 
-    preco = limpar_preco(div.find("span", class_="h-money location").get_text(strip=True))
+        preco = limpar_preco(div.find("span", class_="h-money location").get_text(strip=True))
 
-    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
-        continue
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+            continue
 
-    _id = titulo+preco+link
-    _id = hashlib.md5(_id.encode()).hexdigest()
+        _id = titulo+preco+link
+        _id = hashlib.md5(_id.encode()).hexdigest()
 
-    if _id not in ids:
-        imov = {
-            "id": _id,
-            "titulo": titulo,
-            "preco": preco,
-            "link": link,
-            "pagina": pg
-        }
-        imoveis.append(imov)
-        dados.append(imov)
+        if _id not in ids:
+            imov = {
+                "id": _id,
+                "titulo": titulo,
+                "preco": preco,
+                "link": link,
+                "pagina": pg
+            }
+            imoveis.append(imov)
+            dados.append(imov)
 
 salvar_json(dados, GERAL_JSON)

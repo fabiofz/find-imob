@@ -18,3 +18,14 @@ logs_erros.txt
 .streamlit/secrets.toml
 
 .reviews.sqlite3*
+
+.env
+.env.*
+.streamlit/*secrets*.toml
+cloud-secrets.toml
+.execucao_ativa*
+
+# Backups privados das limpezas de catálogo
+exports/backups/
+
+.collection_jobs/

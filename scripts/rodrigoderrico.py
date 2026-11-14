@@ -1,73 +1,76 @@
-from bs4 import BeautifulSoup
+"""Collect Rodrigo D'Errico with retries and a checkpoint after each page."""
+from urllib.parse import urljoin
+from utils.collection_errors import continue_on_error
+
 import requests
-import hashlib
-import re
-import json
-from utils.funcs import *
-from utils.variables import *
-from urllib.parse import urlparse
 
-json_data = pegar_json(GERAL_JSON)
-ids = json_data["ids"]
-dados = json_data["dados"]
+from scripts.catalog_collectors import buscar, criar_registro
+from utils.funcs import pegar_json, salvar_json, registrar_erro_coleta
+from utils.variables import GERAL_JSON, imovel_atende_filtros
 
-urls = [
-    "https://www.rodrigoderrico.com.br/locacao-casas-opc1-padrao.html",
-    "https://www.rodrigoderrico.com.br/locacao-casas-opc1-condominio.html",
-    "https://www.rodrigoderrico.com.br/locacao-apartamentos.html",
+URLS = [
+    'https://www.rodrigoderrico.com.br/locacao-casas-opc1-padrao.html',
+    'https://www.rodrigoderrico.com.br/locacao-casas-opc1-condominio.html',
+    'https://www.rodrigoderrico.com.br/locacao-apartamentos.html',
 ]
-imoveis = []
 
-for url in urls :
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept-Language": "pt-BR,pt;q=0.9",
-    }
 
-    resp = requests.get(url, headers=headers, timeout=(5, 20))
-    soup = BeautifulSoup(resp.text, "html.parser")
-
-    divs = soup.select("ul.properties_list li")
-
-    pg = 1
-    for div in divs:
-        preco = None
-        for h3 in div.select("h3"):
-            texto = h3.get_text(strip=True)
-            if texto.startswith("Valor:"):
-                preco = texto.replace("Valor:", "").strip()
-
-        titulo = None
-        for h3 in div.select("h3"):
-            texto = h3.get_text(strip=True)
-            if texto.startswith("Bairro:"):
-                titulo = texto.replace("Bairro:", "").strip()
-
-        link_tag = div.select_one('a[href]')
-        link = link_tag["href"] if link_tag else None
-
-        if preco == None :
-            break
-
-        base_url = f"https://{urlparse(url).netloc}/"
-        if link :
-            link = base_url + link
-
-        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+def coletar(session, ids, on_records=None):
+    records, failures = [], []
+    for page, url in enumerate(URLS, 1):
+        try:
+            soup = buscar(session, url, timeout=(8, 15), retries=1)
+        except Exception as error:
+            failures.append((url, error))
+            print(f"Rodrigo D'Errico: falha na página {url}: {error}", flush=True)
             continue
+        for card in soup.select('ul.properties_list li'):
+            with continue_on_error("Rodrigo D’Errico: anúncio", failures):
+                fields = {}
+                for heading in card.select('h3'):
+                    label, separator, value = heading.get_text(' ', strip=True).partition(':')
+                    if separator:
+                        fields[label.strip().casefold()] = value.strip()
+                price = fields.get('valor')
+                neighborhood = fields.get('bairro')
+                anchor = card.select_one('a[href]')
+                if not price or not neighborhood or not anchor:
+                    continue
+                kind = 'Apartamento' if 'apartamentos' in url else 'Casa'
+                title = f'{kind} - {neighborhood}'
+                link = urljoin(url, anchor['href'])
+                if not imovel_atende_filtros(title, price, link, 'pindamonhangaba'):
+                    continue
+                record = criar_registro(title, price, link, page, ids)
+                if record:
+                    records.append(record)
+        if on_records:
+            with continue_on_error("Rodrigo D’Errico: salvar página", failures):
+                on_records(records)
+    return records, failures
 
-        _id = f"{titulo}{preco}{link}"
-        _id = hashlib.md5(_id.encode()).hexdigest()
 
-        if _id not in ids:
-            imov = {
-                "id": _id,
-                "titulo": titulo,
-                "preco": preco,
-                "link": link,
-                "pagina": pg
-            }
-            imoveis.append(imov)
-            dados.append(imov)
+def main():
+    state = pegar_json(GERAL_JSON)
+    persisted = {item['id'] for item in state['dados']}
 
-salvar_json(dados, GERAL_JSON)
+    def checkpoint(records):
+        pending = [item for item in records if item['id'] not in persisted]
+        if pending:
+            for item in pending:
+                state['dados'].append(item)
+            salvar_json(state['dados'], GERAL_JSON)
+            persisted.update(item['id'] for item in pending)
+
+    with requests.Session() as session:
+        records, failures = coletar(session, state['ids'], on_records=checkpoint)
+    print(f"Rodrigo D'Errico: {len(records)} novo(s); {len(failures)} página(s) com falha.", flush=True)
+    if failures:
+        with continue_on_error("Rodrigo D’Errico: registrar falhas"):
+            registrar_erro_coleta("Coleta parcial · Rodrigo D'Errico", '\n'.join(
+            f'{url}: {error}' for url, error in failures))
+    return 1 if failures else 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -22,6 +22,15 @@ import streamlit as st
 from bs4 import BeautifulSoup
 import auth_ui
 import review_store
+from scripts.catalog_collectors import PORTAIS_INDISPONIVEIS
+import cloud_store
+import database
+import collection_jobs
+from property_previews import chave_anuncio, validar_imagem_preview, buscar_metadados_preview
+from advertisement_actions import exclude_advertisements
+from results_layout import render_results_styles
+from favorites_export import favorites_workbook
+from ui_feedback import TOP_CONTROLS_CSS, render_navigation_feedback
 from utils.funcs import preco_para_float
 
 
@@ -59,6 +68,7 @@ CIDADES_BUSCA = {
     "pindamonhangaba": "Pindamonhangaba",
     "tremembe": "Tremembé",
     "taubate": "Taubaté",
+    "sao-jose-dos-campos": "São José dos Campos",
 }
 
 # Coletores que têm HTML próprio. Os nomes das chaves genéricas vêm do catálogo.
@@ -104,7 +114,6 @@ AGENCIES = [
     ("BS Negócios Imobiliários", "catalog", "BS Negócios Imobiliários"),
     ("Vilella Imóveis", "catalog", "Vilella Imóveis"),
     ("Universo Ello Imóveis", "catalog", "Universo Ello Imóveis"),
-    ("Carla Maria Imóveis", "catalog", "Carla Maria Imóveis"),
     ("Imobiliária Apolo", "catalog", "Imobiliária Apolo"),
     ("Imobiliária Guerrero", "catalog", "Imobiliária Guerrero"),
     ("Saframa Imóveis", "catalog", "Saframa Imóveis"),
@@ -117,8 +126,65 @@ AGENCIES = [
     ("Aloisio Imóveis", "catalog", "Aloisio Imóveis"),
     ("Félix Imóveis Especiais", "catalog", "Félix Imóveis Especiais"),
     ("Impera Imóveis", "catalog", "Impera Imóveis"),
+    ('Pinda Prime', "catalog", 'Pinda Prime'),
+    ('Berith Imóveis', "catalog", 'Berith Imóveis'),
+    ('Ricardo Monteiro Imóveis', "catalog", 'Ricardo Monteiro Imóveis'),
+    ('Batista Imóveis', "catalog", 'Batista Imóveis'),
+    ('Grothe & Lima', "catalog", 'Grothe & Lima'),
+    ('Meta Negócios Imobiliários', "catalog", 'Meta Negócios Imobiliários'),
+    ('Max Gold', "catalog", 'Max Gold'),
+    ('Domus Imóveis SJC', "catalog", 'Domus Imóveis SJC'),
+    ('Prime Imóveis SJC', "catalog", 'Prime Imóveis SJC'),
+    ('Unike Imóveis', "catalog", 'Unike Imóveis'),
+    ('AZV Imóveis', "catalog", 'AZV Imóveis'),
 ]
+AGENCY_CITY_GROUPS = {
+    "São José dos Campos": {'Domus Imóveis SJC', 'Prime Imóveis SJC', 'Unike Imóveis', 'AZV Imóveis'},
+    "Pindamonhangaba": {
+        'Pinda Prime', 'Berith Imóveis', 'Ricardo Monteiro Imóveis', 'Batista Imóveis',
+        "Casa Bella", "Castor Imóveis", "Imobiliária Confiança", "Delta Imóveis",
+        "D'Errico Imóveis", "Domus Imóveis", "Edifficatho", "Erida Vieira",
+        "Hamilton Imóveis", "Júlio Estefano", "Moraes & Pereira",
+        "Palacete Imobiliária", "Palazzo Reale", "Imobiliária Pindense",
+        "Rodrigo D'Errico", "Simob", "Spaco Imóveis", "Visão Consultoria",
+        "Wilson Imóveis", "Imobiliária São Paulo", "Vilella Imóveis",
+        "Universo Ello Imóveis", "Imobiliária Apolo",
+        "Imobiliária Guerrero", "Saframa Imóveis", "Imobiliária Aliança",
+    },
+    "Taubaté": {
+        'Grothe & Lima', 'Meta Negócios Imobiliários', 'Max Gold',
+        "Taubaté Imóveis", "Jeremias Rodrigues", "Única Imóveis", "Unidas Imóveis",
+        "Personal Consultoria", "Sales Imóveis", "Euro Imóveis", "Imobiliária Danelli",
+        "ATOM Inteligência Imobiliária", "City Taubaté Imobiliária",
+        "Solar Imóveis Taubaté", "Salzano Imóveis", "Teomi Imóveis",
+        "Go Home Soluções Imobiliárias", "BS Negócios Imobiliários",
+        "Rio Center Imóveis", "Vista Bela Imóveis", "Aloisio Imóveis",
+        "Félix Imóveis Especiais",
+    },
+    "Tremembé": {"D'Casa Imóveis"},
+    "Várias cidades": {
+        "012 Imóveis", "Nova Cabana", "Imóveis DNA", "Márcio Santos",
+        "Imobiliária Inovare", "Gomes Nova Opção", "Impera Imóveis",
+    },
+}
+AGENCY_CITY_BY_NAME = {
+    nome: cidade
+    for cidade, nomes in AGENCY_CITY_GROUPS.items()
+    for nome in nomes
+}
 AGENCY_DOMAINS = {
+    'Domus Imóveis SJC': ('domusimoveissjc.com.br',),
+    'Prime Imóveis SJC': ('primeimoveissjc.com.br',),
+    'Unike Imóveis': ('unikeimoveis.com.br',),
+    'AZV Imóveis': ('azvimoveis.com.br',),
+
+    'Pinda Prime': ('pindaprime.com.br',),
+    'Berith Imóveis': ('berithimoveis.com.br',),
+    'Ricardo Monteiro Imóveis': ('ricardomonteiroimoveis.com.br',),
+    'Batista Imóveis': ('batistaimoveispinda.com.br',),
+    'Grothe & Lima': ('grothelimaimoveis.com.br',),
+    'Meta Negócios Imobiliários': ('metanegociosimobiliarios.com.br',),
+    'Max Gold': ('maxgold.imb.br',),
     "012 Imóveis": ("012imoveis.com.br",),
     "Casa Bella": ("casabellaimoveispinda.com.br",),
     "Castor Imóveis": ("castorimoveis.com.br",),
@@ -160,7 +226,6 @@ AGENCY_DOMAINS = {
     "BS Negócios Imobiliários": ("bsimoveistaubate.com.br",),
     "Vilella Imóveis": ("vilellaimoveis.com.br",),
     "Universo Ello Imóveis": ("universoello.com.br",),
-    "Carla Maria Imóveis": ("carlamariaimoveis.com.br",),
     "Imobiliária Guerrero": ("imobiliariaguerrero.com.br",),
     "Saframa Imóveis": ("saframa.com.br",),
     "Rio Center Imóveis": ("imobiliariariocenter.com.br",),
@@ -204,7 +269,7 @@ def chave_tema(tema):
 
 def carregar_tema():
     try:
-        dados = json.loads(THEME_FILE.read_text(encoding="utf-8"))
+        dados = cloud_store.read_json(THEME_FILE, {})
         tema = dados.get("tema") if isinstance(dados, dict) else None
     except (OSError, json.JSONDecodeError):
         tema = None
@@ -214,7 +279,7 @@ def carregar_tema():
 def salvar_tema():
     tema = st.session_state.get("tema_app", "Escuro")
     if tema in TEMAS:
-        THEME_FILE.write_text(json.dumps({"tema": tema}, ensure_ascii=False, indent=2), encoding="utf-8")
+        cloud_store.write_json(THEME_FILE, {"tema": tema})
 
 
 def selecionar_tema(tema):
@@ -259,6 +324,7 @@ if __name__ == "__main__":
     )
 
 if not auth_ui.render_auth_gate():
+    render_navigation_feedback()
     st.stop()
 
 if "tema_app" not in st.session_state:
@@ -301,7 +367,7 @@ st.markdown(
       .st-key-tema_mobile_escuro [data-testid="stButton"] button, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button { position:relative; width:50px !important; min-width:50px !important; min-height:46px !important; padding:0 !important; border:0 !important; border-radius:8px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; font-size:1.55rem; opacity:.82; transition:opacity .16s ease,transform .16s ease; }
       .st-key-tema_desktop_escuro [data-testid="stButton"] button:hover, .st-key-tema_desktop_branco_verde [data-testid="stButton"] button:hover
       .st-key-tema_mobile_escuro [data-testid="stButton"] button:hover, .st-key-tema_mobile_branco_verde [data-testid="stButton"] button:hover:hover { background:transparent !important; opacity:1; transform:scale(1.08) !important; }
-      .block-container { padding-top:1.5rem; padding-bottom:3rem; max-width:1500px; }
+      .block-container { padding-top:100px; padding-bottom:3rem; max-width:1500px; }
       h1,h2,h3,p,span,label { font-family:'DM Sans',sans-serif; }
       h1 { letter-spacing:-.04em; }
       .eyebrow { text-transform:uppercase; letter-spacing:.16em; color:var(--orange); font-size:.72rem; font-weight:700; }
@@ -390,9 +456,7 @@ st.markdown(
       div[class*="st-key-favorite-on_"] [data-testid="stButton"] button { color:#f3c969 !important; border-color:#8a7131 !important; }
       [data-testid="stExpander"] { border:1px solid var(--line); border-radius:12px; }
       .st-key-pagina_mobile { display:none; }
-      div[data-testid="stElementContainer"].st-key-account_menu,
-      div[data-testid="stElementContainer"]:has(.st-key-account_menu),
-      .st-key-account_menu { position:fixed !important; top:12px !important; right:18px !important; left:auto !important; bottom:auto !important; z-index:11000; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; }
+      .st-key-account_menu { position:relative !important; top:auto !important; right:auto !important; left:auto !important; bottom:auto !important; width:max-content !important; margin:0 !important; padding:0 !important; }
       .st-key-account_menu button[aria-haspopup="dialog"],
       .st-key-account_menu [data-testid="stPopoverButton"],
       .st-key-account_menu [data-testid="stPopoverButton"] button,
@@ -411,8 +475,7 @@ st.markdown(
       .st-key-account_menu_actions [data-testid="stButton"] button { width:40px !important; min-width:40px !important; height:40px !important; min-height:40px !important; padding:0 !important; border:0 !important; border-radius:12px !important; background:transparent !important; color:var(--text) !important; box-shadow:none !important; }
       .st-key-account_menu_actions [data-testid="stButton"] button:hover { background:var(--panel-hover) !important; color:var(--text) !important; transform:none !important; }
       .st-key-account_menu_actions [data-testid="stButton"] button svg { width:18px !important; height:18px !important; }
-      div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { position:fixed !important; z-index:10002; top:12px; right:88px; bottom:auto; left:auto; flex:none !important; width:max-content !important; height:auto !important; margin:0 !important; padding:0 !important; align-self:auto !important; }
-      .st-key-tema_flutuante { opacity:70%; position:fixed !important; z-index:10003; top:12px !important; right:88px !important; bottom:auto !important; left:auto !important; width:max-content; max-width:calc(100vw - 24px); padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid color-mix(in srgb,var(--line) 90%,transparent); border-radius:18px; box-shadow:0 8px 24px #0005; backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2); }
+      .st-key-tema_flutuante { position:relative !important; opacity:1; width:max-content; padding:7px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid var(--line); border-radius:18px; box-shadow:0 8px 24px #0003; backdrop-filter:blur(16px); }
       .st-key-tema_flutuante [data-testid="stHorizontalBlock"] { width:max-content; max-width:100%; flex-wrap:nowrap !important; gap:2px; }
       .st-key-tema_flutuante [data-testid="stColumn"] { flex:0 0 42px !important; width:42px !important; min-width:42px !important; }
       .st-key-tema_flutuante [data-testid="stVerticalBlock"] { align-items:center; }
@@ -425,13 +488,18 @@ st.markdown(
       .stApp[data-test-script-state="stopRequested"] div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante),
       .stApp[data-test-script-state="stopRequested"] .st-key-tema_flutuante { visibility:hidden !important; opacity:0 !important; pointer-events:none !important; transition:none !important; }
       @keyframes findimob-spin { to { transform:rotate(360deg); } }
-      div[data-testid="stElementContainer"]:has(.st-key-progresso_ativo) { width:max-content !important; max-width:calc(100vw - 28px) !important; margin:12px auto 18px !important; }
-      .st-key-progresso_ativo { display:inline-flex !important; width:max-content !important; max-width:100% !important; padding:5px; border:1px solid color-mix(in srgb,#ef3344 30%,var(--line)); border-radius:15px; background:color-mix(in srgb,#ef3344 6%,var(--panel)); box-shadow:0 4px 14px #0003; }
-      .st-key-progresso_ativo [data-testid="stButton"] { width:max-content !important; }
-      .st-key-progresso_ativo [data-testid="stButton"] button { width:164px !important; min-width:164px !important; min-height:40px !important; padding:0 15px !important; border-radius:11px !important; background:#d92732 !important; border:1px solid #ff4b55 !important; color:#fff !important; box-shadow:none !important; font-weight:650 !important; }
-      .st-key-progresso_ativo [data-testid="stButton"] button::before { content:"⟳"; display:inline-block; margin-right:9px; color:#fff; font-size:1.12rem; line-height:1; vertical-align:-1px; animation:findimob-spin .9s linear infinite; }
-      .st-key-progresso_ativo [data-testid="stButton"] button:hover { background:#ed343f !important; box-shadow:0 3px 10px #ef334433 !important; transform:translateY(-1px); }
-      @media (max-width:520px) { .st-key-progresso_ativo [data-testid="stButton"] button { width:150px !important; min-width:150px !important; } }
+      .st-key-progresso_ativo { width:100% !important; box-sizing:border-box; padding:14px 18px; margin:8px 0 20px; border:1px solid var(--line); border-radius:14px; background:var(--panel); }
+      .st-key-progresso_ativo [data-testid="stHorizontalBlock"] { align-items:center; gap:12px; flex-wrap:nowrap !important; }
+      .st-key-progresso_ativo [data-testid="stColumn"] { min-width:0 !important; }
+      .collection-follow-label { color:var(--text); font-size:.9rem; font-weight:600; line-height:1.4; }
+      .collection-follow-status { color:var(--muted); font-size:.78rem; margin-top:3px; }
+      .collection-follow-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); margin-right:7px; }
+      .st-key-ver_progresso_ativo { margin-left:auto !important; align-self:flex-end !important; }
+      .st-key-progresso_ativo .st-key-ver_progresso_ativo button { width:auto !important; min-width:0 !important; min-height:36px !important; padding:6px 14px !important; border-radius:9px !important; background:color-mix(in srgb,var(--green) 12%,var(--panel)) !important; border:1px solid color-mix(in srgb,var(--green) 35%,var(--line)) !important; color:var(--text) !important; box-shadow:none !important; transform:none !important; }
+      .st-key-progresso_ativo .st-key-ver_progresso_ativo button p { font-size:.82rem !important; }
+      .st-key-progresso_ativo .st-key-ver_progresso_ativo button:hover { border-color:var(--green) !important; background:color-mix(in srgb,var(--green) 20%,var(--panel)) !important; }
+      @media(max-width:520px) { .st-key-progresso_ativo { padding:12px; } .st-key-progresso_ativo .st-key-ver_progresso_ativo button { padding:6px 10px !important; } }
+
       .st-key-tema_float_close [data-testid="stButton"] button { color:var(--muted) !important; font-size:1.5rem !important; }
       @media (min-width: 769px) and (max-width: 1100px) {
         [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(4)) { flex-wrap:wrap; }
@@ -444,10 +512,8 @@ st.markdown(
         [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"], [data-testid="stSidebarCollapseButton"], [data-testid="stExpandSidebarButton"] { display:none !important; }
         [data-testid="stHeader"] { display:none !important; }
         [data-testid="stAppViewContainer"] { overflow-x:hidden; }
-        .block-container, [data-testid="stMainBlockContainer"] { padding-top:0 !important; padding-left:.9rem; padding-right:.9rem; padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
-        div[data-testid="stElementContainer"].st-key-tema_flutuante, div[data-testid="stElementContainer"]:has(.st-key-tema_flutuante) { top:calc(12px + env(safe-area-inset-top)); right:80px; }
-        div[data-testid="stElementContainer"].st-key-account_menu, div[data-testid="stElementContainer"]:has(.st-key-account_menu), .st-key-account_menu { top:calc(12px + env(safe-area-inset-top)) !important; right:12px !important; left:auto !important; }
-        .st-key-tema_flutuante { top:calc(12px + env(safe-area-inset-top)) !important; right:80px !important; padding:6px; border-radius:16px; }
+        .block-container, [data-testid="stMainBlockContainer"] { padding-top:100px !important; padding-left:.9rem; padding-right:.9rem; padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
+        .st-key-tema_flutuante { padding:6px; border-radius:16px; }
         .st-key-pagina_mobile { display:block; position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important; top:auto !important; z-index:9999; width:100vw !important; box-sizing:border-box; margin:0 !important; padding:8px 8px calc(8px + env(safe-area-inset-bottom)) !important; background:#202124 !important; border-top:1px solid #35373b !important; box-shadow:0 -6px 20px #0005; }
         .st-key-pagina_mobile [data-testid="stHorizontalBlock"] { flex-wrap:nowrap !important; gap:4px; }
         .st-key-pagina_mobile [data-testid="stColumn"] { flex:1 1 0 !important; width:20% !important; min-width:0 !important; }
@@ -495,7 +561,7 @@ st.markdown(
         --bg:{cores_tema['bg']}; --panel:{cores_tema['panel']}; --line:{cores_tema['line']};
         --muted:{cores_tema['muted']}; --text:{cores_tema['text']}; --sidebar:{cores_tema['sidebar']};
         --panel-hover:{cores_tema['hover']}; --band:{cores_tema['band']}; --field:{cores_tema['field']};
-        --field-border:#353333;
+        --field-border:#DDDDDD;
         --field-focus-border:{'#777777' if st.session_state.tema_app == 'Escuro' else '#32cb79'};
         --orange:#32cb79; --green:#32cb79; --green-hover:#51d891; --green-dark:#207b4c;
       }}
@@ -589,17 +655,12 @@ st.markdown(
 
 
 def ler_historico():
-    try:
-        conteudo = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
-        return conteudo if isinstance(conteudo, list) else []
-    except (OSError, json.JSONDecodeError):
-        return []
+    conteudo = cloud_store.read_json(HISTORY_FILE, [])
+    return conteudo if isinstance(conteudo, list) else []
 
 
 def salvar_historico(historico):
-    HISTORY_FILE.write_text(
-        json.dumps(historico[-300:], ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    cloud_store.write_json(HISTORY_FILE, historico[-300:])
 
 
 def registrar_log_erro(rotulo, codigo, duracao, linhas):
@@ -611,59 +672,32 @@ def registrar_log_erro(rotulo, codigo, duracao, linhas):
         *linhas[-500:],
         "",
     ]
-    with ERROR_LOG_FILE.open("a", encoding="utf-8") as arquivo:
-        arquivo.write("\n".join(bloco))
+    if database.is_cloud():
+        cloud_store.update_json(ERROR_LOG_FILE, "", lambda atual: (atual + "\n".join(bloco))[-200000:])
+    else:
+        with ERROR_LOG_FILE.open("a", encoding="utf-8") as arquivo:
+            arquivo.write("\n".join(bloco))
 
 
 def listar_anuncios():
-    caminho = ROOT / "geral.json"
-    if not caminho.exists():
-        return []
-    try:
-        dados = json.loads(caminho.read_text(encoding="utf-8"))
-        return dados if isinstance(dados, list) else []
-    except (OSError, json.JSONDecodeError):
-        return []
+    dados = cloud_store.read_catalogue(ROOT / "geral.json")
+    return dados if isinstance(dados, list) else []
 
 
 def carregar_notificacao_resultados():
-    try:
-        dados = json.loads(RESULTS_NOTIFICATION_FILE.read_text(encoding="utf-8"))
-        return bool(dados.get("pendente")) if isinstance(dados, dict) else False
-    except (OSError, json.JSONDecodeError):
-        return False
+    dados = cloud_store.read_json(RESULTS_NOTIFICATION_FILE, {})
+    return bool(dados.get("pendente")) if isinstance(dados, dict) else False
 
 
 def salvar_notificacao_resultados(pendente):
-    try:
-        RESULTS_NOTIFICATION_FILE.write_text(
-            json.dumps({"pendente": bool(pendente)}, ensure_ascii=False), encoding="utf-8"
-        )
-    except OSError:
-        pass
+    cloud_store.write_json(RESULTS_NOTIFICATION_FILE, {"pendente": bool(pendente)})
 
 
-def chave_anuncio(anuncio):
-    link = str(anuncio.get("link") or "").strip()
-    if link:
-        try:
-            parsed = urlparse(link)
-            if parsed.hostname:
-                return parsed._replace(
-                    netloc=parsed.hostname.lower(),
-                    path=parsed.path.rstrip("/"),
-                    query="",
-                    fragment="",
-                ).geturl()
-        except (TypeError, ValueError):
-            pass
-        return link.casefold()
-    return str(anuncio.get("id") or "")
 
 
 def carregar_estado_anuncios():
     try:
-        estado = json.loads(ADVERTISEMENT_STATE_FILE.read_text(encoding="utf-8"))
+        estado = cloud_store.read_json(ADVERTISEMENT_STATE_FILE, {})
         if not isinstance(estado, dict):
             return {
                 "favoritos": set(), "excluidos": set(),
@@ -687,28 +721,85 @@ def salvar_estado_anuncios(estado):
         "novos": sorted(estado.get("novos", set())),
         "coletado_em": estado.get("coletado_em", {}),
     }
-    temporario = ADVERTISEMENT_STATE_FILE.with_suffix(".tmp")
-    temporario.write_text(
-        json.dumps(conteudo, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    temporario.replace(ADVERTISEMENT_STATE_FILE)
+    if database.is_cloud():
+        cloud_store.update_json(ADVERTISEMENT_STATE_FILE, {}, lambda atual: {
+            **atual, "novos": conteudo["novos"], "coletado_em": conteudo["coletado_em"],
+        })
+    else:
+        cloud_store.write_json(ADVERTISEMENT_STATE_FILE, conteudo)
 
 
 def definir_favorito(chave, favorito):
-    estado = carregar_estado_anuncios()
-    if favorito:
-        estado["favoritos"].add(chave)
-        estado["excluidos"].discard(chave)
-    else:
-        estado["favoritos"].discard(chave)
-    salvar_estado_anuncios(estado)
+    def atualizar(estado):
+        favoritos = set(estado.get("favoritos", []))
+        excluidos = set(estado.get("excluidos", []))
+        if favorito:
+            favoritos.add(chave)
+            excluidos.discard(chave)
+        else:
+            favoritos.discard(chave)
+        return {**estado, "favoritos": sorted(favoritos), "excluidos": sorted(excluidos)}
+    cloud_store.update_json(ADVERTISEMENT_STATE_FILE, {}, atualizar)
 
 
 def excluir_anuncio(chave):
-    estado = carregar_estado_anuncios()
-    estado["favoritos"].discard(chave)
-    estado["excluidos"].add(chave)
-    salvar_estado_anuncios(estado)
+    return exclude_advertisements(ADVERTISEMENT_STATE_FILE, [chave])
+
+
+def excluir_resultados_imobiliaria(nome):
+    anuncios = agrupar_por_imobiliaria(listar_anuncios()).get(nome, [])
+    return exclude_advertisements(
+        ADVERTISEMENT_STATE_FILE, (chave_anuncio(item) for item in anuncios),
+        preserve_favorites=True,
+    )
+
+
+def solicitar_exclusao_imobiliaria(nome):
+    st.session_state._delete_agency_pending = nome
+    st.session_state._expand_agencia_apos_acao = nome
+
+
+def cancelar_exclusao_imobiliaria(nome):
+    st.session_state.pop("_delete_agency_pending", None)
+    st.session_state._expand_agencia_apos_acao = nome
+
+
+def renderizar_exclusao_imobiliaria(nome, total):
+    identificador = hashlib.sha256(nome.encode()).hexdigest()[:16]
+    with st.container(key=f"agency_tools_{identificador}"):
+        resumo, acao = st.columns([3, 2], gap="small")
+        with resumo:
+            st.caption(f"{total} imóveis nesta imobiliária")
+        with acao:
+            st.button(
+                "Limpar resultados", icon=":material/delete_sweep:",
+                key=f"delete_agency_{identificador}",
+                help=f"Excluir os {total} resultados de {nome}, mantendo os favoritos.",
+                on_click=solicitar_exclusao_imobiliaria, args=(nome,),
+            )
+    if st.session_state.get("_delete_agency_pending") != nome:
+        return
+    with st.container(key=f"agency_confirmation_{identificador}"):
+        st.markdown(
+            f'<div class="agency-confirm-title">Limpar {total} resultados de {escape(nome)}?</div>'
+            '<div class="agency-confirm-description">Seus favoritos serão mantidos. '
+            'Inclui os imóveis fora da busca de texto atual.</div>',
+            unsafe_allow_html=True,
+        )
+        confirmar, cancelar = st.columns(2, gap="small")
+        with confirmar:
+            if st.button("Confirmar exclusão", key=f"confirm_delete_agency_{identificador}", type="primary"):
+                quantidade = excluir_resultados_imobiliaria(nome)
+                st.session_state.pop("_delete_agency_pending", None)
+                st.session_state._delete_agency_feedback = (
+                    f"{quantidade} anúncio(s) de {nome} removido(s) da lista."
+                )
+                st.rerun()
+        with cancelar:
+            st.button(
+                "Cancelar", key=f"cancel_delete_agency_{identificador}",
+                on_click=cancelar_exclusao_imobiliaria, args=(nome,),
+            )
 
 
 def carregar_cache_previews():
@@ -724,7 +815,7 @@ def carregar_parametros_busca():
         "cidades": list(CIDADES_BUSCA),
     }
     try:
-        dados = json.loads(BUSCA_CONFIG_FILE.read_text(encoding="utf-8"))
+        dados = cloud_store.read_json(BUSCA_CONFIG_FILE, {})
         if not isinstance(dados, dict):
             return padrao
         minimo = max(0, float(dados.get("preco_min", padrao["preco_min"])))
@@ -739,9 +830,7 @@ def carregar_parametros_busca():
 
 
 def salvar_parametros_busca(parametros):
-    BUSCA_CONFIG_FILE.write_text(
-        json.dumps(parametros, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    cloud_store.write_json(BUSCA_CONFIG_FILE, parametros)
 
 
 def salvar_cache_previews(cache):
@@ -749,146 +838,8 @@ def salvar_cache_previews(cache):
     return None
 
 
-def validar_imagem_preview(url, referer=None):
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            return False
-        with requests.get(
-            url,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; FindImobPreview/1.0)", "Referer": referer or ""},
-            timeout=(2, 3),
-            allow_redirects=True,
-            stream=True,
-        ) as resposta:
-            resposta.raise_for_status()
-            tipo = resposta.headers.get("Content-Type", "").split(";", 1)[0].lower()
-            cabecalho = next(resposta.iter_content(1024), b"")
-            assinaturas = (
-                cabecalho.startswith(b"\xff\xd8\xff"),
-                cabecalho.startswith(b"\x89PNG\r\n\x1a\n"),
-                cabecalho.startswith((b"GIF87a", b"GIF89a")),
-                cabecalho.startswith(b"BM"),
-                cabecalho.startswith((b"II*\x00", b"MM\x00*")),
-                cabecalho.startswith(b"RIFF") and cabecalho[8:12] == b"WEBP",
-                b"ftypavif" in cabecalho or b"ftypavis" in cabecalho,
-            )
-            svg_valido = tipo == "image/svg+xml" and b"<svg" in cabecalho.lower()
-            return any(assinaturas) or svg_valido
-    except (requests.RequestException, ValueError, TypeError):
-        return False
 
 
-def buscar_metadados_preview(url):
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            return {}
-        resposta = requests.get(
-            url,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; FindImobPreview/1.0)"},
-            timeout=(3, 6),
-            allow_redirects=True,
-        )
-        resposta.raise_for_status()
-        soup = BeautifulSoup(resposta.text, "html.parser")
-
-        def meta(*chaves):
-            for chave in chaves:
-                tag = soup.find("meta", attrs={"property": chave}) or soup.find(
-                    "meta", attrs={"name": chave}
-                )
-                conteudo = tag.get("content", "").strip() if tag else ""
-                if conteudo:
-                    return conteudo
-            return ""
-
-        titulo = meta("og:title", "twitter:title")
-        descricao = meta("og:description", "description", "twitter:description")
-        imagem = meta("og:image", "twitter:image")
-        termos_excluir_imagem = ("logo", "icon", "avatar", "placeholder", "banner")
-        if imagem and any(termo in imagem.lower() for termo in termos_excluir_imagem):
-            imagem = ""
-        candidatas = []
-        if imagem:
-            candidatas.append((10, imagem))
-        for img in soup.find_all("img"):
-            src = next((img.get(atributo, "") for atributo in (
-                    "src", "data-src", "data-lazy-src", "data-original"
-            ) if img.get(atributo)), "")
-            srcset = img.get("srcset", "")
-            if not src and srcset:
-                src = srcset.split(",", 1)[0].strip().split(" ", 1)[0]
-            alt = " ".join((img.get("alt", ""), img.get("title", ""))).lower()
-            if not src or any(termo in (src + alt).lower() for termo in termos_excluir_imagem):
-                continue
-            try:
-                largura = int(img.get("width", 0))
-                altura = int(img.get("height", 0))
-            except (TypeError, ValueError):
-                largura = altura = 0
-            if (largura and largura < 120) or (altura and altura < 90):
-                continue
-            pontuacao = (2 if largura >= 300 or altura >= 220 else 0) + (
-                1 if any(termo in alt for termo in ("imóvel", "imovel", "casa", "fachada", "sala")) else 0
-            )
-            candidatas.append((pontuacao, src))
-        # Muitos portais montam galerias com divs estilizadas em vez de
-        # elementos <img>; nesse caso a URL fica no atributo style.
-        for elemento in soup.select("[style]"):
-            estilo = elemento.get("style", "")
-            fundos = re.findall(
-                r"background(?:-image)?\s*:\s*url\([\"']?([^\"')]+)",
-                estilo,
-                flags=re.IGNORECASE,
-            )
-            for src in fundos:
-                if any(termo in src.lower() for termo in termos_excluir_imagem):
-                    continue
-                pontuacao = 4 if "/imoveis/" in src.lower() else 1
-                if "sf-item" in elemento.get("class", []):
-                    pontuacao += 2
-                candidatas.append((pontuacao, src))
-        # Alguns sites guardam as fotos em atributos de dados ou em JSON
-        # inline, sem inserir <img> nem style no HTML inicial.
-        for elemento in soup.find_all(True):
-            for atributo in ("data-bg", "data-background", "data-image", "data-src", "data-original"):
-                src = elemento.get(atributo, "")
-                if src and re.search(r"\.(?:jpe?g|png|webp|gif|avif)(?:[?#]|$)", src, re.I):
-                    if not any(termo in src.lower() for termo in termos_excluir_imagem):
-                        candidatas.append((3, src))
-        for src in re.findall(
-            r"(?:https?:)?//[^\"'\s<>]+?\.(?:jpe?g|png|webp|gif|avif)(?:\?[^\"'\s<>]*)?|/[^\"'\s<>]+?\.(?:jpe?g|png|webp|gif|avif)(?:\?[^\"'\s<>]*)?",
-            resposta.text,
-            flags=re.IGNORECASE,
-        ):
-            if not any(termo in src.lower() for termo in termos_excluir_imagem):
-                candidatas.append((2 + (3 if "/imoveis/" in src.lower() else 0), src))
-        imagem_url = ""
-        imagem_validada = False
-        vistos = set()
-        for tentativa, (_, candidata) in enumerate(
-            sorted(candidatas, key=lambda item: item[0], reverse=True)
-        ):
-            if tentativa >= 4:
-                break
-            candidata_url = urljoin(resposta.url, candidata)
-            if candidata_url in vistos:
-                continue
-            vistos.add(candidata_url)
-            if validar_imagem_preview(candidata_url, resposta.url):
-                imagem_url = candidata_url
-                imagem_validada = True
-                break
-        return {
-            "titulo": titulo,
-            "descricao": descricao,
-            "imagem": imagem_url if imagem_validada else "",
-            "imagem_validada": imagem_validada,
-            "consultado": datetime.now(LOCAL_TZ).isoformat(),
-        }
-    except (requests.RequestException, ValueError, TypeError):
-        return {"consultado": datetime.now(LOCAL_TZ).isoformat()}
 
 
 
@@ -953,10 +904,7 @@ def enriquecer_anuncios_da_coleta(tipo, identificador, anuncios_antes, log, link
             if indice == len(selecionados) or indice % 5 == 0:
                 log.append(f"[FOTOS] Consultados {indice} de {len(selecionados)} anúncio(s); {imagens_validas} foto(s) válida(s).")
 
-    caminho = ROOT / "geral.json"
-    temporario = ROOT / ".geral.json.tmp"
-    temporario.write_text(json.dumps(catalogo, ensure_ascii=False, indent=2), encoding="utf-8")
-    temporario.replace(caminho)
+    cloud_store.save_catalogue(catalogo, ROOT / "geral.json")
     return len(selecionados), sum(bool(item.get("imagem_validada")) for item in selecionados)
 
 def agrupar_por_imobiliaria(anuncios):
@@ -1033,7 +981,7 @@ def html_preview_anuncio(imobiliaria, anuncio, cache, novo=False):
         url_html = (
             f'<a class="wa-preview-url" href="{escape(link, quote=True)}" '
             f'title="{escape(link, quote=True)}" target="_blank" '
-            f'rel="noopener noreferrer">{escape(rotulo_link)} ↗</a>'
+            f'rel="noopener noreferrer">Ver imóvel ↗</a>'
         )
     else:
         url_html = '<div class="wa-preview-url-placeholder">Link indisponível</div>'
@@ -1225,52 +1173,57 @@ def renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos):
     ):
         return
 
-    st.markdown(
-        html_preview_anuncio(imobiliaria, anuncio, cache, novo=chave in novos),
-        unsafe_allow_html=True,
-    )
-    hash_anuncio = hashlib.sha256(chave.encode()).hexdigest()[:16]
-    total_avaliacoes = review_store.list_approved(hash_anuncio)
-    media_avaliacoes = (
-        sum(item["stars"] for item in total_avaliacoes) / len(total_avaliacoes)
-        if total_avaliacoes else 0
-    )
-    if st.button(
-        f"★ {media_avaliacoes:.1f} · Avaliações ({len(total_avaliacoes)})",
-        key=f"reviews_{hash_anuncio}",
-        use_container_width=True,
-    ):
-        titulo = str(anuncio.get("titulo") or anuncio.get("title") or imobiliaria)
-        dialogo_avaliacoes_imovel(hash_anuncio, titulo)
-    acao_coluna, excluir_coluna = st.columns(2, gap="small")
-    with acao_coluna:
+    card_id = hashlib.sha256(chave.encode()).hexdigest()[:16]
+    with st.container(key=f"property_card_{card_id}"):
+        st.markdown(
+            html_preview_anuncio(imobiliaria, anuncio, cache, novo=chave in novos),
+            unsafe_allow_html=True,
+        )
+        hash_anuncio = hashlib.sha256(chave.encode()).hexdigest()[:16]
+        total_avaliacoes = review_store.list_approved(hash_anuncio)
+        media_avaliacoes = (
+            sum(item["stars"] for item in total_avaliacoes) / len(total_avaliacoes)
+            if total_avaliacoes else 0
+        )
         if st.button(
-            "★" if favorito_atual else "☆",
-            help="Remover dos favoritos" if favorito_atual else "Favoritar anúncio",
-            key=f"favorite-on_{hash_anuncio}" if favorito_atual else f"favorite_{hash_anuncio}",
+            (f"★ {media_avaliacoes:.1f} · {len(total_avaliacoes)} avaliações"
+             if total_avaliacoes else "Avaliar imóvel"),
+            key=f"reviews_{hash_anuncio}",
             use_container_width=True,
         ):
-            definir_favorito(chave, not favorito_atual)
-            st.session_state["_expand_agencia_apos_acao"] = imobiliaria
-            st.rerun(scope="fragment")
-            return
-    with excluir_coluna:
-        if st.button(
-            "🗑",
-            help="Excluir anúncio",
-            key=f"delete_{hash_anuncio}",
-            use_container_width=True,
-        ):
-            excluir_anuncio(chave)
-            st.session_state["_expand_agencia_apos_acao"] = imobiliaria
-            st.rerun(scope="fragment")
-            return
+            titulo = str(anuncio.get("titulo") or anuncio.get("title") or imobiliaria)
+            dialogo_avaliacoes_imovel(hash_anuncio, titulo)
+        acao_coluna, excluir_coluna = st.columns(2, gap="small")
+        with acao_coluna:
+            if st.button(
+                "Salvo" if favorito_atual else "Favoritar",
+                icon=":material/favorite:" if favorito_atual else ":material/favorite_border:",
+                help="Remover dos favoritos" if favorito_atual else "Favoritar anúncio",
+                key=f"favorite-on_{hash_anuncio}" if favorito_atual else f"favorite_{hash_anuncio}",
+                use_container_width=True,
+            ):
+                definir_favorito(chave, not favorito_atual)
+                st.session_state["_expand_agencia_apos_acao"] = imobiliaria
+                st.rerun(scope="fragment")
+                return
+        with excluir_coluna:
+            if st.button(
+                "Excluir",
+                icon=":material/delete_outline:",
+                help="Excluir anúncio",
+                key=f"delete_{hash_anuncio}",
+                use_container_width=True,
+            ):
+                excluir_anuncio(chave)
+                st.session_state["_expand_agencia_apos_acao"] = imobiliaria
+                st.rerun(scope="fragment")
+                return
 
 
 def renderizar_previews(imobiliaria, resultados, cache, pagina_favoritos, novos):
-    for inicio in range(0, len(resultados), 4):
+    for inicio in range(0, len(resultados), 3):
         colunas = st.columns(3, gap="small")
-        for coluna, anuncio in zip(colunas, resultados[inicio:inicio + 4]):
+        for coluna, anuncio in zip(colunas, resultados[inicio:inicio + 3]):
             with coluna:
                 renderizar_cartao(imobiliaria, anuncio, cache, pagina_favoritos, novos)
 
@@ -1344,251 +1297,102 @@ def renderizar_resultados_por_faixa(
             )
 
 
-def executar(rotulo, tipo, identificador):
-    if st.session_state.get("coletando", False):
-        st.warning("Já existe uma coleta em andamento nesta sessão.")
-        return
-    parametros_execucao = carregar_parametros_busca()
-    anuncios_antes = {
-        chave_anuncio(anuncio)
-        for anuncio in listar_anuncios()
-        if chave_anuncio(anuncio)
-    }
-    if (
-        tipo == "module"
-        and identificador in COLETORES_PINDAMONHANGABA
-        and "pindamonhangaba" not in parametros_execucao["cidades"]
-    ):
-        st.info(f"{rotulo} atende Pindamonhangaba. Inclua essa cidade nos parâmetros para executar este coletor.")
-        return
-
-    st.session_state.coletando = True
-    comando = [sys.executable]
-    if tipo == "all":
-        comando.append(str(ROOT / "runner.py"))
-    elif tipo == "module":
-        comando.extend(["-m", f"scripts.{identificador}"])
-    else:
-        comando.extend(["-m", "scripts.catalog_collectors", "--portal", identificador])
-
-    instante = datetime.now(LOCAL_TZ)
-    inicio = time.monotonic()
-    hora_inicio = instante.strftime("%H:%M:%S")
-    log = [
-        f"[{hora_inicio}] [INFO] Preparando execução para: {rotulo}",
-        f"[{hora_inicio}] [CMD] {shlex.join(comando)}",
-        f"[{hora_inicio}] [INFO] Diretório: {ROOT}",
-        f"[{hora_inicio}] [INFO] Acompanhando saída em modo tail ({TAIL_LINES} linhas)",
-    ]
-    terminal = st.empty()
-    status = st.status(f"Executando: {rotulo}", expanded=False)
-    terminal.markdown(
-        f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
-        + rotulo
-        + '</div><div class="terminal-body">'
-        + "\n".join(log).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        + "</div></div>",
-        unsafe_allow_html=True,
-    )
-
-    ambiente = os.environ.copy()
-    ambiente["PYTHONUNBUFFERED"] = "1"
-    ambiente["FINDIMOB_PRECO_MIN"] = str(parametros_execucao["preco_min"])
-    ambiente["FINDIMOB_PRECO_MAX"] = str(parametros_execucao["preco_max"])
-    ambiente["FINDIMOB_TIPOS"] = ",".join(parametros_execucao["tipos"])
-    ambiente["FINDIMOB_CIDADES"] = ",".join(parametros_execucao["cidades"])
-    processo = None
-    codigo = 1
+def executar(rotulo, tipo, identificador, parametros=None):
+    if tipo == "catalog" and identificador in PORTAIS_INDISPONIVEIS:
+        st.warning(PORTAIS_INDISPONIVEIS[identificador])
+        return None
+    parametros = parametros or carregar_parametros_busca()
+    if (tipo == "module" and identificador in COLETORES_PINDAMONHANGABA
+            and "pindamonhangaba" not in parametros["cidades"]):
+        st.info(f"{rotulo} atende Pindamonhangaba. Inclua essa cidade nos parâmetros.")
+        return None
     try:
-        processo = subprocess.Popen(
-            comando,
-            cwd=ROOT,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            bufsize=1,
-            env=ambiente,
-        )
-        salvar_estado_execucao_ativo({"pid": processo.pid, "id": st.session_state.get("execucao_dialogo_id"), "rotulo": rotulo, "log": log[-TAIL_LINES:]})
-        for linha in processo.stdout:
-            hora = datetime.now(LOCAL_TZ).strftime("%H:%M:%S")
-            log.append(f"[{hora}] {linha.rstrip()}")
-            salvar_estado_execucao_ativo({"pid": processo.pid, "id": st.session_state.get("execucao_dialogo_id"), "rotulo": rotulo, "log": log[-TAIL_LINES:]})
-            corpo = "\n".join(log[-TAIL_LINES:]) or "Aguardando saída..."
-            terminal.markdown(
-                f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
-                + rotulo
-                + '</div><div class="terminal-body">'
-                + corpo.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-                + "</div></div>",
-                unsafe_allow_html=True,
-            )
-        codigo = processo.wait()
-    except Exception as erro:  # Mostra erros de inicialização também no terminal.
-        log.append(f"Erro ao iniciar o coletor: {erro}")
-    finally:
-        st.session_state.coletando = False
-        try:
-            estado_ativo = json.loads(ACTIVE_EXECUTION_FILE.read_text(encoding="utf-8"))
-            if estado_ativo.get("id") == st.session_state.get("execucao_dialogo_id"):
-                ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
-        except (OSError, json.JSONDecodeError):
-            pass
-
-    if codigo == 0:
-        status.update(label="Captura concluída · buscando fotos e descrições…", state="running", expanded=False)
-        try:
-            enriquecer_anuncios_da_coleta(tipo, identificador, anuncios_antes, log)
-        except Exception as erro_enriquecimento:
-            log.append(f"[FOTOS] Falha no enriquecimento dos anúncios: {erro_enriquecimento}")
-    duracao = round(time.monotonic() - inicio, 1)
-    resultado = "sucesso" if codigo == 0 else "falha"
-    hora_fim = datetime.now(LOCAL_TZ).strftime("%H:%M:%S")
-    log.append(f"[{hora_fim}] [{'OK' if codigo == 0 else 'ERRO'}] Processo terminou com código {codigo} após {duracao:.1f}s")
-    corpo = "\n".join(log[-TAIL_LINES:]) or "Processo finalizado sem mensagens."
-    terminal.markdown(
-        f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {min(len(log), TAIL_LINES)} / {len(log)} LINHAS &nbsp; · &nbsp; '
-        + rotulo
-        + '</div><div class="terminal-body">'
-        + corpo.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        + "</div></div>",
-        unsafe_allow_html=True,
-    )
-    if codigo != 0:
-        try:
-            registrar_log_erro(rotulo, codigo, duracao, log)
-        except OSError as erro_log:
-            log.append(f"[{hora_fim}] [ERRO] Não foi possível gravar logs_erros.txt: {erro_log}")
-    status.update(
-        label=(f"Concluído em {duracao}s" if codigo == 0 else f"🚨  Finalizado com erro ({codigo})"),
-        state=("complete" if codigo == 0 else "error"),
-        expanded=False,
-    )
-    st.session_state.ultima_execucao_dialogo = {
-        "id": st.session_state.get("execucao_dialogo_id"),
-        "rotulo": rotulo,
-        "codigo": codigo,
-        "duracao": duracao,
-        "log": log[-TAIL_LINES:],
-    }
-    catalogo_depois = listar_anuncios()
-    anuncios_depois = {
-        chave_anuncio(anuncio)
-        for anuncio in catalogo_depois
-        if chave_anuncio(anuncio)
-    }
-    chaves_novas = anuncios_depois - anuncios_antes
-    if chaves_novas:
-        estado_anuncios = carregar_estado_anuncios()
-        chaves_novas_visiveis = chaves_novas - estado_anuncios["excluidos"]
-        hora_coleta = instante.isoformat()
-        for anuncio in catalogo_depois:
-            chave = chave_anuncio(anuncio)
-            if chave in chaves_novas_visiveis:
-                estado_anuncios["coletado_em"][chave] = hora_coleta
-        estado_anuncios["novos"].update(chaves_novas_visiveis)
-        salvar_estado_anuncios(estado_anuncios)
-    if chaves_novas - carregar_estado_anuncios()["excluidos"]:
-        st.session_state.resultados_notificacao = True
-        salvar_notificacao_resultados(True)
-    historico = ler_historico()
-    historico.append(
-        {
-            "id": st.session_state.get("execucao_dialogo_id"),
-            "inicio": instante.isoformat(),
-            "rotulo": rotulo,
-            "resultado": resultado,
-            "codigo": codigo,
-            "duracao": duracao,
-            "log": log[-120:],
-        }
-    )
-    salvar_historico(historico)
-    st.session_state.ultimo_resultado = resultado
-
-
-
-def salvar_estado_execucao_ativo(dados):
-    temporario = ACTIVE_EXECUTION_FILE.with_suffix(".tmp")
-    temporario.write_text(json.dumps(dados, ensure_ascii=False), encoding="utf-8")
-    temporario.replace(ACTIVE_EXECUTION_FILE)
+        job, created = collection_jobs.start_collection(rotulo, tipo, identificador, parametros)
+    except Exception as error:
+        st.error(f"Não foi possível iniciar a coleta: {error}")
+        return None
+    if not created:
+        st.info("Já existe uma coleta em andamento. Acompanhe o progresso abaixo.")
+    return job
 
 
 def ler_estado_execucao_ativo():
-    try:
-        dados = json.loads(ACTIVE_EXECUTION_FILE.read_text(encoding="utf-8"))
-        pid = int(dados.get("pid", 0))
-        if pid <= 0:
-            return None
-        try:
-            os.kill(pid, 0)
-            stat_file = Path(f"/proc/{pid}/stat")
-            if stat_file.exists():
-                process_state = stat_file.read_text(encoding="utf-8").rsplit(")", 1)[-1].strip().split(" ", 1)[0]
-                if process_state == "Z":
-                    ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
-                    return None
-        except ProcessLookupError:
-            ACTIVE_EXECUTION_FILE.unlink(missing_ok=True)
-            return None
-        except PermissionError:
-            pass
-        return dados
-    except (OSError, json.JSONDecodeError, TypeError, ValueError):
-        return None
+    return collection_jobs.read_active()
+
+
+@st.fragment(run_every="2s")
+def renderizar_acompanhamento_coleta():
+    job_id = st.session_state.get("_follow_collection_job")
+    dados = collection_jobs.read_job(job_id) if job_id else ler_estado_execucao_ativo()
+    if not dados:
+        st.info("Não há uma coleta em andamento.")
+        return
+    estado = dados.get("status", "running")
+    st.caption(dados.get("rotulo", "Coleta"))
+    if estado in collection_jobs.RUNNING:
+        etapa = "Buscando fotos e descrições…" if estado == "enriching" else "Coleta em andamento…"
+        st.status(etapa, state="running", expanded=False)
+        st.caption("Você pode fechar esta janela ou navegar pelo site. A coleta continuará em segundo plano.")
+    elif estado == "completed":
+        parcial = dados.get("resultado") == "parcial"
+        st.success("Coleta concluída com avisos. Consulte o log abaixo." if parcial else "Coleta concluída.")
+        st.caption(f"Duração: {dados.get('duracao', 0)}s · {dados.get('novos', 0)} novo(s) anúncio(s)")
+    else:
+        st.warning(dados.get("message") or "A execução foi interrompida. Os anúncios já salvos foram preservados.")
+        if st.button("Retomar coleta", key="resume_collection_job"):
+            tipo, identificador = dados.get("tipo"), dados.get("identificador")
+            if not tipo:
+                config = next((item for item in AGENCIES if item[0] == dados.get("rotulo")), None)
+                tipo, identificador = (config[1], config[2]) if config else ("all", None)
+            job = executar(dados.get("rotulo", "Coleta"), tipo, identificador, dados.get("parametros"))
+            if job:
+                st.session_state._follow_collection_job = job.get("id") if not job.get("legacy") else None
+                st.rerun(scope="fragment")
+    corpo = "\n".join(dados.get("log", [])[-120:]) or "Preparando…"
+    st.markdown(
+        '<div class="terminal"><div class="terminal-head">PROGRESSO · ATUALIZAÇÃO AUTOMÁTICA</div>'
+        f'<div class="terminal-body">{escape(corpo)}</div></div>', unsafe_allow_html=True,
+    )
+    if st.button("Fechar", key="close_background_collection"):
+        st.rerun()
 
 
 @st.dialog("Progresso da coleta", width="large")
 def visualizar_execucao_ativa():
     dados = ler_estado_execucao_ativo()
-    if not dados:
-        st.info("Não há uma coleta em andamento.")
-        return
-    st.caption(f"Em execução · {dados.get('rotulo', 'Coleta')}")
-    st.code("\n".join(dados.get("log", [])) or "Preparando…", language="text")
-    st.button("Atualizar progresso", key="atualizar_progresso_ativo")
+    st.session_state._follow_collection_job = dados.get("id") if dados and not dados.get("legacy") else None
+    renderizar_acompanhamento_coleta()
 
 
+@st.fragment(run_every="3s")
 def renderizar_progresso_ativo():
     dados = ler_estado_execucao_ativo()
-    if not dados:
+    if not dados or dados.get("status") not in collection_jobs.RUNNING | {"interrupted", "failed"}:
         return
     with st.container(key="progresso_ativo"):
-        if st.button("Ver progresso", key="ver_progresso_ativo"):
-            visualizar_execucao_ativa()
-
-@st.dialog("Visualizador de execução", width="large")
-def visualizar_execucao(rotulo, tipo, identificador, execucao_id):
-    st.caption(f"Processo selecionado · {rotulo}")
-    if iniciar_execucao_dialogo(st.session_state, execucao_id):
-        # Marca antes de iniciar: qualquer rerun do diálogo não pode relançar o coletor.
-        executar(rotulo, tipo, identificador)
-    else:
-        resultado = st.session_state.get("ultima_execucao_dialogo", {})
-        if resultado.get("id") == execucao_id:
-            codigo = resultado["codigo"]
-            log = resultado["log"]
-            corpo = "\n".join(log).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        resumo, acao = st.columns([3, 2], gap="small", vertical_alignment="center")
+        with resumo:
+            interrompida = dados.get("status") in {"interrupted", "failed"}
+            status = "Execução interrompida" if interrompida else "Coleta em segundo plano"
+            indicador = '' if interrompida else '<span class="collection-follow-dot"></span>'
             st.markdown(
-                f'<div class="terminal"><div class="terminal-head">● TAIL · ÚLTIMAS {len(log)} LINHAS &nbsp; · &nbsp; '
-                + escape(resultado["rotulo"])
-                + '</div><div class="terminal-body">'
-                + corpo
-                + "</div></div>",
+                f'<div class="collection-follow-label">{escape(dados.get("rotulo", "Coleta"))}</div>'
+                f'<div class="collection-follow-status">{indicador}{status}</div>',
                 unsafe_allow_html=True,
             )
-            st.status(
-                f"{'Concluído' if codigo == 0 else f'🚨  Finalizado com erro ({codigo})'} · {resultado['duracao']}s",
-                state="complete" if codigo == 0 else "error",
-                expanded=codigo != 0,
-            )
-        else:
-            st.info("Esta execução já foi iniciada.")
-    if st.button("Fechar visualizador", key="close_execution_viewer", use_container_width=True):
-        st.rerun()
+        with acao:
+            if st.button("Acompanhar", icon=":material/monitoring:", key="ver_progresso_ativo"):
+                visualizar_execucao_ativa()
 
+
+@st.dialog("Progresso da coleta", width="large")
+def visualizar_execucao(rotulo, tipo, identificador, execucao_id):
+    if iniciar_execucao_dialogo(st.session_state, execucao_id):
+        job = executar(rotulo, tipo, identificador)
+        if not job:
+            return
+        st.session_state._follow_collection_job = job.get("id") if not job.get("legacy") else None
+    renderizar_acompanhamento_coleta()
 
 
 @st.dialog("Detalhes do processo encerrado", width="large")
@@ -1748,6 +1552,10 @@ def renderizar_botoes_pagina_mobile():
 
 @st.fragment
 def renderizar_pagina_anuncios(pagina):
+    render_results_styles()
+    feedback = st.session_state.pop("_delete_agency_feedback", None)
+    if feedback:
+        st.success(feedback)
     expandir_agencia = st.session_state.pop("_expand_agencia_apos_acao", None)
     anuncios = listar_anuncios()
     cache_previews = carregar_cache_previews()
@@ -1775,6 +1583,15 @@ def renderizar_pagina_anuncios(pagina):
 
     grupos = agrupar_por_imobiliaria(anuncios_da_pagina)
     grupos = {nome: itens for nome, itens in grupos.items() if itens}
+    if pagina == "Favoritos":
+        st.download_button(
+            "Exportar Excel", icon=":material/download:",
+            data=favorites_workbook(grupos) if grupos else b"",
+            file_name=f"find-imob-favoritos-{datetime.now(LOCAL_TZ):%Y-%m-%d}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="export_favorites_excel", disabled=not bool(grupos), on_click="ignore",
+            help="Exportar todos os favoritos, independentemente dos filtros desta tela.",
+        )
     if not grupos:
         st.markdown(
             f'<div class="empty-state-message">{escape(texto_vazio)}</div>',
@@ -1782,6 +1599,12 @@ def renderizar_pagina_anuncios(pagina):
         )
         return
 
+    st.markdown(
+        '<div class="results-summary">'
+        f'<span><strong>{len(anuncios_da_pagina)}</strong> imóveis na lista</span>'
+        f'<span><strong>{len(grupos)}</strong> imobiliárias</span>'
+        '</div>', unsafe_allow_html=True,
+    )
     filtro_coluna, busca_coluna = st.columns([1, 2])
     chave_filtro = "filtro_favoritos_imobiliaria" if pagina == "Favoritos" else "filtro_imobiliaria"
     chave_busca = "busca_favoritos" if pagina == "Favoritos" else "busca_anuncio"
@@ -1908,10 +1731,10 @@ def renderizar_pagina_anuncios(pagina):
                         st.rerun(scope="fragment")
     if (
         imobiliaria_selecionada != "Todas"
-        and imobiliaria_selecionada in resultados_por_imobiliaria
+        and imobiliaria_selecionada in grupos
     ):
         nome = imobiliaria_selecionada
-        resultados = resultados_por_imobiliaria[nome]
+        resultados = resultados_por_imobiliaria.get(nome, [])
         possui_novidades = pagina == "Resultados das buscas" and any(
             chave_anuncio(anuncio) in novos for anuncio in resultados
         )
@@ -1925,6 +1748,8 @@ def renderizar_pagina_anuncios(pagina):
             f'<span>{len(resultados)} anúncio(s)</span></div>',
             unsafe_allow_html=True,
         )
+        if pagina == "Resultados das buscas":
+            renderizar_exclusao_imobiliaria(nome, len(grupos[nome]))
         renderizar_resultados_por_faixa(
             nome, resultados, cache_previews, pagina == "Favoritos", datas_coleta, novos
         )
@@ -1936,8 +1761,10 @@ def renderizar_pagina_anuncios(pagina):
             indicador_imobiliaria = "🔴 " if possui_novidades else ""
             with st.expander(
                 f"{indicador_imobiliaria}{nome} · {len(resultados)} anúncio(s)",
-                expanded=nome == expandir_agencia,
+                expanded=(nome == expandir_agencia or st.session_state.get("_delete_agency_pending") == nome),
             ):
+                if pagina == "Resultados das buscas":
+                    renderizar_exclusao_imobiliaria(nome, len(grupos[nome]))
                 renderizar_resultados_por_faixa(
                     nome, resultados, cache_previews, pagina == "Favoritos", datas_coleta, novos
                 )
@@ -2026,7 +1853,13 @@ st.markdown(
     </style>""",
     unsafe_allow_html=True,
 )
-auth_ui.render_top_account_menu()
+st.markdown(TOP_CONTROLS_CSS, unsafe_allow_html=True)
+with st.container(key="top_controls"):
+    theme_column, account_column = st.columns([3, 1], gap="small", vertical_alignment="center")
+    with theme_column:
+        renderizar_menu_tema_flutuante()
+    with account_column:
+        auth_ui.render_top_account_menu()
 with st.container(key="pagina_mobile"):
     renderizar_botoes_pagina_mobile()
 
@@ -2040,7 +1873,7 @@ st.markdown(
     else (
         '<p class="subtle">Anúncios salvos como favoritos.</p>'
         if pagina == "Favoritos"
-        else '<p class="subtle">Acompanhe os portais, execute coletas e consulte o histórico mensal.</p>'
+        else '<p class="subtle">Acompanhe as imobiliárias, execute coletas e consulte o histórico mensal.</p>'
     ),
     unsafe_allow_html=True,
 )
@@ -2065,39 +1898,51 @@ if pagina == "Imobiliárias":
     st.write("")
     busca = st.text_input(
         "Buscar imobiliária",
-        placeholder="Digite o nome do portal…",
+        placeholder="Digite o nome da imobiliária…",
         label_visibility="collapsed",
         key="busca_imobiliaria",
     )
     agencias_visiveis = [item for item in AGENCIES if busca.casefold() in item[0].casefold()]
-    st.markdown(f'<p class="subtle">{len(agencias_visiveis)} portal(is) disponíveis</p>', unsafe_allow_html=True)
-    for inicio_grade in range(0, len(agencias_visiveis), 5):
-        grade = st.columns(5, gap="small")
-        for coluna, agencia in zip(grade, agencias_visiveis[inicio_grade:inicio_grade + 5]):
-            nome, tipo, identificador = agencia
-            with coluna:
-                quantidade_execucoes = execucoes_por_imobiliaria.get(nome, 0)
-                rotulo_execucoes = (
-                    f"{quantidade_execucoes} execução individual"
-                    if quantidade_execucoes == 1
-                    else f"{quantidade_execucoes} execuções individuais"
-                )
-                with st.container(key=f"agency_entry_{identificador}"):
-                    coluna_dados, coluna_acao = st.columns([5, 1], gap="small", vertical_alignment="center")
-                    with coluna_dados:
-                        st.markdown(
-                            f'<div class="agency-card"><div class="agency-name">{nome}</div>'
-                            f'<div class="agency-type">{rotulo_execucoes}</div></div>',
-                            unsafe_allow_html=True,
-                        )
-                    with coluna_acao:
-                        if st.button(
-                            "▶",
-                            key=f"run_agency_{identificador}",
-                            help=f"Executar {nome}",
-                        ):
-                            execucao_id = str(time.time_ns())
-                            visualizar_execucao(nome, tipo, identificador, execucao_id)
+    st.markdown(f'<p class="subtle">{len(agencias_visiveis)} imobiliárias disponíveis</p>', unsafe_allow_html=True)
+    grupos_cidade = {}
+    for agencia in agencias_visiveis:
+        cidade = AGENCY_CITY_BY_NAME.get(agencia[0], "Várias cidades")
+        grupos_cidade.setdefault(cidade, []).append(agencia)
+    ordem_cidades = ("Pindamonhangaba", "Taubaté", "Tremembé", "São José dos Campos", "Várias cidades")
+    for cidade in ordem_cidades:
+        imobiliarias_cidade = grupos_cidade.get(cidade, [])
+        if not imobiliarias_cidade:
+            continue
+        st.subheader(f"{cidade} · {len(imobiliarias_cidade)}")
+        for inicio_grade in range(0, len(imobiliarias_cidade), 5):
+            grade = st.columns(5, gap="small")
+            for coluna, agencia in zip(grade, imobiliarias_cidade[inicio_grade:inicio_grade + 5]):
+                nome, tipo, identificador = agencia
+                with coluna:
+                    quantidade_execucoes = execucoes_por_imobiliaria.get(nome, 0)
+                    motivo_indisponivel = PORTAIS_INDISPONIVEIS.get(identificador)
+                    rotulo_execucoes = (
+                        f"{quantidade_execucoes} execução individual"
+                        if quantidade_execucoes == 1
+                        else f"{quantidade_execucoes} execuções individuais"
+                    )
+                    with st.container(key=f"agency_entry_{identificador}"):
+                        coluna_dados, coluna_acao = st.columns([5, 1], gap="small", vertical_alignment="center")
+                        with coluna_dados:
+                            st.markdown(
+                                f'<div class="agency-card"><div class="agency-name">{nome}</div>'
+                                f'<div class="agency-type">{escape(motivo_indisponivel or rotulo_execucoes)}</div></div>',
+                                unsafe_allow_html=True,
+                            )
+                        with coluna_acao:
+                            if st.button(
+                                "▶",
+                                key=f"run_agency_{identificador}",
+                                help=motivo_indisponivel or f"Executar {nome}",
+                                disabled=bool(motivo_indisponivel),
+                            ):
+                                execucao_id = str(time.time_ns())
+                                visualizar_execucao(nome, tipo, identificador, execucao_id)
 
 elif pagina in {"Resultados das buscas", "Favoritos"}:
     renderizar_pagina_anuncios(pagina)
@@ -2130,8 +1975,9 @@ elif pagina == "Meu perfil":
 elif pagina == "Log de erros":
     st.subheader("🚨  Log de erros")
     st.markdown("🚨  As falhas de coleta são registradas em `logs_erros.txt` e permanecem disponíveis entre execuções.")
-    if ERROR_LOG_FILE.exists():
-        texto_erros = ERROR_LOG_FILE.read_text(encoding="utf-8", errors="replace")
+    if database.is_cloud() or ERROR_LOG_FILE.exists():
+        texto_erros = (cloud_store.read_json(ERROR_LOG_FILE, "") if database.is_cloud()
+                       else ERROR_LOG_FILE.read_text(encoding="utf-8", errors="replace"))
         st.download_button(
             "Baixar logs_erros.txt",
             texto_erros,
@@ -2143,5 +1989,5 @@ elif pagina == "Log de erros":
     else:
         st.success("Nenhum erro foi registrado até agora.")
 
-# Renderizado ao fim para que o contêiner flutuante não crie espaço antes do conteúdo.
-renderizar_menu_tema_flutuante()
+# Finaliza o carregamento somente após renderizar o conteúdo da página.
+render_navigation_feedback()

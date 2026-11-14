@@ -12,6 +12,8 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 
 import auth_store as store
 import review_store
+import cloud_store
+from dashboard_runtime import home_page
 
 SESSION_TIMEOUT = 30 * 60
 _AUTH_TOKEN_PENDING = "__findimob_auth_pending__"
@@ -54,17 +56,14 @@ THEMES = {
 
 def _current_theme():
     try:
-        value = json.loads(THEME_FILE.read_text(encoding="utf-8")).get("tema")
+        value = cloud_store.read_json(THEME_FILE, {}).get("tema")
     except (OSError, json.JSONDecodeError, AttributeError):
         value = None
     return value if value in THEMES else "Escuro"
 
 
 def _save_theme(theme):
-    THEME_FILE.write_text(
-        json.dumps({"tema": theme}, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    cloud_store.write_json(THEME_FILE, {"tema": theme})
 
 
 def _render_auth_styles():
@@ -81,7 +80,7 @@ def _render_auth_styles():
           --bg:{theme['bg']}; --panel:{theme['panel']}; --line:{theme['line']};
           --text:{theme['text']}; --muted:{theme['muted']};
           --field-bg:{'#181818' if selected == 'escuro' else '#ffffff'};
-          --field-border:#353333;
+          --field-border:#DDDDDD;
           --field-focus-border:{'#777777' if selected == 'escuro' else '#32cb79'};
           --eye-color:{'#32cb79' if selected == 'escuro' else theme['muted']};
           --green:#32cb79; --green-hover:#51d891;
@@ -319,13 +318,8 @@ def _render_auth_styles():
           background:conic-gradient(from -45deg,#4285f4 0 25%,#34a853 25% 48%,#fbbc05 48% 68%,#ea4335 68% 83%,#4285f4 83%);
           -webkit-background-clip:text; background-clip:text; color:transparent;
         }}
-        div[data-testid="stElementContainer"].st-key-auth_theme_float,
-        div[data-testid="stElementContainer"]:has(.st-key-auth_theme_float) {{
-          position:fixed !important; top:16px; right:18px; z-index:9999;
-          width:max-content !important; height:auto !important; margin:0 !important;
-        }}
         .st-key-auth_theme_float {{
-          position:fixed !important; top:16px; right:18px; z-index:10000;
+          position:fixed !important; top:16px; left:50%; right:auto; transform:translateX(-50%); z-index:10000;
           width:max-content; padding:4px 7px; border:1px solid var(--line);
           border-radius:18px; background:color-mix(in srgb,var(--panel) 90%,transparent);
           backdrop-filter:blur(12px); box-shadow:0 8px 28px #0003;
@@ -480,7 +474,7 @@ def _render_auth_styles():
             border-radius:18px;
           }}
           .st-key-auth_shell [data-testid="stForm"] {{ padding:.6rem .65rem; }}
-          .st-key-auth_theme_float {{ top:calc(env(safe-area-inset-top, 0px) + 10px); right:10px; }}
+          .st-key-auth_theme_float {{ top:calc(env(safe-area-inset-top, 0px) + 10px); left:50%; right:auto; }}
           .auth-brand {{ gap:10px; margin-bottom:12px; }}
           .auth-brand img {{ width:48px; height:48px; }}
           .st-key-auth_landing_header [data-testid="stHorizontalBlock"] {{ flex-direction:column; align-items:stretch; gap:12px; }}
@@ -1140,7 +1134,7 @@ def render_auth_gate():
         return False
     with st.container(key="auth_shell"):
         with st.container(key="auth_back"):
-            st.page_link("app.py", label="Voltar")
+            st.page_link(home_page(), label="Voltar")
         _render_auth_brand()
         st.caption("Entre para acessar o painel ou solicite a criação da sua conta.")
         if timed_out:

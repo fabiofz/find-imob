@@ -1,3 +1,4 @@
+from utils.collection_errors import continue_on_error
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse, parse_qs
 import requests
@@ -116,29 +117,30 @@ def executar():
 
         novos = []
         for card in cards:
-            titulo, link = get_title_link(card)
-            preco = get_price(card)
-            if not titulo or not link or not preco:
-                continue
-            if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
-                continue
+            with continue_on_error('derrico: anúncio'):
+                titulo, link = get_title_link(card)
+                preco = get_price(card)
+                if not titulo or not link or not preco:
+                    continue
+                if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+                    continue
 
-            identificador = hashlib.md5(
-                f"{titulo}{preco}{link}".encode("utf-8")
-            ).hexdigest()
-            if identificador in ids:
-                continue
+                identificador = hashlib.md5(
+                    f"{titulo}{preco}{link}".encode("utf-8")
+                ).hexdigest()
+                if identificador in ids:
+                    continue
 
-            item = {
-                "id": identificador,
-                "titulo": titulo,
-                "preco": preco,
-                "link": link,
-                "pagina": 1,
-            }
-            ids.add(identificador)
-            dados.append(item)
-            novos.append(item)
+                item = {
+                    "id": identificador,
+                    "titulo": titulo,
+                    "preco": preco,
+                    "link": link,
+                    "pagina": 1,
+                }
+                ids.add(identificador)
+                dados.append(item)
+                novos.append(item)
 
     if not novos:
         print(f"D'Errico: {len(cards)} anúncios verificados, nenhum novo.")

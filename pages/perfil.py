@@ -1,7 +1,6 @@
 """Rota amigável para o perfil do usuário."""
 
-import importlib
-import sys
+from dashboard_runtime import run_dashboard
 from pathlib import Path
 
 import streamlit as st
@@ -15,7 +14,4 @@ st.set_page_config(
 )
 st.session_state._friendly_route = "perfil"
 st.session_state.pagina = "Meu perfil"
-if "app" in sys.modules:
-    importlib.reload(sys.modules["app"])
-else:
-    import app  # noqa: F401
+run_dashboard()

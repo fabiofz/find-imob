@@ -1,6 +1,8 @@
 import json
 import os
 import tempfile
+import database
+import cloud_store
 from pathlib import Path
 
 
@@ -37,6 +39,9 @@ class RegistrosUnicos(list):
 
 def salvar_json(dados, caminho):
     """Grava o estado da coleta atomicamente para evitar JSON truncado."""
+    if database.is_cloud() and Path(caminho).name == "geral.json":
+        cloud_store.save_catalogue(dados)
+        return
     caminho = Path(caminho)
     caminho.parent.mkdir(parents=True, exist_ok=True)
     arquivo_temporario = None
@@ -64,7 +69,9 @@ def preco_para_float(preco_str):
         return None
 
 def pegar_json(geral):
-    if not os.path.exists(geral) or os.stat(geral).st_size == 0:
+    if database.is_cloud():
+        dados = cloud_store.read_catalogue()
+    elif not os.path.exists(geral) or os.stat(geral).st_size == 0:
         dados = []
     else:
         with open(geral, "r", encoding="utf-8") as f:
@@ -97,3 +104,16 @@ def limpar_preco(texto):
 
 def br_to_float(v):
     return float(v.replace('.', '').replace(',', '.'))
+
+
+def registrar_erro_coleta(rotulo, detalhes):
+    """Keep individual collector failures durable on the hosted application."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    instante = datetime.now(ZoneInfo("America/Sao_Paulo")).isoformat(timespec="seconds")
+    bloco = f"\n{'=' * 78}\n[{instante}] {rotulo}\n{detalhes}\n"
+    if database.is_cloud():
+        cloud_store.update_json("logs_erros.txt", "", lambda atual: (atual + bloco)[-200000:])
+    else:
+        with (Path(__file__).resolve().parents[1] / "logs_erros.txt").open("a", encoding="utf-8") as log:
+            log.write(bloco)

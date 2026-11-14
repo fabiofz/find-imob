@@ -1,3 +1,4 @@
+from utils.collection_errors import continue_on_error
 from bs4 import BeautifulSoup
 import requests
 import hashlib
@@ -25,31 +26,32 @@ divs = soup.select(".house")
 
 pg = 1
 for div in divs:
-    titulo = div.find("h5").get_text(strip=True)
+    with continue_on_error('castor: anúncio'):
+        titulo = div.find("h5").get_text(strip=True)
     
-    link = div.find("a", href=True)["href"]
+        link = div.find("a", href=True)["href"]
 
-    base_url = f"https://{urlparse(url).netloc}/"
-    if link :
-        link = base_url + link
+        base_url = f"https://{urlparse(url).netloc}/"
+        if link :
+            link = base_url + link
 
-    preco = limpar_preco(div.find("div", class_="pt-price").get_text(strip=True))
-    preco_num = preco_para_float(preco)
-    if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
-        continue
+        preco = limpar_preco(div.find("div", class_="pt-price").get_text(strip=True))
+        preco_num = preco_para_float(preco)
+        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+            continue
 
-    _id = f"{titulo}{preco}{link}"
-    _id = hashlib.md5(_id.encode()).hexdigest()
+        _id = f"{titulo}{preco}{link}"
+        _id = hashlib.md5(_id.encode()).hexdigest()
 
-    if _id not in ids:
-        imov = {
-            "id": _id,
-            "titulo": titulo,
-            "preco": preco,
-            "link": link,
-            "pagina": pg
-        }
-        imoveis.append(imov)
-        dados.append(imov)
+        if _id not in ids:
+            imov = {
+                "id": _id,
+                "titulo": titulo,
+                "preco": preco,
+                "link": link,
+                "pagina": pg
+            }
+            imoveis.append(imov)
+            dados.append(imov)
 
 salvar_json(dados, GERAL_JSON)

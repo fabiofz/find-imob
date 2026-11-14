@@ -14,7 +14,7 @@ TIPOS_BUSCA = _lista_env(
     ("apartamento", "casa", "casa-em-condominio", "casa-terrea", "sobrado", "duplex"),
 )
 CIDADES_BUSCA = _lista_env(
-    "FINDIMOB_CIDADES", ("pindamonhangaba", "tremembe", "taubate")
+    "FINDIMOB_CIDADES", ("pindamonhangaba", "tremembe", "taubate", "sao-jose-dos-campos")
 )
 IMOVEIS_ACEITOS = TIPOS_BUSCA
 GERAL_JSON = "geral.json"

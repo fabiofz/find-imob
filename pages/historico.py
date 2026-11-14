@@ -1,7 +1,6 @@
 """Rota amigável para o histórico mensal."""
 
-import importlib
-import sys
+from dashboard_runtime import run_dashboard
 from pathlib import Path
 
 import streamlit as st
@@ -17,7 +16,4 @@ st.set_page_config(
 st.session_state._friendly_route = "historico"
 st.session_state.pagina = "Histórico mensal"
 
-if "app" in sys.modules:
-    importlib.reload(sys.modules["app"])
-else:
-    import app  # noqa: F401
+run_dashboard()

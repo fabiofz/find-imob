@@ -1,3 +1,4 @@
+from utils.collection_errors import continue_on_error
 from bs4 import BeautifulSoup
 import hashlib
 import json
@@ -46,10 +47,11 @@ def encontrar_cards(soup):
     vistos = set()
     for seletor in seletores:
         for card in soup.select(seletor):
-            identidade = str(card)
-            if identidade not in vistos:
-                vistos.add(identidade)
-                cards.append(card)
+            with continue_on_error('palacete: anúncio'):
+                identidade = str(card)
+                if identidade not in vistos:
+                    vistos.add(identidade)
+                    cards.append(card)
         if cards:
             break
     return cards
@@ -134,36 +136,37 @@ def executar():
     duplicados = 0
 
     for card in cards:
-        tag_link = card.find("a", href=True)
-        link = urljoin(URL, tag_link["href"]) if tag_link else None
-        titulo = extrair_titulo(card)
-        preco = extrair_preco(card)
+        with continue_on_error('palacete: anúncio'):
+            tag_link = card.find("a", href=True)
+            link = urljoin(URL, tag_link["href"]) if tag_link else None
+            titulo = extrair_titulo(card)
+            preco = extrair_preco(card)
 
-        # Não concatena valores ausentes: isso causava TypeError.
-        if not titulo or not link or not preco:
-            incompletos += 1
-            continue
-        if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
-            fora_dos_filtros += 1
-            continue
+            # Não concatena valores ausentes: isso causava TypeError.
+            if not titulo or not link or not preco:
+                incompletos += 1
+                continue
+            if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
+                fora_dos_filtros += 1
+                continue
 
-        chave = f"{titulo}|{preco}|{link}"
-        _id = hashlib.md5(chave.encode("utf-8")).hexdigest()
+            chave = f"{titulo}|{preco}|{link}"
+            _id = hashlib.md5(chave.encode("utf-8")).hexdigest()
 
-        if _id in ids:
-            duplicados += 1
-            continue
+            if _id in ids:
+                duplicados += 1
+                continue
 
-        imov = {
-            "id": _id,
-            "titulo": titulo,
-            "preco": preco,
-            "link": link,
-            "pagina": pg,
-        }
-        imoveis.append(imov)
-        dados.append(imov)
-        ids.add(_id)
+            imov = {
+                "id": _id,
+                "titulo": titulo,
+                "preco": preco,
+                "link": link,
+                "pagina": pg,
+            }
+            imoveis.append(imov)
+            dados.append(imov)
+            ids.add(_id)
 
     # Se nenhum anúncio foi extraído, não altera o JSON nem gera planilha vazia.
     if not imoveis:

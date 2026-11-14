@@ -1,65 +1,72 @@
-from bs4 import BeautifulSoup
-import requests
-import hashlib
+"""Casa Bella: bounded requests, rental price and per-page persistence."""
+from utils.collection_errors import continue_on_error
 import re
-import json
-from utils.funcs import *
-from utils.variables import *
+from urllib.parse import urlencode, urljoin
 
-json_data = pegar_json(GERAL_JSON)
-ids = json_data["ids"]
-dados = json_data["dados"]
+import requests
 
-imoveis = []
-for im in IMOVEIS_ACEITOS :
-    url = f"https://www.casabellaimoveispinda.com.br/busca-de-imoveis/?location=pindamonhangaba&type={im}&status=aluguel"
-    html = requests.get(url, timeout=(5, 20)).content
-    soup = BeautifulSoup(html, "html.parser")
+from scripts.catalog_collectors import buscar, criar_registro
+from utils.funcs import pegar_json, salvar_json
+from utils.variables import GERAL_JSON, TIPOS_BUSCA, cidade_selecionada, imovel_atende_filtros
 
-    numeros = []
-    for a in soup.select(".rh_pagination a.rh_pagination__btn"):
-        label = a.get_text(strip=True)
-        if label and label.isdigit():
-            numeros.append(int(label)) 
+BASE = 'https://www.casabellaimoveispinda.com.br/'
 
-    if len(numeros) == 0 :
-        numeros.append(1)
 
-    for pg in range(1, int(max(numeros)) + 1):
-        url = f"https://www.casabellaimoveispinda.com.br/busca-de-imoveis/page/{pg}/?location=pindamonhangaba&type={im}&status=aluguel"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Accept-Language": "pt-BR,pt;q=0.9",
-        }
+def extrair_card(card, pagina_url):
+    anchor = card.select_one('h3 a[href]')
+    price = card.select_one('.price')
+    if not anchor or not price:
+        return None
+    # The following amounts are IPTU, waste fees and condominium, not rent.
+    match = re.search(r'R\$\s*(\d[\d.,]*)', price.get_text(' ', strip=True))
+    if not match:
+        return None
+    title = anchor.get_text(' ', strip=True)
+    rent = 'R$ ' + match.group(1)
+    link = urljoin(pagina_url, anchor['href'])
+    if not imovel_atende_filtros(title, rent, link, 'pindamonhangaba'):
+        return None
+    return title, rent, link
 
-        resp = requests.get(url, headers=headers, timeout=(5, 20))
-        soup = BeautifulSoup(resp.text, "html.parser")
 
-        divs = soup.find_all("article", class_="rh_list_card")
+def executar():
+    if not cidade_selecionada('pindamonhangaba'):
+        print('Casa Bella: Pindamonhangaba não está selecionada.')
+        return 0
+    state = pegar_json(GERAL_JSON)
+    ids, records = state['ids'], state['dados']
+    count = 0
+    with requests.Session() as session:
+        for property_type in TIPOS_BUSCA:
+            with continue_on_error('casabella: página ou categoria'):
+                query = urlencode({'location': 'pindamonhangaba', 'type': property_type, 'status': 'aluguel'})
+                initial_url = BASE + 'busca-de-imoveis/?' + query
+                soup = buscar(session, initial_url)
+                labels = [int(a.get_text(strip=True)) for a in soup.select('.rh_pagination a.rh_pagination__btn')
+                          if a.get_text(strip=True).isdigit()]
+                pages = min(max(labels, default=1), 30)
+                for page in range(1, pages + 1):
+                    with continue_on_error('casabella: página ou categoria'):
+                        url = initial_url if page == 1 else BASE + f'busca-de-imoveis/page/{page}/?' + query
+                        if page > 1:
+                            soup = buscar(session, url)
+                        added = 0
+                        for card in soup.select('article.rh_list_card'):
+                            with continue_on_error('casabella: anúncio'):
+                                fields = extrair_card(card, url)
+                                if not fields:
+                                    continue
+                                record = criar_registro(*fields, page, ids)
+                                if record:
+                                    records.append(record)
+                                    added += 1
+                        if added:
+                            salvar_json(records, GERAL_JSON)
+                            count += added
+                            print(f'[SALVO] Casa Bella: {added} anúncio(s) na página {page}.', flush=True)
+    print(f'Casa Bella: {count} anúncio(s) novo(s).', flush=True)
+    return 0
 
-        for div in divs:
-            link = div.select_one("h3 a")["href"]
-            titulo = div.select_one("h3 a").get_text(strip=True)
-            texto_preco = div.select_one(".price").get_text(" ", strip=True)
 
-            valores = re.findall(r'\d{1,3}(?:\.\d{3})*,\d{2}', texto_preco)
-
-            preco = sum(br_to_float(v) for v in valores)
-            if not imovel_atende_filtros(titulo, preco, link, "pindamonhangaba"):
-                continue
-
-            _id = f"{titulo}{preco}{link}"
-            _id = hashlib.md5(_id.encode()).hexdigest()
-
-            if _id not in ids:
-                imov = {
-                    "id": _id,
-                    "titulo": titulo,
-                    "preco": f"R$ {preco:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
-                    "link": link,
-                    "pagina": pg
-                }
-                imoveis.append(imov)
-                dados.append(imov)
-
-salvar_json(dados, GERAL_JSON)
+if __name__ == '__main__':
+    raise SystemExit(executar())
